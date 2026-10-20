@@ -3,7 +3,7 @@ import { LoginForm } from "./LoginForm";
 
 export function LoginCard() {
   return (
-    <div className="w-full max-w-[420px] bg-surface rounded-[14px] p-6 lg:p-8 border border-black/[0.08] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.18),0_8px_20px_-4px_rgba(0,0,0,0.08),0_0_0_1px_rgba(255,255,255,0.8)_inset] text-center">
+    <div className="w-full max-w-[340px] sm:max-w-[380px] lg:max-w-[420px] bg-surface rounded-[14px] p-5 sm:p-6 lg:p-8 border border-black/[0.08] shadow-[0_24px_50px_-12px_rgba(0,0,0,0.18),0_8px_20px_-4px_rgba(0,0,0,0.08),0_0_0_1px_rgba(255,255,255,0.8)_inset] text-center">
       {/* TPS Emblem above Title */}
       <div className="flex justify-center mb-3">
         <Image

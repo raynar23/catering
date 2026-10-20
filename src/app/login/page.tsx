@@ -4,7 +4,7 @@ import { LoginCard } from "@/components/auth/LoginCard";
 
 export default function LoginPage() {
   return (
-    <main className="relative min-h-dvh lg:h-dvh lg:overflow-hidden flex flex-col justify-between items-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+    <main className="relative min-h-dvh lg:h-dvh lg:overflow-hidden flex flex-col justify-between items-center px-6 sm:px-8 lg:px-8 py-4 sm:py-6 lg:py-8">
       <LoginBackground />
 
       {/* Top Header with White Monochrome Logo */}
