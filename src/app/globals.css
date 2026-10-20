@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #E8F2FA;
+  --color-primary-100: #CFE4F4;
+  --color-primary-200: #9CC9EA;
+  --color-primary-300: #6AAEDF;
+  --color-primary-400: #3D92D0;
+  --color-primary-500: #1175BB;
+  --color-primary: #1175BB;
+  --color-primary-600: #0E63A1;
+  --color-primary-700: #0B5A94;
+  --color-primary-dark: #0B5A94;
+  --color-primary-800: #0B3D6B;
+  --color-navy: #0B3D6B;
+  --color-primary-900: #082B4D;
+  --color-accent: #E08F26;
+  --color-accent-soft: #FDF1E0;
+  --color-bg: #F5F5F7;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E5EA;
+  --color-text: #1D1D1F;
+  --color-text-muted: #6E6E73;
+  --color-placeholder: #8A8A90;
+  --color-danger: #D70015;
+  --color-danger-soft: #FDECEE;
+  --color-success: #1E8E3E;
+  --color-warning: #9A5B00;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", sans-serif;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

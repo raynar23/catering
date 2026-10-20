@@ -57,7 +57,7 @@ Implementasikan seperti tertulis, tetapi isolasikan agar mudah diubah. Jangan me
 | A11 | Kolom Status pada Periode Catering menampilkan status pesanan periode itu (Belum Input, Draft, Diajukan, Revisi, Final). |
 
 ## Halaman
-1. **Login**: username, kata sandi (tampilkan/sembunyikan), tombol Masuk, banner error.
+1. **Login**: Username, Password (tampilkan/sembunyikan), tombol Masuk, banner error. Label mengikuti mockup client.
 2. **Dashboard** (semua role): 7 KPI: Bagian, Vendor Catering, Total Karyawan Hari Ini, Total Kebutuhan Catering, Shift Aktif (jumlah shift master aktif), Data Belum Diverifikasi (pesanan Diajukan + revisi menunggu, dengan rincian), Data Sudah Final. Dua grafik: Jumlah Catering per Bagian (hari ini, bar) dan Distribusi Catering per Shift (hari ini, donut). Filter Periode Aktif (bulan) hanya memengaruhi dua KPI status verifikasi; KPI dan grafik lain untuk hari ini. Angka KPI dan grafik wajib konsisten.
 3. **Data Bagian** (Admin GA): pencarian, Tambah Bagian, tabel (No, Nama Bagian, Keterangan, Status, Aksi ubah/hapus). Hapus hanya jika belum dipakai, selain itu nonaktifkan.
 4. **Data Vendor Catering** (Admin GA): pencarian, Tambah Vendor, tabel (No, Kode, Nama Vendor, Kontak, Alamat, Status, Aksi).
