@@ -42,20 +42,22 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-3.5">
-      {/* Error banner rendered conditionally */}
-      {generalError ? (
-        <div
-          className="w-full px-3.5 py-2.5 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-relaxed"
-          aria-live="polite"
-          id="login-error-banner"
-        >
-          {generalError}
-        </div>
-      ) : null}
+    <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-2.5">
+      {/* Stable general error banner container */}
+      <div
+        className="min-h-[38px] flex items-center"
+        aria-live="polite"
+        id="login-error-banner"
+      >
+        {generalError ? (
+          <div className="w-full px-3.5 py-2 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-relaxed">
+            {generalError}
+          </div>
+        ) : null}
+      </div>
 
       {/* Username field */}
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <label
           htmlFor="username"
           className="block text-xs font-medium text-text select-none"
@@ -83,15 +85,18 @@ export function LoginForm() {
               : "border-border hover:border-[#C5C5CA] focus-visible:border-primary"
           } ${isSubmitting ? "bg-bg text-text-muted cursor-not-allowed opacity-70" : ""}`}
         />
-        {usernameError ? (
-          <p id="username-error" className="text-[11px] text-danger font-medium">
-            {usernameError}
-          </p>
-        ) : null}
+        {/* Fixed height slot to ensure form height never shifts */}
+        <div className="h-[18px] flex items-center">
+          {usernameError ? (
+            <p id="username-error" className="text-[11px] text-danger font-medium leading-none">
+              {usernameError}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       {/* Password field */}
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <label
           htmlFor="password"
           className="block text-xs font-medium text-text select-none"
@@ -112,15 +117,18 @@ export function LoginForm() {
           hasError={Boolean(passwordError)}
           aria-describedby={passwordError ? "password-error" : undefined}
         />
-        {passwordError ? (
-          <p id="password-error" className="text-[11px] text-danger font-medium">
-            {passwordError}
-          </p>
-        ) : null}
+        {/* Fixed height slot to ensure form height never shifts */}
+        <div className="h-[18px] flex items-center">
+          {passwordError ? (
+            <p id="password-error" className="text-[11px] text-danger font-medium leading-none">
+              {passwordError}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       {/* Submit button */}
-      <div className="pt-2">
+      <div className="pt-1">
         <button
           type="submit"
           disabled={isSubmitting}

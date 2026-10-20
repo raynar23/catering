@@ -27,7 +27,7 @@ export function LoginCard() {
         </p>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3.5">
         <LoginForm />
       </div>
     </div>
