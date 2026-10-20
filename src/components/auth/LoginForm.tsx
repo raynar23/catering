@@ -42,19 +42,17 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-4">
-      {/* Stable error banner with fixed container to prevent layout jumps */}
-      <div
-        className="min-h-[44px] flex items-center"
-        aria-live="polite"
-        id="login-error-banner"
-      >
-        {generalError ? (
-          <div className="w-full px-3.5 py-2.5 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-relaxed">
-            {generalError}
-          </div>
-        ) : null}
-      </div>
+    <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-3.5">
+      {/* Error banner rendered conditionally */}
+      {generalError ? (
+        <div
+          className="w-full px-3.5 py-2.5 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-relaxed"
+          aria-live="polite"
+          id="login-error-banner"
+        >
+          {generalError}
+        </div>
+      ) : null}
 
       {/* Username field */}
       <div className="space-y-1.5">

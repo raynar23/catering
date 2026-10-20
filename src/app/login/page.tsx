@@ -7,15 +7,15 @@ export default function LoginPage() {
     <main className="relative min-h-dvh lg:h-dvh lg:overflow-hidden flex flex-col justify-between items-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       <LoginBackground />
 
-      {/* Top Header with Corporate Colored Logo without background panel */}
+      {/* Top Header with White Monochrome Logo */}
       <header className="w-full flex justify-start lg:absolute lg:top-8 lg:left-8 lg:w-auto z-10">
         <Image
-          src="/images/logo-tps-warna.png"
+          src="/images/logo-tps-monokrom.png"
           alt="PT Terminal Petikemas Surabaya"
-          width={220}
-          height={68}
+          width={240}
+          height={72}
           priority
-          className="h-10 sm:h-12 lg:h-14 w-auto object-contain select-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.18)]"
+          className="h-11 sm:h-12 lg:h-14 w-auto object-contain select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
         />
       </header>
 
