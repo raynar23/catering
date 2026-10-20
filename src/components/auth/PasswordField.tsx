@@ -42,7 +42,7 @@ export function PasswordField({
         autoComplete="current-password"
         aria-invalid={hasError ? "true" : undefined}
         aria-describedby={ariaDescribedBy}
-        className={`w-full h-11 lg:h-10 pl-3 pr-11 text-base lg:text-sm rounded-[8px] border bg-surface text-text placeholder:text-[#8A8A90] outline-none transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+        className={`w-full h-11 lg:h-10 pl-3 pr-11 text-base lg:text-sm rounded-[8px] border bg-surface text-text placeholder:text-[#8A8A90] shadow-[0_1px_2px_rgba(0,0,0,0.03)] outline-none transition-all duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
           hasError
             ? "border-danger focus-visible:border-danger"
             : "border-border hover:border-[#C5C5CA] focus-visible:border-primary"

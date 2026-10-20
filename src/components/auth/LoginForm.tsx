@@ -77,7 +77,7 @@ export function LoginForm() {
           autoComplete="username"
           aria-invalid={usernameError ? "true" : undefined}
           aria-describedby={usernameError ? "username-error" : undefined}
-          className={`w-full h-11 lg:h-10 px-3 text-base lg:text-sm rounded-[8px] border bg-surface text-text placeholder:text-[#8A8A90] outline-none transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+          className={`w-full h-11 lg:h-10 px-3 text-base lg:text-sm rounded-[8px] border bg-surface text-text placeholder:text-[#8A8A90] shadow-[0_1px_2px_rgba(0,0,0,0.03)] outline-none transition-all duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
             usernameError
               ? "border-danger focus-visible:border-danger"
               : "border-border hover:border-[#C5C5CA] focus-visible:border-primary"
@@ -124,7 +124,7 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-11 lg:h-10 px-4 rounded-[8px] bg-primary hover:bg-primary-600 active:bg-primary-dark text-white text-sm font-medium transition-colors duration-150 ease-out cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 select-none"
+          className="w-full h-11 lg:h-10 px-4 rounded-[8px] bg-primary hover:bg-primary-600 active:bg-primary-dark text-white text-sm font-medium shadow-[0_2px_6px_rgba(17,117,187,0.28)] hover:shadow-[0_4px_10px_rgba(17,117,187,0.32)] transition-all duration-150 ease-out cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 select-none"
         >
           {isSubmitting ? "Memproses..." : "Masuk"}
         </button>
