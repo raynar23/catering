@@ -45,6 +45,8 @@ Anda adalah profesional full stack developer sekaligus product designer senior d
 - Jangan menginstal dependensi besar tanpa alasan. Pakai yang tertulis di ARCHITECTURE.md.
 - Jangan menghapus atau menimpa pekerjaan yang sudah jalan, atau berkas asli di `aset/` dan `agent/`, tanpa memberi tahu pengguna.
 - Standar Komentar Kode: Komentar kode (SQL, TypeScript, JavaScript, CSS, konfigurasi) WAJIB profesional, ringkas (maksimal 1 baris), dan HANYA menggunakan Bahasa Inggris. Dilarang keras komentar dalam Bahasa Indonesia di dalam kode. Dilarang komentar panjang, bertele-tele, dekorasi banner ASCII (seperti garis pembatas panjang === atau ---), atau komentar yang sekadar mengulang kode. Header file maksimal 1 baris ringkas atau ditiadakan jika tidak esensial.
+- Struktur Role & Portal: Sistem secara tegas HANYA memiliki 2 role: `admin_ga` dan `vendor`. Jika ada prompt berikutnya yang masih menyebut role `pic_unit` atau `supervisor_ga`, otomatis sesuaikan sebagai fungsi di dalam portal `admin_ga`. Tampilan antarmuka hanya 2 portal utama: Portal Admin GA dan Portal Vendor.
+- Pengolahan Impor Dokumen: Fitur deteksi dan pembacaan berkas (Excel, PDF, Docs) pada tahapan impor wajib menggunakan pustaka standar/parser terstruktur (seperti SheetJS/xlsx atau parser tabular) tanpa melibatkan model AI / LLM.
 - Jangan memakai nama atau istilah dari proyek lain (misalnya SIMPATK, ATK) di kode, teks, maupun seed.
 
 ## Standar Kualitas Sebelum Menyatakan Selesai
