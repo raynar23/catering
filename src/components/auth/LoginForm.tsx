@@ -45,16 +45,18 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-2.5">
-      {/* General error banner when present */}
-      {generalError ? (
-        <div
-          className="w-full px-3.5 py-2 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-relaxed"
-          aria-live="polite"
-          id="login-error-banner"
-        >
-          {generalError}
-        </div>
-      ) : null}
+      {/* Reserved alert container to maintain constant form height */}
+      <div className="min-h-[58px] flex items-center">
+        {generalError ? (
+          <div
+            className="w-full px-3.5 py-2 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-relaxed"
+            aria-live="polite"
+            id="login-error-banner"
+          >
+            {generalError}
+          </div>
+        ) : null}
+      </div>
 
       {/* Username field */}
       <div className="space-y-1">
