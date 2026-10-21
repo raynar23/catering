@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { normalizePhoneNumber, waLink } from "./whatsapp";
+import {
+  normalizePhoneNumber,
+  waLink,
+  buildRevisionWaMessage,
+  buildVendorFollowUpWaMessage,
+} from "./whatsapp";
 
 describe("whatsapp helper", () => {
   it("normalizes Indonesian phone numbers correctly", () => {
@@ -22,4 +27,39 @@ describe("whatsapp helper", () => {
   it("returns empty string when phone number is blank", () => {
     expect(waLink("")).toBe("");
   });
+
+  it("builds revision WhatsApp message with delta and reason", () => {
+    const msg = buildRevisionWaMessage({
+      vendorNama: "Aisya Catering",
+      tanggal: "2026-10-22",
+      shiftNama: "Shift 1",
+      bagianNama: "Operasional",
+      porsiAwal: 20,
+      porsiBaru: 23,
+      selisih: 3,
+      alasan: "Tambahan 3 personil lembur kapal",
+    });
+
+    expect(msg).toContain("Halo Tim Aisya Catering");
+    expect(msg).toContain("Kamis, 22 Oktober 2026");
+    expect(msg).toContain("Shift 1");
+    expect(msg).toContain("Bagian: Operasional");
+    expect(msg).toContain("20 menjadi 23 porsi (+3)");
+    expect(msg).toContain("Alasan: Tambahan 3 personil lembur kapal");
+  });
+
+  it("builds vendor follow-up WhatsApp message", () => {
+    const msg = buildVendorFollowUpWaMessage({
+      vendorNama: "Nurina Catering",
+      tanggal: "2026-10-22",
+      shiftNama: "Shift 2",
+      catatan: "Vendor merespon tidak sanggup",
+    });
+
+    expect(msg).toContain("Halo Tim Nurina Catering");
+    expect(msg).toContain("Kamis, 22 Oktober 2026");
+    expect(msg).toContain("Shift 2");
+    expect(msg).toContain("Catatan: Vendor merespon tidak sanggup");
+  });
 });
+
