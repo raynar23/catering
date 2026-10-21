@@ -1,22 +1,46 @@
 -- Row Level Security policies and vendor isolation
 
 -- Helper security functions
+create or replace function public.is_admin()
+returns boolean as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid()
+      and role = 'admin_ga'
+      and aktif = true
+  );
+$$ language sql stable security definer set search_path = public, pg_temp;
+
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
+
+create or replace function public.my_vendor_id()
+returns uuid as $$
+  select vendor_id from public.profiles
+  where id = auth.uid()
+    and role = 'vendor'
+    and aktif = true;
+$$ language sql stable security definer set search_path = public, pg_temp;
+
+revoke execute on function public.my_vendor_id() from public;
+grant execute on function public.my_vendor_id() to authenticated;
+
+create or replace function public.is_admin_or_pic()
+returns boolean as $$
+  select public.is_admin();
+$$ language sql stable security definer set search_path = public, pg_temp;
+
+revoke execute on function public.is_admin_or_pic() from public;
+grant execute on function public.is_admin_or_pic() to authenticated;
+
 create or replace function current_user_role()
 returns app_role as $$
-  select role from profiles where id = auth.uid();
+  select role from public.profiles where id = auth.uid();
 $$ language sql stable security definer set search_path = public, pg_temp;
 
 create or replace function current_user_vendor_id()
 returns uuid as $$
-  select vendor_id from profiles where id = auth.uid();
-$$ language sql stable security definer set search_path = public, pg_temp;
-
-create or replace function is_admin_or_pic()
-returns boolean as $$
-  select coalesce(
-    (select role = 'admin_ga' from profiles where id = auth.uid()),
-    false
-  );
+  select public.my_vendor_id();
 $$ language sql stable security definer set search_path = public, pg_temp;
 
 -- Enable RLS on all operational and master tables
