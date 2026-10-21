@@ -14,6 +14,7 @@ import {
   Truck,
   Calendar,
   Users,
+  CheckSquare,
   LogOut,
 } from "lucide-react";
 import { NavGroup, NavItem } from "@/lib/nav";
@@ -37,6 +38,7 @@ const ICON_MAP = {
   vendor: Truck,
   periode: Calendar,
   users: Users,
+  checkSquare: CheckSquare,
 };
 
 // Fixed 264px navy sidebar displaying role navigation and sign out action

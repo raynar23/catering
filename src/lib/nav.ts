@@ -4,7 +4,7 @@ import { AppRole } from "./types";
 export interface NavItem {
   title: string;
   href: string;
-  icon: "dashboard" | "input" | "history" | "rekap" | "laporan" | "bagian" | "vendor" | "periode" | "users";
+  icon: "dashboard" | "input" | "history" | "rekap" | "laporan" | "bagian" | "vendor" | "periode" | "users" | "checkSquare";
   badgeKey?: string;
 }
 
@@ -74,7 +74,7 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
 
 export const VENDOR_NAV_GROUPS: NavGroup[] = [
   {
-    title: "Menu Utama",
+    title: "Operasional Vendor",
     items: [
       {
         title: "Dashboard",
@@ -82,10 +82,25 @@ export const VENDOR_NAV_GROUPS: NavGroup[] = [
         icon: "dashboard",
       },
       {
-        title: "Pesanan & Riwayat",
+        title: "Permintaan Masuk",
+        href: "/vendor/permintaan",
+        icon: "input",
+      },
+      {
+        title: "Ketersediaan",
+        href: "/vendor/ketersediaan",
+        icon: "checkSquare",
+        badgeKey: "pendingVendorConfirmation",
+      },
+      {
+        title: "Progres Pengiriman",
+        href: "/vendor/progres",
+        icon: "vendor",
+      },
+      {
+        title: "Riwayat Pesanan",
         href: "/vendor/riwayat",
         icon: "history",
-        badgeKey: "pendingOrderCount",
       },
     ],
   },
