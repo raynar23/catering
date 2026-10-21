@@ -88,7 +88,7 @@ export function RekapRingkasanPanel({
       {/* 4 Categorical Breakdown Panels (2x2 Grid) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 min-h-0">
         {/* 1. Ringkasan per Bagian */}
-        <div className="bg-surface border border-border rounded-[10px] p-3.5 flex flex-col min-h-[220px]">
+        <div className="bg-surface border border-border rounded-[10px] p-3.5 flex flex-col min-h-[160px]">
           <h3 className="text-xs font-semibold text-text mb-1">Rincian per Bagian</h3>
           <p className="text-[11px] text-text-muted mb-2.5">
             Proporsi konsumsi menurut unit kerja dan kelompok
@@ -123,7 +123,7 @@ export function RekapRingkasanPanel({
         </div>
 
         {/* 2. Ringkasan per Shift */}
-        <div className="bg-surface border border-border rounded-[10px] p-3.5 flex flex-col min-h-[220px]">
+        <div className="bg-surface border border-border rounded-[10px] p-3.5 flex flex-col min-h-[160px]">
           <h3 className="text-xs font-semibold text-text mb-1">Rincian per Shift</h3>
           <p className="text-[11px] text-text-muted mb-2.5">
             Distribusi porsi menurut jadwal operasional 3 shift
@@ -158,7 +158,7 @@ export function RekapRingkasanPanel({
         </div>
 
         {/* 3. Ringkasan per Vendor */}
-        <div className="bg-surface border border-border rounded-[10px] p-3.5 flex flex-col min-h-[220px]">
+        <div className="bg-surface border border-border rounded-[10px] p-3.5 flex flex-col min-h-[160px]">
           <h3 className="text-xs font-semibold text-text mb-1">Rincian per Vendor</h3>
           <p className="text-[11px] text-text-muted mb-2.5">
             Akumulasi pemenuhan pesanan oleh mitra katering
@@ -193,7 +193,7 @@ export function RekapRingkasanPanel({
         </div>
 
         {/* 4. Ringkasan per Bulan */}
-        <div className="bg-surface border border-border rounded-[10px] p-3.5 flex flex-col min-h-[220px]">
+        <div className="bg-surface border border-border rounded-[10px] p-3.5 flex flex-col min-h-[160px]">
           <h3 className="text-xs font-semibold text-text mb-1">Rincian per Bulan</h3>
           <p className="text-[11px] text-text-muted mb-2.5">
             Akumulasi konsumsi bulanan dan hari aktif
