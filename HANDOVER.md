@@ -132,24 +132,28 @@ Perubahan ini telah disinkronkan ke dalam berkas migrasi dan skrip database repo
 | `/admin/riwayat/[periodId]` | Admin GA | Kronologi audit timeline lengkap per periode katering dari log append-only. |
 | `/admin/data-bagian` | Admin GA | Master data bagian operasional, kelompok, lokasi antar fisik, dan catatan antar. |
 | `/admin/data-vendor` | Admin GA | Master data mitra katering (V001 - V005), kontak WhatsApp, dan PIC vendor. |
+| `/admin/manajemen-user` | Admin GA | Pengelolaan akun pengguna, strip metrik, dialog tambah/ubah, reset password, nonaktifkan akun. |
+| `/admin/pengaturan` | Admin GA | Pengaturan profil pribadi Admin GA, ganti kata sandi, dan footer versi sistem dari package manifest. |
 | `/vendor/dashboard` | Vendor | 4 Kartu KPI, panel pesanan 3 shift hari ini, dan aksi cepat konfirmasi pesanan. |
 | `/vendor/permintaan` | Vendor | Tabel pesanan final milik vendor dan drawer inspektor detail alokasi per bagian & lokasi antar. |
 | `/vendor/ketersediaan` | Vendor | Antrean pesanan dan revisi yang belum direspons, aksi menyanggupi / tidak menyanggupi (catatan wajib). |
 | `/vendor/progres` | Vendor | Pelaporan progres pengiriman 5 tahap satu arah (Menunggu -> Dipersiapkan -> Dikirim -> Sampai -> Selesai). |
 | `/vendor/riwayat` | Vendor | Arsip riwayat pesanan katering vendor dengan filter status dan rentang tanggal. |
+| `/vendor/pengaturan` | Vendor | Pengaturan profil perwakilan vendor, ganti kata sandi, dan footer versi sistem. |
 
 ---
 
 ## 5. Ringkasan Pengujian, Kualitas, & Status Git
 
 1. **Pengujian Unit (Vitest)**:
-   - 13 berkas pengujian: `13 passed`.
-   - 67 pengujian fungsional: `67 passed`.
-   - Mencakup logika bisnis: kalkulasi progres, reducer grid sel kotor, rotasi vendor, route guard, formatter log audit, generator format WhatsApp, validator autentikasi, dan validasi skema form Zod.
+   - 16 berkas pengujian: `16 passed`.
+   - 87 pengujian fungsional: `87 passed`.
+   - Mencakup logika bisnis: kalkulasi progres, reducer grid sel kotor, rotasi vendor, route guard, user guard (anti self-deactivation, anti self-demotion, minimal 1 admin aktif), formatter log audit, generator format WhatsApp, validator autentikasi, pembaca versi sistem, dan validasi skema form Zod.
 2. **Kompilasi TypeScript**:
    - `npx tsc --noEmit` lulus dengan 0 kesalahan.
 3. **Build Produksi Next.js**:
-   - `next build` berhasil mengompilasi 24 rute (statis dan dinamis) tanpa kendala.
+   - `next build` berhasil mengompilasi 29 rute (halaman antarmuka dan route handler server) tanpa kendala.
+   - Kunci sensitif `SUPABASE_SERVICE_ROLE_KEY` terverifikasi 100% tidak pernah bocor ke bundel klien (`.next/static/`).
 4. **Repositori Git**:
-   - Seluruh perubahan dari Tahap 02 hingga perbaikan form login dan RLS policy telah di-commit dan di-push ke branch fitur `feat/08-portal-vendor` dan cabang utama `main`.
+   - Seluruh perubahan dari Tahap 08b (`fix/08b-security-schema`) dan Tahap 09 (`feat/09-user-pengaturan`) telah di-commit dan di-push ke GitHub serta digabungkan ke cabang utama `main`.
    - Identitas commit terkonfigurasi pada: `Muhammad Raynar Hammam <raynarham23@gmail.com>`.
