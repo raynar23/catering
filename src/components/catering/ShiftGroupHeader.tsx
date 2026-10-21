@@ -114,15 +114,18 @@ export function ShiftGroupHeader({
           )}
 
           {isFinalOrLocked && (
-            <button
-              type="button"
-              onClick={() => onOpenRevisiDialog?.(shift.shiftId)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-[6px] transition-colors bg-surface border border-border text-text hover:bg-slate-50 select-none shadow-xs"
-              title="Ajukan perubahan porsi (Tahap 07)"
-            >
-              <History className="w-3 h-3 text-primary" />
-              <span>Ajukan Revisi</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              {shift.orderId && (
+                <a
+                  href={`/admin/verifikasi/${shift.orderId}/riwayat`}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs select-none"
+                  title="Lihat riwayat kronologi pesanan"
+                >
+                  <History className="w-3 h-3 text-muted" />
+                  <span>Riwayat</span>
+                </a>
+              )}
+            </div>
           )}
         </div>
       </div>

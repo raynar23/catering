@@ -8,7 +8,8 @@ import {
 } from "@/lib/catering/grid-reducer";
 import { NumberInputCell } from "./NumberInputCell";
 import { ShiftGroupHeader } from "./ShiftGroupHeader";
-import { FileText } from "lucide-react";
+import { AjukanRevisiTarget } from "./AjukanRevisiDialog";
+import { FileText, History } from "lucide-react";
 import { Dialog } from "@/components/ui/Dialog";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +19,7 @@ interface CateringGridProps {
   isSavingShiftId: string | null;
   onSaveShiftDraft: (shiftId: string) => void;
   onOpenKirimDialog: (shiftId: string) => void;
-  onOpenRevisiDialog?: (shiftId: string) => void;
+  onAjukanRevisi?: (target: AjukanRevisiTarget) => void;
 }
 
 // Interactive 3-shift catering matrix with sticky headers and totals row
@@ -205,6 +206,41 @@ export function CateringGrid({
                             isConflict={cell.isExternallyModified}
                             ariaLabel={`Porsi ${bagian.nama} ${shift.shiftNama}`}
                           />
+
+                          {/* Revision indicator or action button when locked */}
+                          {isLocked && cell.itemId && (
+                            <>
+                              {cell.hasPendingRevision ? (
+                                <span
+                                  className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 px-1 py-0.5 rounded leading-none shrink-0"
+                                  title="Pengajuan revisi sedang menunggu verifikasi"
+                                >
+                                  Revisi
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onAjukanRevisi?.({
+                                      itemId: cell.itemId!,
+                                      bagianId: bagian.id,
+                                      bagianNama: bagian.nama,
+                                      shiftId,
+                                      shiftNama: shift.shiftNama,
+                                      vendorNama: shift.vendorNama,
+                                      karyawanAwal: cell.karyawan ?? 0,
+                                      porsiAwal: cell.porsi ?? 0,
+                                    })
+                                  }
+                                  title="Ajukan perubahan porsi"
+                                  className="p-1 rounded hover:bg-slate-100 text-muted hover:text-primary transition-colors shrink-0"
+                                >
+                                  <History className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </>
+                          )}
+
                           {/* Note icon button */}
                           <button
                             type="button"

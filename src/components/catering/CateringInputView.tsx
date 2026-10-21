@@ -17,12 +17,14 @@ import {
 import { CateringDateToolbar } from "./CateringDateToolbar";
 import { CateringGrid } from "./CateringGrid";
 import { KirimVendorDialog } from "./KirimVendorDialog";
+import { AjukanRevisiDialog, AjukanRevisiTarget } from "./AjukanRevisiDialog";
+import { ajukanRevisiAction } from "@/lib/actions/revisi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Dialog } from "@/components/ui/Dialog";
 import { useToast } from "@/components/ui/Toast";
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+
 
 
 interface CateringInputViewProps {
@@ -52,8 +54,9 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
   const [kirimShiftId, setKirimShiftId] = useState<string | null>(null);
   const [isSendingVendor, setIsSendingVendor] = useState(false);
 
-  // State for Ajukan Revisi Dialog Stub (Tahap 07 entrypoint)
-  const [revisiShiftId, setRevisiShiftId] = useState<string | null>(null);
+  // State for Ajukan Revisi Dialog
+  const [revisiTarget, setRevisiTarget] = useState<AjukanRevisiTarget | null>(null);
+  const [isSubmittingRevisi, setIsSubmittingRevisi] = useState(false);
 
   // Check if date has periods
   const currentShiftValues = Object.values(state.shifts);
@@ -256,6 +259,47 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
     }
   };
 
+  // Submit revision for a specific item
+  const handleConfirmAjukanRevisi = async (params: {
+    itemId: string;
+    karyawanBaru: number;
+    porsiBaru: number;
+    alasan: string;
+  }) => {
+    try {
+      setIsSubmittingRevisi(true);
+      const res = await ajukanRevisiAction(params);
+      if (!res.success) {
+        toast({
+          title: "Pengajuan gagal",
+          description: res.error || "Gagal mengajukan revisi porsi.",
+          variant: "danger",
+        });
+        return;
+      }
+
+      setRevisiTarget(null);
+      toast({
+        title: "Revisi berhasil diajukan",
+        description: "Pengajuan revisi telah tercatat dan menunggu verifikasi.",
+        variant: "success",
+      });
+
+      // Reload fresh state
+      await loadDateData(state.tanggal);
+    } catch (err: unknown) {
+      console.error("Revisi submission error:", err);
+      const message = err instanceof Error ? err.message : "Gagal memproses pengajuan revisi.";
+      toast({
+        title: "Kesalahan pengajuan",
+        description: message,
+        variant: "danger",
+      });
+    } finally {
+      setIsSubmittingRevisi(false);
+    }
+  };
+
   const activeKirimShift = kirimShiftId ? state.shifts[kirimShiftId] : null;
   const missingBagianForKirim = activeKirimShift
     ? getMissingBagian(state.bagianList, activeKirimShift.cells)
@@ -301,7 +345,7 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
           isSavingShiftId={isSavingShiftId}
           onSaveShiftDraft={handleSaveShiftDraft}
           onOpenKirimDialog={(shiftId) => setKirimShiftId(shiftId)}
-          onOpenRevisiDialog={(shiftId) => setRevisiShiftId(shiftId)}
+          onAjukanRevisi={(target) => setRevisiTarget(target)}
         />
       )}
 
@@ -328,37 +372,14 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
         isProcessing={isSendingVendor}
       />
 
-      {/* Ajukan Revisi Dialog Stub (Tahap 07) */}
-      <Dialog
-        open={Boolean(revisiShiftId)}
-        onOpenChange={(open) => !open && setRevisiShiftId(null)}
-        title="Alur Pengajuan Revisi Porsi"
-        description="Fitur pengelolaan perubahan kuota porsi pesanan setelah final"
-        maxWidth="md"
-      >
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 p-3.5 rounded-[8px] bg-blue-50 border border-blue-200 text-blue-950 text-xs">
-            <AlertTriangle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="font-semibold text-sm">
-                Titik Masuk Pengajuan Revisi (Tahap 07)
-              </p>
-              <p>
-                Pesanan pada shift ini telah berstatus <strong>Final</strong> dan dikirimkan ke vendor. Alur formal pengajuan penambahan/pengurangan porsi beserta notifikasi otomatis ke vendor diimplementasikan pada Tahap 07.
-              </p>
-            </div>
-          </div>
-          <div className="flex justify-end pt-2 border-t border-border">
-            <button
-              type="button"
-              onClick={() => setRevisiShiftId(null)}
-              className="px-4 py-2 text-xs font-medium rounded-[8px] bg-primary text-white hover:bg-[#0E63A1]"
-            >
-              Mengerti
-            </button>
-          </div>
-        </div>
-      </Dialog>
+      {/* Ajukan Revisi Dialog */}
+      <AjukanRevisiDialog
+        open={Boolean(revisiTarget)}
+        onOpenChange={(open) => !open && setRevisiTarget(null)}
+        target={revisiTarget}
+        onSubmit={handleConfirmAjukanRevisi}
+        isProcessing={isSubmittingRevisi}
+      />
     </div>
   );
 }
