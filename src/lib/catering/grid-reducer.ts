@@ -1,12 +1,14 @@
 // Pure reducer and state operations for the 3-shift catering input matrix
 
 export interface CellValue {
+  itemId?: string | null;
   karyawan: number | null;
   porsi: number | null;
   keterangan: string;
   isCustomPorsi: boolean;
   isDirty: boolean;
   isExternallyModified?: boolean;
+  hasPendingRevision?: boolean;
 }
 
 export interface ShiftColumnState {

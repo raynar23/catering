@@ -122,6 +122,7 @@ interface OrderQueryResult {
 }
 
 interface CateringItemQueryResult {
+  id: string;
   order_id: string;
   bagian_id: string;
   jumlah_karyawan: number;
@@ -182,20 +183,38 @@ interface CateringItemQueryResult {
 
   // 5. Fetch catering items for existing orders
   const itemsMap = new Map<string, Map<string, CateringItemQueryResult>>();
+  const allItemIds: string[] = [];
   if (orderIds.length > 0) {
     const { data: itemsData, error: itemsErr } = await supabase
       .from("catering_items")
-      .select("order_id, bagian_id, jumlah_karyawan, jumlah_porsi, keterangan")
+      .select("id, order_id, bagian_id, jumlah_karyawan, jumlah_porsi, keterangan")
       .in("order_id", orderIds);
 
     if (itemsErr) {
       console.error("Failed to fetch catering items:", itemsErr);
     } else {
       for (const item of (itemsData as unknown as CateringItemQueryResult[]) || []) {
+        allItemIds.push(item.id);
         if (!itemsMap.has(item.order_id)) {
           itemsMap.set(item.order_id, new Map());
         }
         itemsMap.get(item.order_id)!.set(item.bagian_id, item);
+      }
+    }
+  }
+
+  // 5b. Fetch pending revisions for these items to mark cells with revisions pending
+  const pendingRevisionItemIds = new Set<string>();
+  if (allItemIds.length > 0) {
+    const { data: pendingRevs, error: revErr } = await supabase
+      .from("revisions")
+      .select("item_id")
+      .eq("status", "menunggu")
+      .in("item_id", allItemIds);
+
+    if (!revErr && pendingRevs) {
+      for (const r of pendingRevs) {
+        pendingRevisionItemIds.add(r.item_id);
       }
     }
   }
@@ -240,19 +259,23 @@ interface CateringItemQueryResult {
       if (item) {
         const isCustom = item.jumlah_karyawan !== item.jumlah_porsi;
         cells[b.id] = {
+          itemId: item.id,
           karyawan: item.jumlah_karyawan,
           porsi: item.jumlah_porsi,
           keterangan: item.keterangan || "",
           isCustomPorsi: isCustom,
           isDirty: false,
+          hasPendingRevision: pendingRevisionItemIds.has(item.id),
         };
       } else {
         cells[b.id] = {
+          itemId: null,
           karyawan: null,
           porsi: null,
           keterangan: "",
           isCustomPorsi: false,
           isDirty: false,
+          hasPendingRevision: false,
         };
       }
     }
