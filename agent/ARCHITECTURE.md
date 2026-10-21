@@ -35,7 +35,7 @@ Middleware: belum login ke `/login`; role tanpa hak menu diarahkan ke `/dashboar
 
 ## Skema Database
 ```sql
-create type app_role as enum ('admin_ga', 'pic_unit', 'supervisor_ga');
+create type app_role as enum ('admin_ga', 'vendor');
 create type order_status as enum ('draft', 'diajukan', 'final', 'revisi');
 create type revision_status as enum ('menunggu', 'disetujui', 'ditolak');
 create type log_action as enum (

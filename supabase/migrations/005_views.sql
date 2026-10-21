@@ -47,7 +47,7 @@ select
   ol.jumlah_baru,
   ol.keterangan,
   case
-    when pr.role in ('admin_ga', 'pic_unit', 'supervisor_ga') then 'Tim General Affairs'
+    when pr.role = 'admin_ga' then 'Tim General Affairs'
     else pr.nama
   end as nama_pengupdate,
   ol.created_at

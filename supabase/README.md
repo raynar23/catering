@@ -26,18 +26,19 @@ File migrasi tersimpan di folder `supabase/migrations/`:
 
 ---
 
-## 2. Kredensial Akun Demo
+## 2. Kredensial Akun Demo (2 Role: Admin GA & Vendor)
 
 | Username | Email Auth | Role | Akses / Keterangan | Kata Sandi Default |
 |---|---|---|---|---|
-| `admin.ga` | `admin.ga@tps.co.id` | `admin_ga` | Administrator General Affairs (Akses Penuh) | `TpsCatering2026!` |
-| `pic.cfs` | `pic.cfs@tps.co.id` | `pic_unit` | PIC Unit Area Gudang CFS | `TpsCatering2026!` |
-| `pic.mekanik` | `pic.mekanik@tps.co.id` | `pic_unit` | PIC Unit Mekanik Container Crane | `TpsCatering2026!` |
-| `pic.operator` | `pic.operator@tps.co.id` | `pic_unit` | PIC Unit Operator Container Crane | `TpsCatering2026!` |
-| `vendor.aisya` | `vendor.aisya@tps.co.id` | `vendor` | Rekanan Aisya Catering (V001) | `TpsCatering2026!` |
-| `vendor.ibu` | `vendor.ibu@tps.co.id` | `vendor` | Rekanan Catering IBU (V002) | `TpsCatering2026!` |
+| `admin.ga` | `admin.ga@tps.co.id` | `admin_ga` | Administrator General Affairs 1 (Input, Kelola Master, Laporan) | `TpsCatering2026!` |
+| `admin2.ga` | `admin2.ga@tps.co.id` | `admin_ga` | Administrator General Affairs 2 (Verifikasi Revisi / Multi-PIC) | `TpsCatering2026!` |
+| `vendor.aisya` | `vendor.aisya@tps.co.id` | `vendor` | Rekanan Aisya Catering (V001 - Urutan Rotasi 0) | `TpsCatering2026!` |
+| `vendor.ibu` | `vendor.ibu@tps.co.id` | `vendor` | Rekanan Catering IBU (V002 - Urutan Rotasi 1) | `TpsCatering2026!` |
+| `vendor.nikmat` | `vendor.nikmat@tps.co.id` | `vendor` | Rekanan Nikmat Rasa (V003 - Urutan Rotasi 2) | `TpsCatering2026!` |
+| `vendor.adhi` | `vendor.adhi@tps.co.id` | `vendor` | Rekanan Adhi Hidayah (V004 - Urutan Rotasi 3) | `TpsCatering2026!` |
+| `vendor.nurina` | `vendor.nurina@tps.co.id` | `vendor` | Rekanan Nurina Catering (V005 - Urutan Rotasi 4) | `TpsCatering2026!` |
 
-Untuk membuat akun Auth secara otomatis di instance Supabase Anda, jalankan skrip:
+Seluruh akun di atas otomatis terdaftar saat mengeksekusi `DATABASE_LENGKAP_CATERING.sql`. Anda juga dapat menyinkronkannya kembali lewat perintah:
 ```bash
 node scripts/seed-auth.mjs
 ```

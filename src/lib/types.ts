@@ -1,7 +1,5 @@
-// src/lib/types.ts
 // Strict TypeScript types representing Supabase Database Schema and Domain Models
-
-export type AppRole = 'admin_ga' | 'pic_unit' | 'supervisor_ga' | 'vendor';
+export type AppRole = 'admin_ga' | 'vendor';
 export type OrderStatus = 'draft' | 'diajukan' | 'final' | 'revisi';
 export type RevisionStatus = 'menunggu' | 'disetujui' | 'ditolak';
 export type VendorResponseStatus = 'menunggu' | 'disanggupi' | 'tidak_sanggup';

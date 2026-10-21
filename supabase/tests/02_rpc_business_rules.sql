@@ -26,7 +26,7 @@ begin
   insert into profiles (id, username, nama, role, vendor_id)
   values
     (v_admin_id, 'mock.admin', 'Admin Mock', 'admin_ga', null),
-    (v_pic_id, 'mock.pic', 'PIC Mock', 'pic_unit', null),
+    (v_pic_id, 'mock.admin2', 'Admin 2 Mock', 'admin_ga', null),
     (v_vendor_user, 'mock.vendor', 'Vendor Mock', 'vendor', v_vendor_id);
 
   insert into periods (tanggal, shift_id, vendor_id, keterangan)

@@ -3,7 +3,7 @@
 create extension if not exists "pgcrypto";
 
 -- Enums
-create type app_role as enum ('admin_ga', 'pic_unit', 'supervisor_ga', 'vendor');
+create type app_role as enum ('admin_ga', 'vendor');
 create type order_status as enum ('draft', 'diajukan', 'final', 'revisi');
 create type revision_status as enum ('menunggu', 'disetujui', 'ditolak');
 create type vendor_response_status as enum ('menunggu', 'disanggupi', 'tidak_sanggup');

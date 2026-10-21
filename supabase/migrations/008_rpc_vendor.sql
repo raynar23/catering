@@ -208,7 +208,7 @@ declare
 begin
   select role, vendor_id into v_role, v_vendor_id from profiles where id = auth.uid();
 
-  if v_role in ('admin_ga', 'pic_unit', 'supervisor_ga') then
+  if v_role = 'admin_ga' then
     select jsonb_build_object(
       'role', v_role,
       'revisi_menunggu', (select count(*) from revisions where status = 'menunggu'),

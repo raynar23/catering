@@ -21,7 +21,7 @@ declare
   v_ket text;
 begin
   select role into v_role from profiles where id = auth.uid();
-  if v_role not in ('admin_ga', 'pic_unit', 'supervisor_ga') then
+  if v_role <> 'admin_ga' then
     raise exception 'Akses ditolak: hanya General Affairs yang dapat menginput data catering.';
   end if;
 
@@ -95,7 +95,7 @@ declare
   v_total_terisi integer;
 begin
   select role into v_role from profiles where id = auth.uid();
-  if v_role not in ('admin_ga', 'supervisor_ga') then
+  if v_role <> 'admin_ga' then
     raise exception 'Akses ditolak: hanya Admin GA yang dapat mengirim pesanan ke vendor.';
   end if;
 
@@ -156,8 +156,8 @@ declare
   v_revision_id uuid;
 begin
   select role into v_role from profiles where id = auth.uid();
-  if v_role not in ('admin_ga', 'pic_unit', 'supervisor_ga') then
-    raise exception 'Akses ditolak: role Anda tidak memiliki izin mengajukan revisi.';
+  if v_role <> 'admin_ga' then
+    raise exception 'Akses ditolak: hanya Admin GA yang memiliki izin mengajukan revisi.';
   end if;
 
   if p_alasan is null or length(trim(p_alasan)) = 0 then
@@ -261,8 +261,8 @@ declare
   v_remaining_menunggu integer;
 begin
   select role into v_role from profiles where id = auth.uid();
-  if v_role not in ('admin_ga', 'supervisor_ga') then
-    raise exception 'Akses ditolak: hanya verifikator yang berhak menyetujui atau menolak revisi.';
+  if v_role <> 'admin_ga' then
+    raise exception 'Akses ditolak: hanya Admin GA yang berhak menyetujui atau menolak revisi.';
   end if;
 
   select r.*, ci.order_id

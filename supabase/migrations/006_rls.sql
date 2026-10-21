@@ -14,7 +14,7 @@ $$ language sql stable security definer set search_path = public, pg_temp;
 create or replace function is_admin_or_pic()
 returns boolean as $$
   select coalesce(
-    (select role in ('admin_ga', 'pic_unit', 'supervisor_ga') from profiles where id = auth.uid()),
+    (select role = 'admin_ga' from profiles where id = auth.uid()),
     false
   );
 $$ language sql stable security definer set search_path = public, pg_temp;

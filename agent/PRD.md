@@ -13,12 +13,11 @@ Website internal PT Terminal Petikemas Surabaya untuk General Affairs (GA) menge
 - **Pesanan catering**: data catering untuk satu periode, berisi 1 vendor dan satu baris per bagian (jumlah karyawan dan jumlah porsi).
 - **Data berlaku**: pesanan berstatus `final` atau `revisi` (angka yang sudah disetujui). Rekapitulasi, laporan, dan KPI hanya memakai data berlaku.
 
-## Pengguna (3 role)
+## Pengguna (2 role: Admin GA dan Vendor)
 | Role | Contoh akun demo | Tugas |
 |---|---|---|
-| Admin GA (`admin_ga`) | admin.ga | Kelola data master (bagian, vendor, shift, periode) dan pengguna; boleh input dan ajukan revisi; melihat semua |
-| PIC Unit (`pic_unit`) | pic.unit | Input data catering dan ajukan revisi |
-| Supervisor GA (`supervisor_ga`) | supervisor.ga | Memverifikasi (setujui/tolak) input dan revisi |
+| Admin GA (`admin_ga`) | `admin.ga`, `admin2.ga` | Kelola master data, input pesanan catering, kirim ke vendor, ajukan & verifikasi revisi, pantau progres vendor, rekapitulasi, cetak laporan, dan manajemen user. |
+| Vendor (`vendor`) | `vendor.aisya`, `vendor.ibu`, `vendor.nikmat`, `vendor.adhi`, `vendor.nurina` | Melihat pesanan shift miliknya, respon kesanggupan (sanggup/tidak sanggup), update progres persiapan & pengantaran (dipersiapkan, dikirim, sampai, selesai), dan respon revisi porsi. |
 
 Tidak ada pendaftaran mandiri. Akun dibuat Admin GA lewat menu Manajemen User atau lewat seed.
 

@@ -3,11 +3,12 @@
 do $$
 declare
   v_admin_id uuid := '00000000-0000-0000-0000-000000000001'::uuid;
-  v_pic_cfs_id uuid := '00000000-0000-0000-0000-000000000002'::uuid;
-  v_pic_mek_id uuid := '00000000-0000-0000-0000-000000000003'::uuid;
-  v_pic_op_id uuid := '00000000-0000-0000-0000-000000000004'::uuid;
-  v_vendor_aisya_id uuid := '00000000-0000-0000-0000-000000000005'::uuid;
-  v_vendor_ibu_id uuid := '00000000-0000-0000-0000-000000000006'::uuid;
+  v_admin2_id uuid := '00000000-0000-0000-0000-000000000002'::uuid;
+  v_vendor_aisya_id uuid := '00000000-0000-0000-0000-000000000003'::uuid;
+  v_vendor_ibu_id uuid := '00000000-0000-0000-0000-000000000004'::uuid;
+  v_vendor_nikmat_id uuid := '00000000-0000-0000-0000-000000000005'::uuid;
+  v_vendor_adhi_id uuid := '00000000-0000-0000-0000-000000000006'::uuid;
+  v_vendor_nurina_id uuid := '00000000-0000-0000-0000-000000000007'::uuid;
 
   v_v001_id uuid;
   v_v002_id uuid;
@@ -105,6 +106,8 @@ begin
 
   -- 4. AUTH USERS AND PROFILES
   -- Ensure demo auth accounts exist before referencing in profiles
+
+  -- Admin GA 1
   select id into v_admin_id from auth.users where email = 'admin.ga@tps.co.id';
   if v_admin_id is null then
     if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000001'::uuid) then
@@ -120,77 +123,39 @@ begin
       '00000000-0000-0000-0000-000000000000'::uuid, v_admin_id, 'authenticated', 'authenticated',
       'admin.ga@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
       now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"nama":"Admin General Affairs","username":"admin.ga"}'::jsonb,
+      '{"nama":"Admin General Affairs 1","username":"admin.ga"}'::jsonb,
       now(), now(), '', '', '', ''
     );
   end if;
 
-  select id into v_pic_cfs_id from auth.users where email = 'pic.cfs@tps.co.id';
-  if v_pic_cfs_id is null then
+  -- Admin GA 2
+  select id into v_admin2_id from auth.users where email = 'admin2.ga@tps.co.id';
+  if v_admin2_id is null then
     if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000002'::uuid) then
-      v_pic_cfs_id := gen_random_uuid();
+      v_admin2_id := gen_random_uuid();
     else
-      v_pic_cfs_id := '00000000-0000-0000-0000-000000000002'::uuid;
+      v_admin2_id := '00000000-0000-0000-0000-000000000002'::uuid;
     end if;
     insert into auth.users (
       instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
       recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
       created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
     ) values (
-      '00000000-0000-0000-0000-000000000000'::uuid, v_pic_cfs_id, 'authenticated', 'authenticated',
-      'pic.cfs@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      '00000000-0000-0000-0000-000000000000'::uuid, v_admin2_id, 'authenticated', 'authenticated',
+      'admin2.ga@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
       now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"nama":"PIC Unit Pergudangan CFS","username":"pic.cfs"}'::jsonb,
+      '{"nama":"Admin General Affairs 2","username":"admin2.ga"}'::jsonb,
       now(), now(), '', '', '', ''
     );
   end if;
 
-  select id into v_pic_mek_id from auth.users where email = 'pic.mekanik@tps.co.id';
-  if v_pic_mek_id is null then
-    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000003'::uuid) then
-      v_pic_mek_id := gen_random_uuid();
-    else
-      v_pic_mek_id := '00000000-0000-0000-0000-000000000003'::uuid;
-    end if;
-    insert into auth.users (
-      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
-    ) values (
-      '00000000-0000-0000-0000-000000000000'::uuid, v_pic_mek_id, 'authenticated', 'authenticated',
-      'pic.mekanik@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
-      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"nama":"PIC Unit Mekanik Terminal","username":"pic.mekanik"}'::jsonb,
-      now(), now(), '', '', '', ''
-    );
-  end if;
-
-  select id into v_pic_op_id from auth.users where email = 'pic.operator@tps.co.id';
-  if v_pic_op_id is null then
-    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000004'::uuid) then
-      v_pic_op_id := gen_random_uuid();
-    else
-      v_pic_op_id := '00000000-0000-0000-0000-000000000004'::uuid;
-    end if;
-    insert into auth.users (
-      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
-      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
-    ) values (
-      '00000000-0000-0000-0000-000000000000'::uuid, v_pic_op_id, 'authenticated', 'authenticated',
-      'pic.operator@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
-      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"nama":"PIC Unit Operator Alat Berat","username":"pic.operator"}'::jsonb,
-      now(), now(), '', '', '', ''
-    );
-  end if;
-
+  -- Vendor Aisya (V001)
   select id into v_vendor_aisya_id from auth.users where email = 'vendor.aisya@tps.co.id';
   if v_vendor_aisya_id is null then
-    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000005'::uuid) then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000003'::uuid) then
       v_vendor_aisya_id := gen_random_uuid();
     else
-      v_vendor_aisya_id := '00000000-0000-0000-0000-000000000005'::uuid;
+      v_vendor_aisya_id := '00000000-0000-0000-0000-000000000003'::uuid;
     end if;
     insert into auth.users (
       instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -205,12 +170,13 @@ begin
     );
   end if;
 
+  -- Vendor IBU (V002)
   select id into v_vendor_ibu_id from auth.users where email = 'vendor.ibu@tps.co.id';
   if v_vendor_ibu_id is null then
-    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000006'::uuid) then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000004'::uuid) then
       v_vendor_ibu_id := gen_random_uuid();
     else
-      v_vendor_ibu_id := '00000000-0000-0000-0000-000000000006'::uuid;
+      v_vendor_ibu_id := '00000000-0000-0000-0000-000000000004'::uuid;
     end if;
     insert into auth.users (
       instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -221,6 +187,69 @@ begin
       'vendor.ibu@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
       now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
       '{"nama":"Petugas Catering IBU","username":"vendor.ibu"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
+
+  -- Vendor Nikmat Rasa (V003)
+  select id into v_vendor_nikmat_id from auth.users where email = 'vendor.nikmat@tps.co.id';
+  if v_vendor_nikmat_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000005'::uuid) then
+      v_vendor_nikmat_id := gen_random_uuid();
+    else
+      v_vendor_nikmat_id := '00000000-0000-0000-0000-000000000005'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_vendor_nikmat_id, 'authenticated', 'authenticated',
+      'vendor.nikmat@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"Petugas Nikmat Rasa","username":"vendor.nikmat"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
+
+  -- Vendor Adhi Hidayah (V004)
+  select id into v_vendor_adhi_id from auth.users where email = 'vendor.adhi@tps.co.id';
+  if v_vendor_adhi_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000006'::uuid) then
+      v_vendor_adhi_id := gen_random_uuid();
+    else
+      v_vendor_adhi_id := '00000000-0000-0000-0000-000000000006'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_vendor_adhi_id, 'authenticated', 'authenticated',
+      'vendor.adhi@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"Petugas Adhi Hidayah","username":"vendor.adhi"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
+
+  -- Vendor Nurina Catering (V005)
+  select id into v_vendor_nurina_id from auth.users where email = 'vendor.nurina@tps.co.id';
+  if v_vendor_nurina_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000007'::uuid) then
+      v_vendor_nurina_id := gen_random_uuid();
+    else
+      v_vendor_nurina_id := '00000000-0000-0000-0000-000000000007'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_vendor_nurina_id, 'authenticated', 'authenticated',
+      'vendor.nurina@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"Petugas Nurina Catering","username":"vendor.nurina"}'::jsonb,
       now(), now(), '', '', '', ''
     );
   end if;
@@ -242,10 +271,10 @@ begin
         now(),
         now()
       from auth.users u
-      where u.id in ($1, $2, $3, $4, $5, $6)
+      where u.id in ($1, $2, $3, $4, $5, $6, $7)
         and not exists (select 1 from auth.identities i where i.user_id = u.id)
       on conflict do nothing
-    ' using v_admin_id, v_pic_cfs_id, v_pic_mek_id, v_pic_op_id, v_vendor_aisya_id, v_vendor_ibu_id;
+    ' using v_admin_id, v_admin2_id, v_vendor_aisya_id, v_vendor_ibu_id, v_vendor_nikmat_id, v_vendor_adhi_id, v_vendor_nurina_id;
   else
     execute '
       insert into auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
@@ -258,29 +287,34 @@ begin
         now(),
         now()
       from auth.users u
-      where u.id in ($1, $2, $3, $4, $5, $6)
+      where u.id in ($1, $2, $3, $4, $5, $6, $7)
         and not exists (select 1 from auth.identities i where i.user_id = u.id)
       on conflict do nothing
-    ' using v_admin_id, v_pic_cfs_id, v_pic_mek_id, v_pic_op_id, v_vendor_aisya_id, v_vendor_ibu_id;
+    ' using v_admin_id, v_admin2_id, v_vendor_aisya_id, v_vendor_ibu_id, v_vendor_nikmat_id, v_vendor_adhi_id, v_vendor_nurina_id;
   end if;
 
   -- Remove stale profiles with conflicting username if ID changed
   delete from profiles where username = 'admin.ga' and id <> v_admin_id;
-  delete from profiles where username = 'pic.cfs' and id <> v_pic_cfs_id;
-  delete from profiles where username = 'pic.mekanik' and id <> v_pic_mek_id;
-  delete from profiles where username = 'pic.operator' and id <> v_pic_op_id;
+  delete from profiles where username = 'admin2.ga' and id <> v_admin2_id;
+  delete from profiles where username = 'pic.cfs';
+  delete from profiles where username = 'pic.mekanik';
+  delete from profiles where username = 'pic.operator';
   delete from profiles where username = 'vendor.aisya' and id <> v_vendor_aisya_id;
   delete from profiles where username = 'vendor.ibu' and id <> v_vendor_ibu_id;
+  delete from profiles where username = 'vendor.nikmat' and id <> v_vendor_nikmat_id;
+  delete from profiles where username = 'vendor.adhi' and id <> v_vendor_adhi_id;
+  delete from profiles where username = 'vendor.nurina' and id <> v_vendor_nurina_id;
 
   -- Upsert demo profiles
   insert into profiles (id, username, nama, role, vendor_id, bagian_id)
   values
-    (v_admin_id, 'admin.ga', 'Admin General Affairs', 'admin_ga'::app_role, null, null),
-    (v_pic_cfs_id, 'pic.cfs', 'PIC Unit Pergudangan CFS', 'pic_unit'::app_role, null, v_b_cfs),
-    (v_pic_mek_id, 'pic.mekanik', 'PIC Unit Mekanik Terminal', 'pic_unit'::app_role, null, v_b_mek_cc),
-    (v_pic_op_id, 'pic.operator', 'PIC Unit Operator Alat Berat', 'pic_unit'::app_role, null, v_b_cc),
+    (v_admin_id, 'admin.ga', 'Admin General Affairs 1', 'admin_ga'::app_role, null, null),
+    (v_admin2_id, 'admin2.ga', 'Admin General Affairs 2', 'admin_ga'::app_role, null, null),
     (v_vendor_aisya_id, 'vendor.aisya', 'Petugas Aisya Catering', 'vendor'::app_role, v_v001_id, null),
-    (v_vendor_ibu_id, 'vendor.ibu', 'Petugas Catering IBU', 'vendor'::app_role, v_v002_id, null)
+    (v_vendor_ibu_id, 'vendor.ibu', 'Petugas Catering IBU', 'vendor'::app_role, v_v002_id, null),
+    (v_vendor_nikmat_id, 'vendor.nikmat', 'Petugas Nikmat Rasa', 'vendor'::app_role, v_v003_id, null),
+    (v_vendor_adhi_id, 'vendor.adhi', 'Petugas Adhi Hidayah', 'vendor'::app_role, v_v004_id, null),
+    (v_vendor_nurina_id, 'vendor.nurina', 'Petugas Nurina Catering', 'vendor'::app_role, v_v005_id, null)
   on conflict (id) do update set
     username = excluded.username,
     nama = excluded.nama,
@@ -355,7 +389,7 @@ begin
         ) values (
           v_item_cc_id, v_porsi_cc, v_porsi_cc + 3, v_porsi_cc, v_porsi_cc + 3,
           'Penambahan kebutuhan catering karena perubahan jumlah karyawan bertugas',
-          'menunggu', v_admin_id
+          'menunggu', v_admin2_id
         ) on conflict do nothing;
       end if;
     end if;
