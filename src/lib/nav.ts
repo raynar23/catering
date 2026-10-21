@@ -65,7 +65,7 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
       },
       {
         title: "Manajemen User",
-        href: "/admin/master/users",
+        href: "/admin/manajemen-user",
         icon: "users",
       },
     ],

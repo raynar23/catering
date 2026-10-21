@@ -17,7 +17,9 @@ export type StatusType =
   | "dipersiapkan"
   | "dikirim"
   | "sampai"
-  | "selesai";
+  | "selesai"
+  | "admin_ga"
+  | "vendor";
 
 interface StatusBadgeProps {
   status: StatusType | string;
@@ -128,6 +130,19 @@ const STATUS_CONFIG: Record<
     textClass: "text-[#D70015]",
     bgClass: "bg-[#FDECEE]",
     borderClass: "border-[#F7CCD0]",
+  },
+
+  admin_ga: {
+    label: "Admin GA",
+    textClass: "text-[#0B5A94]",
+    bgClass: "bg-[#E8F2FA]",
+    borderClass: "border-[#BBD9EE]",
+  },
+  vendor: {
+    label: "Vendor",
+    textClass: "text-[#0E7490]",
+    bgClass: "bg-[#ECFEFF]",
+    borderClass: "border-[#CFFAFE]",
   },
 };
 
