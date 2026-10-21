@@ -1249,6 +1249,8 @@ declare
   v_vendor_nikmat_id uuid := '00000000-0000-0000-0000-000000000005'::uuid;
   v_vendor_adhi_id uuid := '00000000-0000-0000-0000-000000000006'::uuid;
   v_vendor_nurina_id uuid := '00000000-0000-0000-0000-000000000007'::uuid;
+  v_id_type text;
+  v_has_provider_id boolean;
 
   v_v001_id uuid;
   v_v002_id uuid;
@@ -1495,42 +1497,85 @@ begin
   end if;
 
   -- Ensure matching identities exist for Supabase Auth
-  if exists (
+  select data_type into v_id_type
+  from information_schema.columns
+  where table_schema = 'auth' and table_name = 'identities' and column_name = 'id';
+
+  select exists (
     select 1 from information_schema.columns
     where table_schema = 'auth' and table_name = 'identities' and column_name = 'provider_id'
-  ) then
-    execute '
-      insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
-      select
-        u.id::text,
-        u.id,
-        u.id::text,
-        format(''{"sub":"%s","email":"%s"}'', u.id::text, u.email)::jsonb,
-        ''email'',
-        now(),
-        now(),
-        now()
-      from auth.users u
-      where u.id in ($1, $2, $3, $4, $5, $6, $7)
-        and not exists (select 1 from auth.identities i where i.user_id = u.id)
-      on conflict do nothing
-    ' using v_admin_id, v_admin2_id, v_vendor_aisya_id, v_vendor_ibu_id, v_vendor_nikmat_id, v_vendor_adhi_id, v_vendor_nurina_id;
+  ) into v_has_provider_id;
+
+  if v_has_provider_id then
+    if v_id_type = 'uuid' then
+      execute '
+        insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+        select
+          u.id,
+          u.id,
+          u.id::text,
+          format(''{"sub":"%s","email":"%s"}'', u.id::text, u.email)::jsonb,
+          ''email'',
+          now(),
+          now(),
+          now()
+        from auth.users u
+        where u.id in ($1, $2, $3, $4, $5, $6, $7)
+          and not exists (select 1 from auth.identities i where i.user_id = u.id)
+        on conflict do nothing
+      ' using v_admin_id, v_admin2_id, v_vendor_aisya_id, v_vendor_ibu_id, v_vendor_nikmat_id, v_vendor_adhi_id, v_vendor_nurina_id;
+    else
+      execute '
+        insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+        select
+          u.id::text,
+          u.id,
+          u.id::text,
+          format(''{"sub":"%s","email":"%s"}'', u.id::text, u.email)::jsonb,
+          ''email'',
+          now(),
+          now(),
+          now()
+        from auth.users u
+        where u.id in ($1, $2, $3, $4, $5, $6, $7)
+          and not exists (select 1 from auth.identities i where i.user_id = u.id)
+        on conflict do nothing
+      ' using v_admin_id, v_admin2_id, v_vendor_aisya_id, v_vendor_ibu_id, v_vendor_nikmat_id, v_vendor_adhi_id, v_vendor_nurina_id;
+    end if;
   else
-    execute '
-      insert into auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
-      select
-        u.id::text,
-        u.id,
-        format(''{"sub":"%s","email":"%s"}'', u.id::text, u.email)::jsonb,
-        ''email'',
-        now(),
-        now(),
-        now()
-      from auth.users u
-      where u.id in ($1, $2, $3, $4, $5, $6, $7)
-        and not exists (select 1 from auth.identities i where i.user_id = u.id)
-      on conflict do nothing
-    ' using v_admin_id, v_admin2_id, v_vendor_aisya_id, v_vendor_ibu_id, v_vendor_nikmat_id, v_vendor_adhi_id, v_vendor_nurina_id;
+    if v_id_type = 'uuid' then
+      execute '
+        insert into auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+        select
+          u.id,
+          u.id,
+          format(''{"sub":"%s","email":"%s"}'', u.id::text, u.email)::jsonb,
+          ''email'',
+          now(),
+          now(),
+          now()
+        from auth.users u
+        where u.id in ($1, $2, $3, $4, $5, $6, $7)
+          and not exists (select 1 from auth.identities i where i.user_id = u.id)
+        on conflict do nothing
+      ' using v_admin_id, v_admin2_id, v_vendor_aisya_id, v_vendor_ibu_id, v_vendor_nikmat_id, v_vendor_adhi_id, v_vendor_nurina_id;
+    else
+      execute '
+        insert into auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+        select
+          u.id::text,
+          u.id,
+          format(''{"sub":"%s","email":"%s"}'', u.id::text, u.email)::jsonb,
+          ''email'',
+          now(),
+          now(),
+          now()
+        from auth.users u
+        where u.id in ($1, $2, $3, $4, $5, $6, $7)
+          and not exists (select 1 from auth.identities i where i.user_id = u.id)
+        on conflict do nothing
+      ' using v_admin_id, v_admin2_id, v_vendor_aisya_id, v_vendor_ibu_id, v_vendor_nikmat_id, v_vendor_adhi_id, v_vendor_nurina_id;
+    end if;
   end if;
 
   -- Remove stale profiles with conflicting username if ID changed
