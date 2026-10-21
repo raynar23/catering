@@ -60,3 +60,45 @@ export function formatTimeShort(time: string): string {
   const m = parts[1]?.padStart(2, "0") ?? "00";
   return `${h}.${m}`;
 }
+
+// Get tomorrow date in YYYY-MM-DD
+export function getTomorrowDateIso(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return formatDateIso(d);
+}
+
+// Add or subtract days from an ISO date string
+export function getOffsetDateIso(isoStr: string, offsetDays: number): string {
+  const d = parseDateIso(isoStr);
+  d.setDate(d.getDate() + offsetDays);
+  return formatDateIso(d);
+}
+
+const INDONESIAN_DAY_NAMES = [
+  "Minggu",
+  "Senin",
+  "Selasa",
+  "Rabu",
+  "Kamis",
+  "Jumat",
+  "Sabtu",
+];
+
+// Format date into Indonesian human readable string
+export function formatDateIndonesian(
+  isoStr: string,
+  withDayName = true
+): string {
+  const d = parseDateIso(isoStr);
+  const dayName = INDONESIAN_DAY_NAMES[d.getDay()];
+  const day = d.getDate();
+  const monthName = MONTH_OPTIONS[d.getMonth()]?.label ?? "";
+  const year = d.getFullYear();
+
+  if (withDayName) {
+    return `${dayName}, ${day} ${monthName} ${year}`;
+  }
+  return `${day} ${monthName} ${year}`;
+}
+

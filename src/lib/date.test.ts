@@ -5,7 +5,10 @@ import {
   getMonthRange,
   isValidTimeString,
   formatTimeShort,
+  getOffsetDateIso,
+  formatDateIndonesian,
 } from "./date";
+
 
 describe("date helpers", () => {
   it("formats date to YYYY-MM-DD correctly without timezone shifts", () => {
@@ -45,4 +48,18 @@ describe("date helpers", () => {
     expect(formatTimeShort("08:00:00")).toBe("08.00");
     expect(formatTimeShort("16:30")).toBe("16.30");
   });
+
+  it("calculates offset date correctly", () => {
+    expect(getOffsetDateIso("2026-10-21", 1)).toBe("2026-10-22");
+    expect(getOffsetDateIso("2026-10-21", -1)).toBe("2026-10-20");
+    expect(getOffsetDateIso("2026-10-31", 1)).toBe("2026-11-01");
+  });
+
+  it("formats date to Indonesian string", () => {
+    // 2026-10-22 is Thursday (Kamis)
+    const formatted = formatDateIndonesian("2026-10-22");
+    expect(formatted).toBe("Kamis, 22 Oktober 2026");
+    expect(formatDateIndonesian("2026-10-22", false)).toBe("22 Oktober 2026");
+  });
+
 });
