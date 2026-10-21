@@ -44,12 +44,12 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-2">
+    <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-1.5">
       {/* Reserved alert container to maintain constant form height */}
-      <div className="min-h-[48px] flex items-center">
+      <div className="h-[38px] flex items-center">
         {generalError ? (
           <div
-            className="w-full px-3 py-1.5 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-snug"
+            className="w-full px-2.5 py-1 rounded-[6px] bg-danger-soft border border-danger/20 text-danger text-[11px] font-medium leading-tight text-center"
             aria-live="polite"
             id="login-error-banner"
           >
@@ -59,10 +59,10 @@ export function LoginForm() {
       </div>
 
       {/* Username field */}
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <label
           htmlFor="username"
-          className="block text-xs font-medium text-text select-none"
+          className="block text-[11px] font-medium text-text select-none"
         >
           Username
         </label>
@@ -81,16 +81,16 @@ export function LoginForm() {
           autoComplete="username"
           aria-invalid={usernameError ? "true" : undefined}
           aria-describedby={usernameError ? "username-error" : undefined}
-          className={`w-full h-11 lg:h-10 px-3 text-base lg:text-sm rounded-[8px] border bg-surface text-text placeholder:text-[#8A8A90] shadow-[0_1px_2px_rgba(0,0,0,0.03)] outline-none transition-all duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+          className={`w-full h-9 px-3 text-sm rounded-[6px] border bg-surface text-text placeholder:text-[#8A8A90] shadow-[0_1px_2px_rgba(0,0,0,0.03)] outline-none transition-all duration-150 ease-out focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
             usernameError
               ? "border-danger focus-visible:border-danger"
               : "border-border hover:border-[#C5C5CA] focus-visible:border-primary"
           } ${isSubmitting ? "bg-bg text-text-muted cursor-not-allowed opacity-70" : ""}`}
         />
         {/* Fixed height slot to ensure form height never shifts */}
-        <div className="h-[18px] flex items-center">
+        <div className="h-[14px] flex items-center">
           {usernameError ? (
-            <p id="username-error" className="text-[11px] text-danger font-medium leading-none">
+            <p id="username-error" className="text-[10px] text-danger font-medium leading-none">
               {usernameError}
             </p>
           ) : null}
@@ -98,10 +98,10 @@ export function LoginForm() {
       </div>
 
       {/* Password field */}
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <label
           htmlFor="password"
-          className="block text-xs font-medium text-text select-none"
+          className="block text-[11px] font-medium text-text select-none"
         >
           Password
         </label>
@@ -120,9 +120,9 @@ export function LoginForm() {
           aria-describedby={passwordError ? "password-error" : undefined}
         />
         {/* Fixed height slot to ensure form height never shifts */}
-        <div className="h-[18px] flex items-center">
+        <div className="h-[14px] flex items-center">
           {passwordError ? (
-            <p id="password-error" className="text-[11px] text-danger font-medium leading-none">
+            <p id="password-error" className="text-[10px] text-danger font-medium leading-none">
               {passwordError}
             </p>
           ) : null}
@@ -130,11 +130,11 @@ export function LoginForm() {
       </div>
 
       {/* Submit button */}
-      <div className="pt-1">
+      <div>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-11 lg:h-10 px-4 rounded-[8px] bg-primary hover:bg-primary-600 active:bg-primary-dark text-white text-sm font-medium shadow-[0_2px_6px_rgba(17,117,187,0.28)] hover:shadow-[0_4px_10px_rgba(17,117,187,0.32)] transition-all duration-150 ease-out cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 select-none"
+          className="w-full h-9 px-4 rounded-[6px] bg-primary hover:bg-primary-600 active:bg-primary-dark text-white text-sm font-medium shadow-[0_2px_6px_rgba(17,117,187,0.28)] hover:shadow-[0_4px_10px_rgba(17,117,187,0.32)] transition-all duration-150 ease-out cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 select-none"
         >
           {isSubmitting ? "Memproses..." : "Masuk"}
         </button>
