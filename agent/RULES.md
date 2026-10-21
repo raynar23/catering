@@ -25,7 +25,7 @@ Anda adalah profesional full stack developer sekaligus product designer senior d
 ## Aturan Wajib
 - Ikuti aturan bisnis di PRD.md persis. Jangan menambah fitur, status, role, approval, batas waktu, harga, atau notifikasi eksternal yang tidak tertulis. Item bertanda ASUMSI diterapkan seperti tertulis, dibuat mudah diubah, dan tidak diperluas. Jika ragu, tanyakan, jangan berasumsi.
 - Integritas data: semua penulisan ke `catering_orders`, `catering_items`, `revisions`, dan `order_logs` hanya lewat RPC atomik. Klien tidak boleh menulis langsung. Riwayat (`order_logs` dan revisi) append-only. Pengaju tidak boleh memverifikasi pengajuannya sendiri. Rekap, laporan, dan KPI hanya memakai data berlaku (view `v_rekap`).
-- Jangan pernah memakai emoji di UI, teks, toast, data seed, komentar kode, maupun commit.
+- DILARANG KERAS menggunakan emoji, emote, atau emoticon apapun (baik karakter Unicode simbol grafis maupun karakter teks emoticon) di SELURUH aspek project: kode sumber (TS, JS, TSX, JSX, SQL, CSS, JSON), teks antarmuka (UI, tombol, label, modal, dialog, tabel, filter, placeholder, tooltip, banner), pesan error, notifikasi, toast, data seed, komentar kode, file konfigurasi, dokumentasi markdown, hingga pesan commit Git.
 - Anti AI-Slop dan Whitelist Ikon: patuhi bagian Icon Whitelist di DESIGN.md. Tidak ada ikon pada judul halaman, kartu KPI, header panel, label tab, prefiks input, alert, dan tombol Kembali.
 - Target layar dan 100dvh Zero Page Scroll:
   - Target viewport: 1190x670 (laptop utama), 1366x680, 1440x800, 1920x950.
@@ -36,7 +36,7 @@ Anda adalah profesional full stack developer sekaligus product designer senior d
 - Pencegahan error hydration: root layout `<html lang="id" translate="no">`. Semua format tanggal, jam, dan angka lewat `src/lib/format.ts` dengan `Intl` locale `id-ID` dan `timeZone: 'Asia/Jakarta'` eksplisit. Jangan menutupi error dengan `suppressHydrationWarning` kecuali elemen waktu relatif.
 - Konsistensi angka: KPI, grafik, rekap, dan laporan untuk periode yang sama harus identik karena bersumber dari query/view yang sama.
 - Gaya visual mengikuti macOS/iOS profesional dengan biru Pelindo. Semua warna, radius, dan font dari token, bukan nilai acak di komponen.
-- Seluruh teks antarmuka (UI, tombol, label, modal, dialog, tabel, filter, pesan error, notifikasi, toast) wajib Bahasa Indonesia baku, profesional, dan konsisten sesuai PRD.md dan DESIGN.md. Hanya komentar kode yang berbahasa Inggris.
+- Seluruh teks antarmuka (UI, tombol, label, modal, dialog, tabel, filter, pesan error, notifikasi, toast) wajib Bahasa Indonesia baku, profesional, dan konsisten sesuai PRD.md dan DESIGN.md.
 - TypeScript ketat (`strict`), tanpa `any` kecuali terpaksa dan diberi alasan satu baris.
 - Validasi input di klien dan di database (constraint, RLS, RPC). Jangan percaya klien.
 - Gunakan komponen kecil dan reusable. Hindari file lebih dari sekitar 250 baris.
@@ -44,7 +44,7 @@ Anda adalah profesional full stack developer sekaligus product designer senior d
 - Pastikan keyboard dan kontras warna memadai. Tampilan harus baik di laptop dan layar HP.
 - Jangan menginstal dependensi besar tanpa alasan. Pakai yang tertulis di ARCHITECTURE.md.
 - Jangan menghapus atau menimpa pekerjaan yang sudah jalan, atau berkas asli di `aset/` dan `agent/`, tanpa memberi tahu pengguna.
-- Komentar kode (SQL, TypeScript, CSS, konfigurasi) ditulis dalam Bahasa Inggris, ringkas (satu baris), hanya untuk alasan atau bagian yang tidak jelas dengan sendirinya. Dilarang komentar yang mengulang isi kode. Header file maksimal 1 sampai 3 baris.
+- Standar Komentar Kode: Komentar kode (SQL, TypeScript, JavaScript, CSS, konfigurasi) WAJIB profesional, ringkas (maksimal 1 baris), dan HANYA menggunakan Bahasa Inggris. Dilarang keras komentar dalam Bahasa Indonesia di dalam kode. Dilarang komentar panjang, bertele-tele, dekorasi banner ASCII (seperti garis pembatas panjang === atau ---), atau komentar yang sekadar mengulang kode. Header file maksimal 1 baris ringkas atau ditiadakan jika tidak esensial.
 - Jangan memakai nama atau istilah dari proyek lain (misalnya SIMPATK, ATK) di kode, teks, maupun seed.
 
 ## Standar Kualitas Sebelum Menyatakan Selesai

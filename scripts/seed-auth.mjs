@@ -1,5 +1,4 @@
-// scripts/seed-auth.mjs
-// Seeds the 6 required demo accounts into Supabase Auth and updates public.profiles
+// Seed demo accounts into Supabase Auth and public.profiles
 
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync, existsSync } from "fs";

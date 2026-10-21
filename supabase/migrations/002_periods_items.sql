@@ -1,7 +1,4 @@
--- 002_periods_items.sql
--- Migration 002: Periods, Catering Orders, and Catering Items
-
--- Periods (Date + Shift + Assigned Vendor)
+-- Periods, catering orders, and catering items
 create table periods (
   id uuid primary key default gen_random_uuid(),
   tanggal date not null,

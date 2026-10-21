@@ -1,6 +1,4 @@
--- 02_rpc_business_rules.sql
--- Verification test suite for Database RPC Rules and Append-Only Constraints
--- Run within a rolling transaction that aborts cleanly.
+-- Test suite: RPC business rules and append-only constraints
 
 begin;
 

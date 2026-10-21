@@ -1,7 +1,5 @@
--- 007_rpc_admin.sql
--- Migration 007: Administrative RPC Functions (Security Definer with Strict Search Path)
-
--- 1. simpan_catering (Simpan Draft Pesanan)
+-- Administrative RPC functions
+-- simpan_catering: save draft order
 create or replace function simpan_catering(
   p_period_id uuid,
   p_items jsonb,
@@ -80,7 +78,7 @@ begin
 end;
 $$;
 
--- 2. kirim_catering (Kirim ke Vendor / Finalisasi)
+-- kirim_catering: finalize and send order to vendor
 create or replace function kirim_catering(
   p_order_id uuid,
   p_catatan text default null
@@ -139,7 +137,7 @@ begin
 end;
 $$;
 
--- 3. ajukan_revisi (Ajukan Perubahan Angka Pesanan Final)
+-- ajukan_revisi: submit portion revision
 create or replace function ajukan_revisi(
   p_item_id uuid,
   p_karyawan_baru integer,
@@ -245,7 +243,7 @@ begin
 end;
 $$;
 
--- 4. verifikasi_revisi (Setujui atau Tolak Revisi)
+-- verifikasi_revisi: approve or reject revision
 create or replace function verifikasi_revisi(
   p_revision_id uuid,
   p_setuju boolean,
@@ -373,7 +371,7 @@ begin
 end;
 $$;
 
--- 5. ganti_vendor_periode (Ganti Vendor pada Periode)
+-- ganti_vendor_periode: change period vendor
 create or replace function ganti_vendor_periode(
   p_period_id uuid,
   p_vendor_baru_id uuid,
@@ -436,7 +434,7 @@ begin
 end;
 $$;
 
--- 6. konfirmasi_impor (Terapkan Data dari Batch Impor)
+-- konfirmasi_impor: apply imported batch
 create or replace function konfirmasi_impor(
   p_batch_id uuid
 )

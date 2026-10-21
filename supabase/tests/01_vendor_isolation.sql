@@ -1,6 +1,4 @@
--- 01_vendor_isolation.sql
--- Verification test suite for Vendor Isolation
--- Run this test inside a transaction that is rolled back so no test artifacts remain.
+-- Test suite: vendor isolation policies and RPC guards
 
 begin;
 

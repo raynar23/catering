@@ -1,14 +1,7 @@
--- ==============================================================================
--- DATABASE LENGKAP CATERING KARYAWAN PT TERMINAL PETIKEMAS SURABAYA
--- Generated automatically: 2026-10-21T02:10:10.131Z
--- ==============================================================================
+-- Unified schema and seed for Catering TPS
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 001_enums_master.sql
--- ------------------------------------------------------------------------------
-
--- 001_enums_master.sql
--- Migration 001: Enums and Master Tables (Shifts, Bagian, Vendors, Profiles)
+-- Migration: 001_enums_master.sql
+-- Enums and master tables
 
 create extension if not exists "pgcrypto";
 
@@ -98,14 +91,8 @@ create index idx_vendors_rotasi on vendors (urutan_rotasi);
 create index idx_profiles_role on profiles (role);
 create index idx_profiles_vendor on profiles (vendor_id);
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 002_periods_items.sql
--- ------------------------------------------------------------------------------
-
--- 002_periods_items.sql
--- Migration 002: Periods, Catering Orders, and Catering Items
-
--- Periods (Date + Shift + Assigned Vendor)
+-- Migration: 002_periods_items.sql
+-- Periods, catering orders, and catering items
 create table periods (
   id uuid primary key default gen_random_uuid(),
   tanggal date not null,
@@ -161,14 +148,8 @@ create index idx_orders_vendor_status on catering_orders (vendor_id, status);
 create index idx_items_order on catering_items (order_id);
 create index idx_items_bagian on catering_items (bagian_id);
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 003_revisions_logs.sql
--- ------------------------------------------------------------------------------
-
--- 003_revisions_logs.sql
--- Migration 003: Revisions, Append-Only Order Logs, and Integrity Triggers
-
--- Revisions for Catering Items
+-- Migration: 003_revisions_logs.sql
+-- Revisions, append-only order logs, and integrity triggers
 create table revisions (
   id uuid primary key default gen_random_uuid(),
   item_id uuid not null references catering_items(id) on delete cascade,
@@ -260,12 +241,8 @@ create trigger trg_prevent_order_logs_mod
 before update or delete on order_logs
 for each row execute function prevent_order_logs_mod();
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 004_import_batches.sql
--- ------------------------------------------------------------------------------
-
--- 004_import_batches.sql
--- Migration 004: Import Batches for Document Ingestion
+-- Migration: 004_import_batches.sql
+-- Import batches for document ingestion
 
 create table import_batches (
   id uuid primary key default gen_random_uuid(),
@@ -287,14 +264,8 @@ create index idx_import_batches_status on import_batches (status);
 create index idx_import_batches_user on import_batches (diimpor_oleh);
 create index idx_import_batches_created on import_batches (created_at desc);
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 005_views.sql
--- ------------------------------------------------------------------------------
-
--- 005_views.sql
--- Migration 005: Analytical and Vendor Safe Views
-
--- View v_rekap: Valid/applicable catering orders only ('final', 'revisi')
+-- Migration: 005_views.sql
+-- Analytical and vendor safe views
 create or replace view v_rekap with (security_invoker = true) as
 select
   o.id as order_id,
@@ -351,12 +322,8 @@ from order_logs ol
 join catering_orders o on o.id = ol.order_id
 join profiles pr on pr.id = ol.oleh;
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 006_rls.sql
--- ------------------------------------------------------------------------------
-
--- 006_rls.sql
--- Migration 006: Row Level Security (RLS) & Isolation Policies
+-- Migration: 006_rls.sql
+-- Row Level Security policies and vendor isolation
 
 -- Helper security functions
 create or replace function current_user_role()
@@ -494,14 +461,9 @@ create policy "import_batches_policy" on import_batches
   using (is_admin_or_pic())
   with check (is_admin_or_pic());
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 007_rpc_admin.sql
--- ------------------------------------------------------------------------------
-
--- 007_rpc_admin.sql
--- Migration 007: Administrative RPC Functions (Security Definer with Strict Search Path)
-
--- 1. simpan_catering (Simpan Draft Pesanan)
+-- Migration: 007_rpc_admin.sql
+-- Administrative RPC functions
+-- simpan_catering: save draft order
 create or replace function simpan_catering(
   p_period_id uuid,
   p_items jsonb,
@@ -580,7 +542,7 @@ begin
 end;
 $$;
 
--- 2. kirim_catering (Kirim ke Vendor / Finalisasi)
+-- kirim_catering: finalize and send order to vendor
 create or replace function kirim_catering(
   p_order_id uuid,
   p_catatan text default null
@@ -639,7 +601,7 @@ begin
 end;
 $$;
 
--- 3. ajukan_revisi (Ajukan Perubahan Angka Pesanan Final)
+-- ajukan_revisi: submit portion revision
 create or replace function ajukan_revisi(
   p_item_id uuid,
   p_karyawan_baru integer,
@@ -745,7 +707,7 @@ begin
 end;
 $$;
 
--- 4. verifikasi_revisi (Setujui atau Tolak Revisi)
+-- verifikasi_revisi: approve or reject revision
 create or replace function verifikasi_revisi(
   p_revision_id uuid,
   p_setuju boolean,
@@ -873,7 +835,7 @@ begin
 end;
 $$;
 
--- 5. ganti_vendor_periode (Ganti Vendor pada Periode)
+-- ganti_vendor_periode: change period vendor
 create or replace function ganti_vendor_periode(
   p_period_id uuid,
   p_vendor_baru_id uuid,
@@ -936,7 +898,7 @@ begin
 end;
 $$;
 
--- 6. konfirmasi_impor (Terapkan Data dari Batch Impor)
+-- konfirmasi_impor: apply imported batch
 create or replace function konfirmasi_impor(
   p_batch_id uuid
 )
@@ -998,14 +960,9 @@ begin
 end;
 $$;
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 008_rpc_vendor.sql
--- ------------------------------------------------------------------------------
-
--- 008_rpc_vendor.sql
--- Migration 008: Vendor RPC Functions (Strict Vendor Isolation and Progressive States)
-
--- Helper function to map vendor_progress to numeric rank
+-- Migration: 008_rpc_vendor.sql
+-- Vendor RPC functions
+-- Map vendor_progress to numeric rank
 create or replace function get_progress_rank(p_progres vendor_progress)
 returns integer as $$
 begin
@@ -1020,7 +977,7 @@ begin
 end;
 $$ language plpgsql immutable;
 
--- 1. respon_periode_vendor (Sanggup / Tidak Sanggup Pesanan Periode)
+-- respon_periode_vendor: vendor accepts or rejects order
 create or replace function respon_periode_vendor(
   p_order_id uuid,
   p_sanggup boolean,
@@ -1076,7 +1033,7 @@ begin
 end;
 $$;
 
--- 2. respon_revisi_vendor (Respon Terhadap Pengajuan Revisi Porsi)
+-- respon_revisi_vendor: vendor responds to revision
 create or replace function respon_revisi_vendor(
   p_revision_id uuid,
   p_sanggup boolean,
@@ -1139,7 +1096,7 @@ begin
 end;
 $$;
 
--- 3. update_progres_vendor (Pembaruan Tahap Pengiriman Catering)
+-- update_progres_vendor: forward vendor delivery progress
 create or replace function update_progres_vendor(
   p_order_id uuid,
   p_progres vendor_progress,
@@ -1200,7 +1157,7 @@ begin
 end;
 $$;
 
--- 4. get_notifikasi (Ringkasan Notifikasi untuk Akun yang Sedang Login)
+-- get_notifikasi: fetch user notification counts
 create or replace function get_notifikasi()
 returns jsonb
 language plpgsql
@@ -1248,12 +1205,8 @@ begin
 end;
 $$;
 
--- ------------------------------------------------------------------------------
--- MIGRATION: 009_realtime.sql
--- ------------------------------------------------------------------------------
-
--- 009_realtime.sql
--- Migration 009: Realtime Publication Configuration for Orders, Revisions, and Logs
+-- Migration: 009_realtime.sql
+-- Realtime publication configuration
 
 do $$
 begin
@@ -1284,12 +1237,8 @@ exception
     null;
 end $$;
 
--- ------------------------------------------------------------------------------
--- SEED DATA & 29-DAY ROLLING DEMO SCHEDULE
--- ------------------------------------------------------------------------------
-
--- seed.sql
--- Demo Seed Data: Shifts, Bagian, Vendors, Profiles, and 29-Day Rolling Schedule (-14 to +14 days)
+-- Seed data
+-- Demo seed data for shifts, sections, vendors, profiles, and 29-day rolling schedule
 
 do $$
 declare

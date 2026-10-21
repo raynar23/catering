@@ -1,5 +1,4 @@
--- seed.sql
--- Demo Seed Data: Shifts, Bagian, Vendors, Profiles, and 29-Day Rolling Schedule (-14 to +14 days)
+-- Demo seed data for shifts, sections, vendors, profiles, and 29-day rolling schedule
 
 do $$
 declare

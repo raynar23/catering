@@ -1,7 +1,5 @@
--- 008_rpc_vendor.sql
--- Migration 008: Vendor RPC Functions (Strict Vendor Isolation and Progressive States)
-
--- Helper function to map vendor_progress to numeric rank
+-- Vendor RPC functions
+-- Map vendor_progress to numeric rank
 create or replace function get_progress_rank(p_progres vendor_progress)
 returns integer as $$
 begin
@@ -16,7 +14,7 @@ begin
 end;
 $$ language plpgsql immutable;
 
--- 1. respon_periode_vendor (Sanggup / Tidak Sanggup Pesanan Periode)
+-- respon_periode_vendor: vendor accepts or rejects order
 create or replace function respon_periode_vendor(
   p_order_id uuid,
   p_sanggup boolean,
@@ -72,7 +70,7 @@ begin
 end;
 $$;
 
--- 2. respon_revisi_vendor (Respon Terhadap Pengajuan Revisi Porsi)
+-- respon_revisi_vendor: vendor responds to revision
 create or replace function respon_revisi_vendor(
   p_revision_id uuid,
   p_sanggup boolean,
@@ -135,7 +133,7 @@ begin
 end;
 $$;
 
--- 3. update_progres_vendor (Pembaruan Tahap Pengiriman Catering)
+-- update_progres_vendor: forward vendor delivery progress
 create or replace function update_progres_vendor(
   p_order_id uuid,
   p_progres vendor_progress,
@@ -196,7 +194,7 @@ begin
 end;
 $$;
 
--- 4. get_notifikasi (Ringkasan Notifikasi untuk Akun yang Sedang Login)
+-- get_notifikasi: fetch user notification counts
 create or replace function get_notifikasi()
 returns jsonb
 language plpgsql

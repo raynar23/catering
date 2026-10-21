@@ -1,5 +1,4 @@
--- 006_rls.sql
--- Migration 006: Row Level Security (RLS) & Isolation Policies
+-- Row Level Security policies and vendor isolation
 
 -- Helper security functions
 create or replace function current_user_role()

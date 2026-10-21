@@ -1,5 +1,4 @@
--- 001_enums_master.sql
--- Migration 001: Enums and Master Tables (Shifts, Bagian, Vendors, Profiles)
+-- Enums and master tables
 
 create extension if not exists "pgcrypto";
 

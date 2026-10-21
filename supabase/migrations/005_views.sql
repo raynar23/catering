@@ -1,7 +1,4 @@
--- 005_views.sql
--- Migration 005: Analytical and Vendor Safe Views
-
--- View v_rekap: Valid/applicable catering orders only ('final', 'revisi')
+-- Analytical and vendor safe views
 create or replace view v_rekap with (security_invoker = true) as
 select
   o.id as order_id,

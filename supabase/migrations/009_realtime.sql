@@ -1,5 +1,4 @@
--- 009_realtime.sql
--- Migration 009: Realtime Publication Configuration for Orders, Revisions, and Logs
+-- Realtime publication configuration
 
 do $$
 begin

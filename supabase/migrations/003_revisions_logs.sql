@@ -1,7 +1,4 @@
--- 003_revisions_logs.sql
--- Migration 003: Revisions, Append-Only Order Logs, and Integrity Triggers
-
--- Revisions for Catering Items
+-- Revisions, append-only order logs, and integrity triggers
 create table revisions (
   id uuid primary key default gen_random_uuid(),
   item_id uuid not null references catering_items(id) on delete cascade,

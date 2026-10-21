@@ -1,5 +1,4 @@
-// scripts/build-database-sql.mjs
-// Consolidates migrations and seed into a single executable SQL file: DATABASE_LENGKAP_CATERING.sql
+// Build consolidated DATABASE_LENGKAP_CATERING.sql from migrations and seed
 
 import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { resolve, join } from "path";
@@ -17,27 +16,18 @@ function buildDatabaseSql() {
     .filter((file) => file.endsWith(".sql"))
     .sort();
 
-  let combinedSql = `-- ==============================================================================
--- DATABASE LENGKAP CATERING KARYAWAN PT TERMINAL PETIKEMAS SURABAYA
--- Generated automatically: ${new Date().toISOString()}
--- ==============================================================================
-
-`;
+  let combinedSql = `-- Unified schema and seed for Catering TPS\n\n`;
 
   for (const file of migrationFiles) {
     const filePath = join(migrationsDir, file);
     const content = readFileSync(filePath, "utf-8");
-    combinedSql += `-- ------------------------------------------------------------------------------\n`;
-    combinedSql += `-- MIGRATION: ${file}\n`;
-    combinedSql += `-- ------------------------------------------------------------------------------\n\n`;
+    combinedSql += `-- Migration: ${file}\n`;
     combinedSql += content.trim() + "\n\n";
   }
 
   if (seedFile) {
     const seedContent = readFileSync(seedFile, "utf-8");
-    combinedSql += `-- ------------------------------------------------------------------------------\n`;
-    combinedSql += `-- SEED DATA & 29-DAY ROLLING DEMO SCHEDULE\n`;
-    combinedSql += `-- ------------------------------------------------------------------------------\n\n`;
+    combinedSql += `-- Seed data\n`;
     combinedSql += seedContent.trim() + "\n";
   }
 

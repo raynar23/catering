@@ -1,5 +1,4 @@
--- 004_import_batches.sql
--- Migration 004: Import Batches for Document Ingestion
+-- Import batches for document ingestion
 
 create table import_batches (
   id uuid primary key default gen_random_uuid(),
