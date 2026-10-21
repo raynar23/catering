@@ -1,22 +1,56 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { AdminRekapView } from "@/components/rekap/AdminRekapView";
+import { RekapPreset, getRekapPresetRange } from "@/lib/rekap";
+import { formatDateLong } from "@/lib/format";
 
-// Matrix recapitulation placeholder page for consolidated portion counts
-export default function AdminRekapitulasiPage() {
+interface AdminRekapitulasiPageProps {
+  searchParams?: Promise<{
+    dari?: string;
+    sampai?: string;
+    preset?: string;
+    tab?: string;
+  }>;
+}
+
+// Fallback skeleton while server parameters resolve
+function RekapLoadingFallback() {
+  return (
+    <div className="flex-1 min-h-0 flex flex-col gap-3 animate-pulse">
+      <div className="h-9 w-72 bg-border/40 rounded-[8px]" />
+      <div className="flex-1 bg-surface border border-border rounded-[10px]" />
+    </div>
+  );
+}
+
+// Admin recapitulation and reporting page unifying daily matrix, summary analytics, and export
+export default async function AdminRekapitulasiPage({
+  searchParams,
+}: AdminRekapitulasiPageProps) {
+  const resolvedParams = searchParams ? await searchParams : {};
+  const defaultRange = getRekapPresetRange("bulanan");
+
+  const initialPreset = (resolvedParams.preset as RekapPreset) || "bulanan";
+  const initialDari = resolvedParams.dari || defaultRange.dari;
+  const initialSampai = resolvedParams.sampai || defaultRange.sampai;
+  const initialTab = resolvedParams.tab === "ringkasan" ? "ringkasan" : "harian";
+  const todayStr = formatDateLong(new Date());
+
   return (
     <PageContainer>
       <PageHeader
-        title="Rekapitulasi"
-        subtitle="Matriks konsolidasi data catering per shift dan bagian kerja"
+        title="Rekapitulasi dan Laporan"
+        subtitle={todayStr}
       />
-      <div className="flex-1 min-h-0 flex flex-col justify-center bg-surface border border-border rounded-[10px] mt-4 p-6">
-        <EmptyState
-          title="Modul Rekapitulasi Data"
-          description="Tabel matriks per bagian dan shift, baris total periode, serta filter tanggal dinamis akan terhubung dengan view v_rekap pada Tahap 07."
+      <Suspense fallback={<RekapLoadingFallback />}>
+        <AdminRekapView
+          initialDari={initialDari}
+          initialSampai={initialSampai}
+          initialPreset={initialPreset}
+          initialTab={initialTab}
         />
-      </div>
+      </Suspense>
     </PageContainer>
   );
 }
