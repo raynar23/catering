@@ -190,3 +190,25 @@ create policy "import_batches_policy" on import_batches
   for all to authenticated
   using (public.is_admin())
   with check (public.is_admin());
+
+-- Revoke all table and routine permissions from anon on public schema
+revoke all on all tables in schema public from anon;
+revoke all on all routines in schema public from anon;
+
+-- Revoke direct writes from authenticated on operational tables (mutations only via security definer RPCs)
+revoke insert, update, delete on public.catering_orders from authenticated;
+revoke insert, update, delete on public.catering_items from authenticated;
+revoke insert, update, delete on public.revisions from authenticated;
+revoke insert, update, delete on public.order_logs from authenticated;
+revoke insert, update, delete on public.import_batches from authenticated;
+
+-- Ensure select access on tables for authenticated users according to RLS
+grant select on public.catering_orders to authenticated;
+grant select on public.catering_items to authenticated;
+grant select on public.revisions to authenticated;
+grant select on public.order_logs to authenticated;
+grant select on public.import_batches to authenticated;
+grant select on public.shifts to authenticated;
+grant select on public.bagian to authenticated;
+grant select on public.vendors to authenticated;
+grant select on public.periods to authenticated;
