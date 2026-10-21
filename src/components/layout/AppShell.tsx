@@ -59,6 +59,7 @@ export function AppShell({ profile, children, badges = {} }: AppShellProps) {
           {children}
         </main>
       </div>
+      </div>
     </ToastProvider>
   );
 }

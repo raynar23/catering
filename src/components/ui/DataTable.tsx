@@ -73,22 +73,12 @@ export function DataTable<T>({
 
   const totalItems = data.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-
-  // Reset page when out of bounds
-  useEffect(() => {
-    if (activePage > totalPages) {
-      if (onPageChange) {
-        onPageChange(totalPages);
-      } else {
-        setInternalPage(totalPages);
-      }
-    }
-  }, [activePage, totalPages, onPageChange]);
+  const validPage = Math.min(Math.max(1, activePage), totalPages);
 
   const paginatedData = useMemo(() => {
-    const start = (activePage - 1) * pageSize;
+    const start = (validPage - 1) * pageSize;
     return data.slice(start, start + pageSize);
-  }, [data, activePage, pageSize]);
+  }, [data, validPage, pageSize]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -99,10 +89,10 @@ export function DataTable<T>({
     }
   };
 
-  const startRecord = totalItems === 0 ? 0 : (activePage - 1) * pageSize + 1;
-  const endRecord = Math.min(activePage * pageSize, totalItems);
+  const startRecord = totalItems === 0 ? 0 : (validPage - 1) * pageSize + 1;
+  const endRecord = Math.min(validPage * pageSize, totalItems);
   const summaryText = `Menampilkan ${startRecord}-${endRecord} dari ${formatNumber(totalItems)} data`;
-  const pageText = `${activePage} / ${totalPages}`;
+  const pageText = `${validPage} / ${totalPages}`;
 
   return (
     <div
@@ -196,8 +186,8 @@ export function DataTable<T>({
         <div className="flex items-center gap-1.5">
           <button
             type="button"
-            disabled={activePage <= 1 || isLoading}
-            onClick={() => handlePageChange(activePage - 1)}
+            disabled={validPage <= 1 || isLoading}
+            onClick={() => handlePageChange(validPage - 1)}
             className="h-7 px-3 rounded-[6px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             Sebelumnya
@@ -207,8 +197,8 @@ export function DataTable<T>({
           </span>
           <button
             type="button"
-            disabled={activePage >= totalPages || isLoading}
-            onClick={() => handlePageChange(activePage + 1)}
+            disabled={validPage >= totalPages || isLoading}
+            onClick={() => handlePageChange(validPage + 1)}
             className="h-7 px-3 rounded-[6px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
           >
             Berikutnya
