@@ -1,22 +1,21 @@
 import React from "react";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { VendorTable } from "@/components/admin/VendorTable";
 
-// Catering supplier vendor master data placeholder page
+export const metadata = {
+  title: "Data Vendor | Sistem Pengelolaan Data Catering Karyawan",
+};
+
+// Vendor master management page for Admin GA
 export default function AdminMasterVendorPage() {
   return (
     <PageContainer>
       <PageHeader
         title="Data Vendor"
-        subtitle="Manajemen rekanan penyedia jasa catering, kontak, dan urutan rotasi"
+        subtitle="Kelola master data rekanan penyedia catering, urutan rotasi, dan kontak WhatsApp"
       />
-      <div className="flex-1 min-h-0 flex flex-col justify-center bg-surface border border-border rounded-[10px] mt-4 p-6">
-        <EmptyState
-          title="Master Data Vendor Catering"
-          description="Pengaturan profil vendor rekanan (V001 - V005), nomor kontak, alamat operasional, dan parameter rotasi akan diaktifkan pada Tahap 04."
-        />
-      </div>
+      <VendorTable />
     </PageContainer>
   );
 }
