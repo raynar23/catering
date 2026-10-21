@@ -46,6 +46,7 @@ export async function signIn(credentials: SignInCredentials): Promise<SignInResu
     .single();
 
   if (profileError || !profile) {
+    console.error('Sign-in profile error:', profileError);
     await supabase.auth.signOut();
     return { ok: false, message: 'Profil pengguna tidak ditemukan. Silakan hubungi Administrator General Affairs.' };
   }
