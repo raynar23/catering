@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useTransition } from "react";
-import { Bell, Menu, LogOut } from "lucide-react";
+import Link from "next/link";
+import { Bell, Menu, LogOut, Settings } from "lucide-react";
 import { Profile } from "@/lib/types";
 import { signOutAction } from "@/lib/auth/sign-out";
 import { cn } from "@/lib/utils";
@@ -152,6 +153,15 @@ export function Topbar({
                   {profile?.username ? `@${profile.username}` : ""}
                 </p>
               </div>
+
+              <Link
+                href={profile?.role === "admin_ga" ? "/admin/pengaturan" : "/vendor/pengaturan"}
+                onClick={() => setProfileOpen(false)}
+                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-text hover:bg-bg rounded-[6px] transition-colors cursor-pointer mb-0.5"
+              >
+                <Settings className="w-3.5 h-3.5 text-text-muted" />
+                <span>Pengaturan Akun</span>
+              </Link>
 
               <button
                 type="button"
