@@ -62,8 +62,40 @@ create policy "profiles_select_policy" on profiles
 
 create policy "profiles_update_policy" on profiles
   for update to authenticated
-  using (id = auth.uid())
-  with check (id = auth.uid());
+  using (id = auth.uid() or public.is_admin())
+  with check (id = auth.uid() or public.is_admin());
+
+-- Revoke blanket table update and grant only to safe self-service column nama
+revoke update on public.profiles from authenticated, anon;
+grant update (nama) on public.profiles to authenticated;
+
+-- Trigger guard: prevent unauthorized changes to sensitive profile columns
+create or replace function public.guard_profiles_update()
+returns trigger as $$
+begin
+  -- Allow service_role or superuser to update any column
+  if current_user in ('postgres', 'service_role') or coalesce(current_setting('request.jwt.claim.role', true), '') = 'service_role' then
+    return new;
+  end if;
+
+  if new.role is distinct from old.role or
+     new.vendor_id is distinct from old.vendor_id or
+     new.aktif is distinct from old.aktif or
+     new.bagian_id is distinct from old.bagian_id or
+     new.id is distinct from old.id or
+     new.username is distinct from old.username then
+    raise exception 'Modifikasi kolom terlindungi pada profiles tidak diizinkan';
+  end if;
+
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public, pg_temp;
+
+drop trigger if exists trg_guard_profiles_update on public.profiles;
+create trigger trg_guard_profiles_update
+  before update on public.profiles
+  for each row
+  execute function public.guard_profiles_update();
 
 -- SHIFTS
 create policy "shifts_select_policy" on shifts
