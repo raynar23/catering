@@ -58,7 +58,7 @@ alter table import_batches enable row level security;
 -- PROFILES
 create policy "profiles_select_policy" on profiles
   for select to authenticated
-  using (true);
+  using (id = auth.uid() or public.is_admin());
 
 create policy "profiles_update_policy" on profiles
   for update to authenticated
