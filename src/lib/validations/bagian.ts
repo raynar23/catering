@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const bagianSchema = z.object({
   nama: z
-    .string({ required_error: "Nama bagian wajib diisi" })
+    .string()
     .trim()
     .min(2, "Nama bagian minimal 2 karakter")
     .max(100, "Nama bagian maksimal 100 karakter"),

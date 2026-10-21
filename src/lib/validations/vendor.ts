@@ -3,12 +3,12 @@ import { z } from "zod";
 
 export const vendorSchema = z.object({
   kode: z
-    .string({ required_error: "Kode vendor wajib diisi" })
+    .string()
     .trim()
     .min(2, "Kode vendor minimal 2 karakter")
     .max(10, "Kode vendor maksimal 10 karakter"),
   nama: z
-    .string({ required_error: "Nama vendor wajib diisi" })
+    .string()
     .trim()
     .min(2, "Nama vendor minimal 2 karakter")
     .max(100, "Nama vendor maksimal 100 karakter"),
