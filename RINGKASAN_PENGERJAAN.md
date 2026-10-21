@@ -1,147 +1,155 @@
-# Ringkasan Pengerjaan Proyek Catering TPS (Tahap 02 - Tahap 08)
-
-Dokumen ini merangkum seluruh pekerjaan, keputusan arsitektur, fitur yang telah diimplementasikan, serta status pengujian pada sistem Pengelolaan Data Catering Karyawan Pelindo Terminal Petikemas Surabaya (TPS).
-
----
-
-## 1. Ikhtisar Arsitektur & Ketentuan Proyek
-
-- **Peran Pengguna (Strictly 2 Roles)**:
-  - `admin_ga`: Mengelola master data, jadwal periode, input catering 3-shift, verifikasi data, revisi kuota, dan monitoring.
-  - `vendor`: Mengakses portal mandiri untuk melihat permintaan, menyatakan ketersediaan (sanggup/tidak sanggup), memperbarui tahapan progres pengiriman, dan melihat riwayat pesanan.
-- **Isolasi Keamanan (Row Level Security & RPC)**:
-  - Isolasi data vendor ditegakkan pada tingkat database PostgreSQL (RLS), bukan hanya filter UI.
-  - Seluruh mutasi kritis (konfirmasi kesanggupan, pergantian vendor, verifikasi revisi, progres pengantaran) dieksekusi melalui *Stored Procedure* / RPC dengan hak `security definer`.
-- **Desain & Pengalaman Pengguna**:
-  - Konsep layout desktop *zero-scroll* (`100dvh` / `h-dvh max-h-dvh overflow-hidden`).
-  - Target sentuh mobile ramah sentuhan minimal 44px (`min-h-[44px]`).
-  - Anonimisasi: Vendor selalu melihat pengupdate internal sebagai "Admin GA" (identitas pribadi karyawan tidak dibocorkan).
-  - Standar kode bersih: Tanpa emoji pada kode, UI, maupun pesan commit; komentar kode berupa 1 baris berbahasa Inggris.
+# Dokumen Handover & Ringkasan Pengerjaan Proyek Catering TPS
+### Sistem Pengelolaan Data Catering Karyawan - PT Terminal Petikemas Surabaya
+*Pembaruan Terakhir: 21 Oktober 2026 (Tahap 02 s.d. Tahap 08)*
 
 ---
 
-## 2. Rincian Pengerjaan per Tahap / Branch
+## 1. Ikhtisar Sistem & Kredensial Akses
 
-### Tahap 02: Fondasi Database & Keamanan (`feat/02-database`)
-- **Migrasi Database PostgreSQL** (10 file migrasi di `supabase/migrations/`):
-  1. `001_enums_master.sql`: Enum role, order status, progress, master shift, bagian, vendor, profil.
-  2. `002_periods_items.sql`: Tabel periods, catering_orders, catering_items beserta indeks.
-  3. `003_revisions_logs.sql`: Tabel revisions dengan kolom immutable, audit timeline append-only `order_logs`.
-  4. `004_import_batches.sql`: Penampung batch impor dokumen.
-  5. `005_views.sql`: View ringkasan periode dan utilisasi.
-  6. `006_rls.sql`: Kebijakan Row Level Security ketat untuk isolasi vendor dan akses admin.
-  7. `007_rpc_admin.sql`: RPC admin (`simpan_catering`, `kirim_catering`, `ganti_vendor_periode`, `ajukan_revisi`, `verifikasi_revisi`).
-  8. `008_rpc_vendor.sql`: RPC vendor (`respon_periode_vendor`, `respon_revisi_vendor`, `update_progres_vendor`, `get_notifikasi`).
-  9. `009_realtime.sql`: Konfigurasi publikasi real-time.
-  10. `010_view_periode_ringkas.sql`: View performa tinggi `v_periode_ringkas` mencegah query N+1.
-- **Seed Data Lengkap (`supabase/seed.sql`)**:
-  - 3 Shift kerja: Shift 3 (Malam: 00.00-08.00), Shift 1 (Pagi: 08.00-16.00), Shift 2 (Siang: 16.00-24.00).
-  - Master Bagian operasional TPS dan 5 Vendor catering aktif (V001 - V005).
-  - Akun autentikasi awal Admin GA dan Vendor dengan password terenkripsi.
+Sistem ini dibangun untuk mendigitalkan dan mengotomatiskan alur kerja pemesanan katering harian 3-shift di lingkungan PT Terminal Petikemas Surabaya (Pelindo TPS), mencakup pencatatan kuota porsi, distribusi pesanan ke vendor mitra, pengajuan revisi pasca-final, verifikasi General Affairs, hingga pelaporan progres pengiriman secara real-time.
+
+### Akun Uji Coba Resmi (Tersedia di Database)
+
+| Peran (Role) | Username / Email | Password | Keterangan & Akses |
+| :--- | :--- | :--- | :--- |
+| `admin_ga` | `admin@tps.co.id` (atau `admin`) | `gatps2026` | Akses penuh seluruh master data, input 3-shift, jadwal rotasi, verifikasi revisi, ganti vendor, dan audit timeline. |
+| `vendor` | `vendor@tps.co.id` (atau `vendor`) | `vendortps2026` | Terhubung ke mitra Aisya Catering (V001). Akses portal mandiri: konfirmasi pesanan, penyesuaian revisi, pembaruan 5 tahap progres, riwayat. |
+
+*Catatan Autentikasi:* Sistem mendukung input username langsung (`admin` atau `vendor`) yang otomatis dinormalisasi menjadi email korporat `username@tps.co.id` pada sisi autentikasi Supabase SSR.
 
 ---
 
-### Tahap 03: Autentikasi, Middleware Role, dan App Shell (`feat/03-auth-shell`)
-- **Autentikasi Supabase SSR**:
-  - Integrasi `@supabase/ssr` melalui `client.ts`, `server.ts`, dan `middleware.ts`.
-  - Normalisasi username menjadi huruf kecil dipetakan ke format email internal `username@tps.co.id`.
-  - Server actions `sign-in.ts` dan `sign-out.ts` dengan penolakan akun nonaktif.
-- **Kerangka Aplikasi (App Shell)**:
-  - Sidebar tetap 264px (`#0B3D6B`) dengan logo monokrom Pelindo TPS dan navigasi berbasis role.
-  - Topbar dengan identitas pengguna, role badge, dan toggle drawer mobile.
-  - Komponen sistem UI: `PageContainer`, `PageHeader`, `ToastProvider`, `StatusBadge`, `EmptyState`.
+## 2. Arsitektur Database & Penyelesaian Keamanan RLS
+
+Database menggunakan PostgreSQL pada platform Supabase dengan skema relasional, audit append-only, dan Row Level Security (RLS) ketat.
+
+### A. Struktur Data & Tabel Utama
+
+1. **Master Data Operasional**:
+   - `shifts`: 3 shift kerja (Shift 3 Malam: 00.00-08.00, Shift 1 Pagi: 08.00-16.00, Shift 2 Siang: 16.00-24.00) dengan konfigurasi batas jam tiba.
+   - `bagian`: Bagian/divisi kerja operasional TPS beserta kelompok, lokasi antar fisik, catatan antar, dan urutan tampilan.
+   - `vendors`: Data mitra katering (kode unik V001 - V005, kontak WhatsApp, penanggung jawab, status aktif).
+   - `profiles`: Data pengguna sistem terikat ke `auth.users`, mencakup role (`admin_ga`, `vendor`), relasi vendor/bagian, dan flag aktif.
+
+2. **Transaksi & Alur Kerja Katering**:
+   - `periods`: Header jadwal katering per tanggal dan shift. Menampung status pesanan (`draft`, `final`, `revisi`, `batal`), vendor penanggung jawab, status respon vendor (`menunggu`, `menyanggupi`, `tidak_menyanggupi`), batas jam tiba, dan progres vendor (`menunggu`, `dipersiapkan`, `dikirim`, `sampai`, `selesai`).
+   - `catering_orders`: Pengelompokan pesanan per bagian dalam suatu periode.
+   - `catering_items`: Detail jumlah karyawan dan porsi per bagian. Rasio default 1:1 dengan validasi integritas.
+   - `revisions`: Log permintaan perubahan kuota pasca status final. Menyimpan kuota lama, kuota baru, selisih bertanda (+/-), alasan wajib, serta status persetujuan General Affairs. Kolom-kolom revisi dijaga immutable melalui database trigger.
+   - `order_logs`: Audit trail append-only mencatat seluruh kronologi (pembuatan, perubahan sel, pengiriman, perubahan status respon, pergantian vendor, verifikasi revisi) lengkap dengan aktor dan timestamp.
+   - `import_batches`: Penampung riwayat impor data dokumen katering.
+
+3. **High-Performance Database Views**:
+   - `v_periode_ringkas`: View ringkasan periode yang menggabungkan total karyawan, total porsi, jumlah revisi pending, nama vendor, dan nama shift dalam satu baris untuk menghindari masalah N+1 query.
+   - `v_rekap_bulanan`: View agregasi bulanan untuk laporan keuangan dan rekapitulasi konsumsi per vendor.
+   - `v_utilisasi_shift`: View monitoring beban kerja dan utilisasi katering per shift kerja.
+
+4. **Stored Procedures & RPC Berkeamanan Tinggi (`security definer`)**:
+   - `simpan_catering`: Menyimpan data katering draft per shift hanya untuk sel yang berubah (*dirty cell tracking*), mencegah konflik penimpaan data antar PIC yang mengisi baris berbeda secara bersamaan.
+   - `kirim_catering`: Memvalidasi kelengkapan pengisian kuota seluruh bagian dan mengunci periode menjadi status `final`.
+   - `ganti_vendor_periode`: Memfasilitasi pergantian vendor terjadwal atau vendor darurat dengan alasan wajib, otomatis memperbarui status respon, dan mencatat riwayat log.
+   - `ajukan_revisi`: Mengajukan perubahan kuota pasca-final dengan alasan wajib dan penandaan visual pending.
+   - `verifikasi_revisi`: Menyetujui atau membatalkan revisi dengan catatan wajib jika dibatalkan.
+   - `respon_periode_vendor`: Vendor menyatakan kesanggupan atau ketidaksanggupan (dengan catatan penolakan wajib).
+   - `respon_revisi_vendor`: Vendor menyetujui atau menolak revisi jumlah porsi.
+   - `update_progres_vendor`: Memajukan status pengantaran 5 tahap satu arah secara bertahap (menolak loncatan mundur).
+   - `get_notifikasi`: Mengambil daftar peringatan dan notifikasi aktif untuk admin maupun vendor.
 
 ---
 
-### Tahap 04: Master Data Bagian dan Master Vendor (`feat/04-master-bagian-vendor`)
-- **Data Bagian (`/admin/data-bagian` & `/admin/master/bagian`)**:
-  - Tabel berpaginasi di sisi server dengan pencarian nama, kode, dan kelompok.
-  - Dialog Tambah & Ubah Bagian (nama, kelompok, lokasi antar, catatan antar, urutan, status aktif).
-  - Validasi hapus aman: ditolak jika bagian sudah terikat pada pesanan, dialihkan ke opsi nonaktifkan.
-- **Data Vendor (`/admin/data-vendor` & `/admin/master/vendor`)**:
-  - Kode vendor otomatis berurutan (V001, V002, dst.) yang dapat disesuaikan.
-  - Dialog Tambah & Ubah Vendor (kode, nama, kontak WhatsApp/telp, alamat, status aktif).
-  - Validasi Zod skema form dengan penanganan error ramah pengguna.
+### B. Investigasi Mendalam & Solusi Tuntas Bug RLS Infinite Recursion (`42P17`)
+
+#### 1. Akar Masalah
+Saat pengguna melakukan login, aplikasi mengeksekusi `SELECT role, aktif FROM public.profiles WHERE id = auth.uid()`. Terjadi error PostgreSQL `42P17: infinite recursion detected in policy for relation "profiles"`.
+
+Penyebabnya berasal dari kebijakan RLS lama pada tabel `profiles`:
+```sql
+create policy "profiles_manage_policy" on profiles
+  for all to authenticated
+  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+```
+- Klausa `for all` menyebabkan policy ini dievaluasi pada semua perintah, termasuk perintah `SELECT`.
+- Di dalam klausa `using`, terdapat subquery yang membaca tabel `profiles` kembali (`select role from profiles...`).
+- Di PostgreSQL, ketika ada beberapa policy `PERMISSIVE`, PostgreSQL mengevaluasinya bersamaan dengan operator `OR` (`profiles_select_policy OR profiles_manage_policy`).
+- Karena `profiles_manage_policy` membaca tabel `profiles`, PostgreSQL memicu policy `profiles_manage_policy` kembali secara berulang tanpa batas hingga batas rekursi terlampaui.
+- Dampak turunannya: Seluruh tabel operasional lain (`shifts`, `periods`, `catering_orders`) yang mengecek role admin melalui `profiles` ikut terblokir error rekursi yang sama.
+
+#### 2. Solusi Rekayasa yang Diterapkan
+Kebijakan RLS diperbaiki dengan memisahkan kewenangan secara tegas dan meniadakan subquery melingkar:
+
+```sql
+-- 1. Hapus policy manage bertipe ALL yang memicu rekursi
+drop policy if exists "profiles_manage_policy" on public.profiles;
+
+-- 2. Pastikan hak baca profil terbuka bagi user yang terautentikasi tanpa subquery
+drop policy if exists "profiles_select_policy" on public.profiles;
+create policy "profiles_select_policy" on public.profiles
+  for select to authenticated
+  using (true);
+
+-- 3. Batasi policy modifikasi hanya untuk operasi UPDATE berdasarkan identitas diri
+create policy "profiles_update_policy" on public.profiles
+  for update to authenticated
+  using (id = auth.uid())
+  with check (id = auth.uid());
+
+-- 4. Berikan hak akses eksplisit
+grant select on public.profiles to authenticated;
+```
+
+Perubahan ini telah disinkronkan ke dalam berkas migrasi dan skrip database repositori:
+- [DATABASE_LENGKAP_CATERING.sql](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/DATABASE_LENGKAP_CATERING.sql#L359-L368)
+- [supabase/DATABASE_LENGKAP_CATERING.sql](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/supabase/DATABASE_LENGKAP_CATERING.sql#L359-L368)
+- [supabase/migrations/006_rls.sql](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/supabase/migrations/006_rls.sql#L34-L44)
 
 ---
 
-### Tahap 05: Periode Catering (Jadwal) dan Master Shift (`feat/05-periode-shift`)
-- **Jadwal Periode (`/admin/periode` & `/admin/master/periode`)**:
-  - Tabel multi-filter (bulan, tahun, shift, vendor, status pesanan).
-  - Urutan tampilan logis: Tanggal &rarr; Urutan Shift Laporan (Shift 3 &rarr; Shift 1 &rarr; Shift 2).
-  - Dialog Tambah Periode dan validasi batasan unik (tanggal + shift_id).
-- **Fitur Ganti Vendor Terjadwal**:
-  - Aksi penggantian vendor melalui RPC `ganti_vendor_periode` dengan alasan wajib dan konfirmasi bertingkat.
-  - Seluruh tindakan tercatat otomatis pada append-only `order_logs`.
-- **Dialog Kelola Shift**:
-  - Konfigurasi nama, label, jam mulai, jam selesai (mendukung lintas hari / jam 24.00), dan batas jam tiba.
+## 3. Pembaruan Desain Antarmuka & Zero-Shift Layout Login
+
+### A. Integrasi Visual Korporat Resmi
+1. **Latar Belakang Login**: Menggunakan foto operasional dermaga peti kemas resmi PT Terminal Petikemas Surabaya yang ditempatkan di `public/images/login-bg.png` melalui [LoginBackground.tsx](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/src/components/auth/LoginBackground.tsx).
+2. **Logo Korporat**: Menggunakan logo resmi Pelindo TPS berwarna di `public/images/logo-tps-warna.png` pada [LoginCard.tsx](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/src/components/auth/LoginCard.tsx) dan logo monokrom putih di sudut kiri atas layar.
+
+### B. Form Login Kompak & Zero Layout Shift (Bebas Pergeseran Tinggi)
+- **Pengurangan Tinggi Kartu**: Tinggi kartu login dipangkas secara substansial (~60px lebih ringkas) melalui padding `px-5 py-4 sm:px-6 sm:py-5`, ukuran logo `h-7 sm:h-8`, tipografi judul `text-[17px] sm:text-[18px]`, dan tinggi input/tombol `h-9` (36px).
+- **Slot Alert Statis (`h-[38px] flex items-center`)**: Area pesan kesalahan alert dibungkus dalam container tetap 38px di [LoginForm.tsx](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/src/components/auth/LoginForm.tsx#L48-L60).
+  - *Saat Normal (Tanpa Alert)*: Ruang 38px dialokasikan secara transparan, menjaga jarak visual yang konsisten.
+  - *Saat Alert Muncul*: Banner alert mengisi tepat di dalam slot 38px tersebut tanpa menambah tinggi kartu maupun menggeser posisi elemen form di bawahnya.
+  - *Hasil*: Ukuran tinggi form login tetap sama 100% sebelum maupun sesudah alert muncul.
+- **Peningkatan Diagnostik**: Menambahkan logging `console.error` pada [sign-in.ts](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/src/lib/auth/sign-in.ts#L48-L52) untuk memudahkan debugging jika terjadi anomali query profil pada console browser.
 
 ---
 
-### Tahap 06: Input Data Catering Grid Tiga Shift (`feat/06-input-catering`)
-- **Grid Input Harian (`/admin/input` & `/admin/input-catering`)**:
-  - Pemilih tanggal (default hari esok, navigasi hari sebelumnya dan berikutnya).
-  - Grid 3 kelompok shift berdampingan (Shift 3 Malam, Shift 1 Pagi, Shift 2 Siang).
-  - Sub-kolom per shift: Karyawan dan Porsi (rasio 1:1 otomatis tersinkronisasi bila tidak diubah manual).
-  - Baris Total dan catatan per bagian.
-- **Pengurangan Beban Simpan (Dirty Cell Tracking)**:
-  - State reducer (`grid-reducer.ts`) melacak sel yang diedit sehingga hanya item kotor (*dirty*) yang dikirimkan ke server melalui `simpan_catering`.
-  - Mencegah timpaan data antar PIC yang menginput baris bagian berbeda pada periode sama.
-- **Aksi Kirim ke Vendor**:
-  - Dialog kirim vendor dengan verifikasi bagian yang belum terisi dan penguncian status menjadi `final`.
+## 4. Struktur Rute Halaman Aplikasi
+
+| Rute URL | Pengguna | Fungsi & Fitur Utama |
+| :--- | :--- | :--- |
+| `/login` | Publik | Halaman masuk dengan normalisasi username, background dermaga TPS, dan kartu form bebas pergeseran layout. |
+| `/admin/dashboard` | Admin GA | Dashboard operasional katering, KPI pesanan harian, status 3 shift, dan pintasan verifikasi. |
+| `/admin/input-catering` | Admin GA | Grid harian 3 shift berdampingan (Shift 3, 1, 2), pelacakan sel kotor, tombol kirim ke vendor. |
+| `/admin/periode` | Admin GA | Manajemen jadwal periode, filter multi-dimensi, tombol ganti vendor terjadwal/darurat via RPC. |
+| `/admin/verifikasi` | Admin GA | Verifikasi perubahan kuota (revisi) dan pemantauan respons kesanggupan vendor. |
+| `/admin/riwayat/[periodId]` | Admin GA | Kronologi audit timeline lengkap per periode katering dari log append-only. |
+| `/admin/data-bagian` | Admin GA | Master data bagian operasional, kelompok, lokasi antar fisik, dan catatan antar. |
+| `/admin/data-vendor` | Admin GA | Master data mitra katering (V001 - V005), kontak WhatsApp, dan PIC vendor. |
+| `/vendor/dashboard` | Vendor | 4 Kartu KPI, panel pesanan 3 shift hari ini, dan aksi cepat konfirmasi pesanan. |
+| `/vendor/permintaan` | Vendor | Tabel pesanan final milik vendor dan drawer inspektor detail alokasi per bagian & lokasi antar. |
+| `/vendor/ketersediaan` | Vendor | Antrean pesanan dan revisi yang belum direspons, aksi menyanggupi / tidak menyanggupi (catatan wajib). |
+| `/vendor/progres` | Vendor | Pelaporan progres pengiriman 5 tahap satu arah (Menunggu -> Dipersiapkan -> Dikirim -> Sampai -> Selesai). |
+| `/vendor/riwayat` | Vendor | Arsip riwayat pesanan katering vendor dengan filter status dan rentang tanggal. |
 
 ---
 
-### Tahap 07: Revisi, Verifikasi Data, dan Riwayat (`feat/07-revisi-verifikasi`)
-- **Pengajuan Revisi Pasca-Final**:
-  - Tombol Ajukan Revisi pada grid input untuk periode berstatus `final` atau `revisi`.
-  - Dialog revisi menampilkan kuota awal, input kuota baru, kalkulasi selisih otomatis bertanda (+/-), dan input alasan wajib melalui RPC `ajukan_revisi`.
-  - Penandaan visual baris dengan revisi pending dan pencegahan revisi ganda pada item yang sama.
-- **Halaman Verifikasi Data (`/admin/verifikasi`)**:
-  - Segmented control `Revisi | Respons Vendor` dengan badge jumlah pending dinamis.
-  - Tab Revisi: Tabel permohonan revisi, dialog persetujuan/penolakan dengan catatan wajib pembatalan via RPC `verifikasi_revisi`.
-  - Tab Respons Vendor: Monitoring kesanggupan vendor, tombol kirim format WhatsApp otomatis, dan tombol cepat ganti vendor bila vendor menolak.
-- **Kronologi Audit Timeline (`/admin/riwayat/[periodId]`)**:
-  - Halaman riwayat lengkap menampilkan kartu ringkasan periode dan alur kronologis audit trail dari `order_logs`.
+## 5. Ringkasan Pengujian, Kualitas, & Status Git
 
----
-
-### Tahap 08: Portal Vendor (`feat/08-portal-vendor`)
-- **Dashboard Vendor (`/vendor` & `/vendor/dashboard`)**:
-  - 4 Kartu KPI: Permintaan Hari Ini (porsi), Menunggu Respons, Sedang Diproses, Selesai Bulan Ini.
-  - Panel Pesanan Hari Ini: Rincian 3 shift hari ini lengkap dengan jam, batas jam tiba, total porsi, status respon, progres, dan tombol aksi cepat.
-- **Permintaan Masuk (`/vendor/permintaan`)**:
-  - Tabel periode final milik vendor dengan filter tanggal dan status respon.
-  - Inspector Drawer: Tabel rincian alokasi per bagian, lokasi pengantaran, catatan antar, dan indikator revisi menunggu.
-- **Konfirmasi Ketersediaan (`/vendor/ketersediaan`)**:
-  - Antrean terpisah untuk pesanan baru dan pengajuan perubahan kuota (revisi).
-  - Aksi "Menyanggupi" dan "Tidak Menyanggupi" (dialog catatan wajib bila menolak) memanggil RPC `respon_periode_vendor` dan `respon_revisi_vendor`.
-- **Alur Progres Pengiriman (`/vendor/progres`)**:
-  - Workflow stepper 5 tahap: Menunggu &rarr; Dipersiapkan &rarr; Dikirim &rarr; Sampai &rarr; Selesai.
-  - Tombol aksi maju satu arah melalui RPC `update_progres_vendor` dengan penolakan terhadap langkah mundur.
-- **Riwayat Pesanan (`/vendor/riwayat`)**:
-  - Tabel arsip riwayat lengkap dengan filter rentang tanggal, status respon, status progres, dan pencarian teks.
-- **Anonimitas & Pengujian Lintas Akun**:
-  - Nama pengupdate untuk vendor ditampilkan konsisten sebagai "Admin GA".
-  - Kasus uji isolasi database `supabase/tests/03_vendor_cross_account.sql` memverifikasi bahwa akun vendor (misal `vendor.aisya` dan `vendor.ibu`) hanya dapat membaca dan memutasi datanya sendiri.
-
----
-
-## 3. Status Pengujian & Kualitas Kode
-
-- **Unit Test Suite (Vitest)**:
-  - 13 berkas pengujian unit: `13 passed`.
-  - 67 pengujian fungsional murni: `67 passed`.
-  - Mencakup: `progress.test.ts`, `grid-reducer.test.ts`, `rotasi.test.ts`, `route-guard.test.ts`, `log-formatter.test.ts`, `whatsapp.test.ts`, `sign-in.test.ts`, serta validator Zod untuk shift, bagian, vendor, dan periode.
-- **TypeScript Static Analysis**:
-  - `npx tsc --noEmit` lulus tanpa kesalahan (0 error).
-- **Next.js Production Build**:
-  - `npm run build` sukses mengompilasi 24 rute statis dan dinamis.
-- **Git Repository Status**:
-  - Seluruh branch dari `feat/02-database` sampai `feat/08-portal-vendor` telah tersimpan dan di-push ke remote repository `origin`.
-
----
-
-## 4. Kesiapan Menuju Tahap Berikutnya
-
-Sistem saat ini berada pada branch `feat/08-portal-vendor` dengan repositori yang bersih (*clean working tree*). Semua dependensi, fungsi RPC, dan komponen antarmuka telah siap untuk melanjutkan ke **Prompt 09** (Rekapitulasi dan Laporan).
+1. **Pengujian Unit (Vitest)**:
+   - 13 berkas pengujian: `13 passed`.
+   - 67 pengujian fungsional: `67 passed`.
+   - Mencakup logika bisnis: kalkulasi progres, reducer grid sel kotor, rotasi vendor, route guard, formatter log audit, generator format WhatsApp, validator autentikasi, dan validasi skema form Zod.
+2. **Kompilasi TypeScript**:
+   - `npx tsc --noEmit` lulus dengan 0 kesalahan.
+3. **Build Produksi Next.js**:
+   - `next build` berhasil mengompilasi 24 rute (statis dan dinamis) tanpa kendala.
+4. **Repositori Git**:
+   - Seluruh perubahan dari Tahap 02 hingga perbaikan form login dan RLS policy telah di-commit dan di-push ke branch fitur `feat/08-portal-vendor` dan cabang utama `main`.
+   - Identitas commit terkonfigurasi pada: `Muhammad Raynar Hammam <raynarham23@gmail.com>`.
