@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:db": "node scripts/test-db.mjs",
     "db:build": "node scripts/build-database-sql.mjs"
   },
   "dependencies": {
