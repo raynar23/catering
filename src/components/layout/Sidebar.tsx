@@ -1,0 +1,130 @@
+"use client";
+
+import React, { useTransition } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Clock,
+  Table,
+  FileText,
+  Building2,
+  Truck,
+  Calendar,
+  Users,
+  LogOut,
+} from "lucide-react";
+import { NavGroup, NavItem } from "@/lib/nav";
+import { signOutAction } from "@/lib/auth/sign-out";
+import { cn } from "@/lib/utils";
+
+interface SidebarProps {
+  groups: NavGroup[];
+  badges?: Record<string, number>;
+  onItemClick?: () => void;
+  className?: string;
+}
+
+const ICON_MAP = {
+  dashboard: LayoutDashboard,
+  input: ClipboardList,
+  history: Clock,
+  rekap: Table,
+  laporan: FileText,
+  bagian: Building2,
+  vendor: Truck,
+  periode: Calendar,
+  users: Users,
+};
+
+// Fixed 264px navy sidebar displaying role navigation and sign out action
+export function Sidebar({ groups, badges = {}, onItemClick, className }: SidebarProps) {
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSignOut = () => {
+    startTransition(async () => {
+      await signOutAction();
+    });
+  };
+
+  return (
+    <aside
+      className={cn(
+        "w-[264px] bg-[#0B3D6B] flex flex-col h-full select-none shrink-0 border-r border-[#082B4D]",
+        className
+      )}
+    >
+      <div className="h-16 px-5 flex items-center shrink-0 border-b border-white/10">
+        <Image
+          src="/images/logo-tps-monokrom.png"
+          alt="Logo Pelindo Terminal Petikemas Surabaya"
+          width={180}
+          height={40}
+          className="h-9 w-auto object-contain"
+          priority
+        />
+      </div>
+
+      <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-4 space-y-6">
+        {groups.map((group, groupIdx) => (
+          <div key={group.title ?? `group-${groupIdx}`} className="space-y-1">
+            {group.title && (
+              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-white/50">
+                {group.title}
+              </p>
+            )}
+
+            <div className="space-y-0.5">
+              {group.items.map((item: NavItem) => {
+                const IconComponent = ICON_MAP[item.icon] ?? LayoutDashboard;
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/admin/dashboard" &&
+                    item.href !== "/vendor/dashboard" &&
+                    pathname.startsWith(item.href));
+                const badgeCount = item.badgeKey ? badges[item.badgeKey] : undefined;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onItemClick}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer",
+                      isActive
+                        ? "bg-primary text-white shadow-xs"
+                        : "text-white/80 hover:bg-white/10 hover:text-white"
+                    )}
+                  >
+                    <IconComponent className="w-4 h-4 shrink-0 text-white/70" />
+                    <span className="truncate">{item.title}</span>
+                    {badgeCount !== undefined && badgeCount > 0 && (
+                      <span className="ml-auto text-xs font-semibold tabular-nums text-white/90">
+                        {badgeCount}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      <div className="p-3 border-t border-white/10 shrink-0">
+        <button
+          type="button"
+          onClick={handleSignOut}
+          disabled={isPending}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] font-medium text-white/80 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          <LogOut className="w-4 h-4 shrink-0 text-white/70" />
+          <span>{isPending ? "Keluar..." : "Keluar"}</span>
+        </button>
+      </div>
+    </aside>
+  );
+}
