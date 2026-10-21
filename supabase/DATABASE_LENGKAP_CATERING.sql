@@ -1480,6 +1480,16 @@ join catering_items ci on ci.order_id = o.id
 where o.status in ('final', 'revisi')
 group by s.id, s.nama, s.label, s.urutan_laporan;
 
+-- Migration: 012_profiles_no_hp.sql
+-- Migration: 012_profiles_no_hp
+-- Add no_hp column to profiles table and grant column update to authenticated users
+
+alter table public.profiles
+  add column if not exists no_hp text;
+
+-- Grant column update on no_hp to authenticated role
+grant update (no_hp) on public.profiles to authenticated;
+
 -- Seed data
 -- Demo seed data for shifts, sections, vendors, profiles, and 29-day rolling schedule
 

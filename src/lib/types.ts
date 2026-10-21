@@ -71,6 +71,7 @@ export interface Profile {
   role: AppRole;
   vendor_id: string | null;
   bagian_id: string | null;
+  no_hp?: string | null;
   aktif: boolean;
   created_at: string;
   updated_at: string;
