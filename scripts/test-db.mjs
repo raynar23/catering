@@ -82,6 +82,11 @@ async function runTests() {
     .eq("id", vendorAAuth.user.id)
     .single();
 
+  // Reset role back to vendor immediately in case remote DB does not yet have guard trigger
+  if (profileCheck.role !== "vendor") {
+    await adminClient.from("profiles").update({ role: "vendor" }).eq("id", vendorAAuth.user.id);
+  }
+
   assert(
     profileCheck.role === "vendor" && (updateErr !== null || (updateData && updateData.length === 0)),
     "Test 1: Role escalation attempt (vendor -> admin_ga) is rejected"
