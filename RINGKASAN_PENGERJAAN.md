@@ -98,25 +98,25 @@ grant select on public.profiles to authenticated;
 ```
 
 Perubahan ini telah disinkronkan ke dalam berkas migrasi dan skrip database repositori:
-- [DATABASE_LENGKAP_CATERING.sql](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/DATABASE_LENGKAP_CATERING.sql#L359-L368)
-- [supabase/DATABASE_LENGKAP_CATERING.sql](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/supabase/DATABASE_LENGKAP_CATERING.sql#L359-L368)
-- [supabase/migrations/006_rls.sql](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/supabase/migrations/006_rls.sql#L34-L44)
+- [DATABASE_LENGKAP_CATERING.sql](DATABASE_LENGKAP_CATERING.sql)
+- [supabase/DATABASE_LENGKAP_CATERING.sql](supabase/DATABASE_LENGKAP_CATERING.sql)
+- [supabase/migrations/006_rls.sql](supabase/migrations/006_rls.sql)
 
 ---
 
 ## 3. Pembaruan Desain Antarmuka & Zero-Shift Layout Login
 
 ### A. Integrasi Visual Korporat Resmi
-1. **Latar Belakang Login**: Menggunakan foto operasional dermaga peti kemas resmi PT Terminal Petikemas Surabaya yang ditempatkan di `public/images/login-bg.png` melalui [LoginBackground.tsx](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/src/components/auth/LoginBackground.tsx).
-2. **Logo Korporat**: Menggunakan logo resmi Pelindo TPS berwarna di `public/images/logo-tps-warna.png` pada [LoginCard.tsx](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/src/components/auth/LoginCard.tsx) dan logo monokrom putih di sudut kiri atas layar.
+1. **Latar Belakang Login**: Menggunakan foto operasional dermaga peti kemas resmi PT Terminal Petikemas Surabaya yang ditempatkan di `public/images/login-bg.png` melalui [LoginBackground.tsx](src/components/auth/LoginBackground.tsx).
+2. **Logo Korporat**: Menggunakan logo resmi Pelindo TPS berwarna di `public/images/logo-tps-warna.png` pada [LoginCard.tsx](src/components/auth/LoginCard.tsx) dan logo monokrom putih di sudut kiri atas layar.
 
 ### B. Form Login Kompak & Zero Layout Shift (Bebas Pergeseran Tinggi)
 - **Pengurangan Tinggi Kartu**: Tinggi kartu login dipangkas secara substansial (~60px lebih ringkas) melalui padding `px-5 py-4 sm:px-6 sm:py-5`, ukuran logo `h-7 sm:h-8`, tipografi judul `text-[17px] sm:text-[18px]`, dan tinggi input/tombol `h-9` (36px).
-- **Slot Alert Statis (`h-[38px] flex items-center`)**: Area pesan kesalahan alert dibungkus dalam container tetap 38px di [LoginForm.tsx](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/src/components/auth/LoginForm.tsx#L48-L60).
+- **Slot Alert Statis (`h-[38px] flex items-center`)**: Area pesan kesalahan alert dibungkus dalam container tetap 38px di [LoginForm.tsx](src/components/auth/LoginForm.tsx).
   - *Saat Normal (Tanpa Alert)*: Ruang 38px dialokasikan secara transparan, menjaga jarak visual yang konsisten.
   - *Saat Alert Muncul*: Banner alert mengisi tepat di dalam slot 38px tersebut tanpa menambah tinggi kartu maupun menggeser posisi elemen form di bawahnya.
   - *Hasil*: Ukuran tinggi form login tetap sama 100% sebelum maupun sesudah alert muncul.
-- **Peningkatan Diagnostik**: Menambahkan logging `console.error` pada [sign-in.ts](file:///Users/muhammadraynar/Documents/project%20order/Catering%20TPS/src/lib/auth/sign-in.ts#L48-L52) untuk memudahkan debugging jika terjadi anomali query profil pada console browser.
+- **Peningkatan Diagnostik**: Menambahkan logging `console.error` pada [sign-in.ts](src/lib/auth/sign-in.ts) untuk memudahkan debugging jika terjadi anomali query profil pada console browser.
 
 ---
 

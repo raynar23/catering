@@ -45,12 +45,11 @@ Tombol utama: #1175BB, hover #0E63A1, pressed #0B5A94, fokus ring 2px primary de
 ## Aset dan Logo (folder `aset/`)
 | Berkas | Pemakaian |
 |---|---|
-| `Logo_TPS.png` | Logo baru berwarna "PELINDO TERMINAL PETIKEMAS TPS SURABAYA" (disalin ke `public/images/logo-tps-warna.png` dan lambang diekstrak ke `public/images/tps-symbol.png`) |
-| `Logo TPS Monokrom.png` | Logo baru monokrom putih "PELINDO TERMINAL PETIKEMAS TPS SURABAYA" (disalin ke `public/images/logo-tps-monokrom.png`): header login dan sidebar |
-| `background aset-2.png` | Foto latar halaman login (pelabuhan saat senja) disalin ke `public/images/login-bg.png` |
-| `Logo TPS Lama Monokrom.png` | Aset arsip logo lama |
-| `Logo_Terminal_Petikemas_Surabaya.png` | Aset arsip logo lama berwarna |
-| `Terminal_Petikemas_Surabaya.png` | Aset arsip lambang lama |
+| `Terminal_Petikemas_Surabaya.png` | Logo berwarna "TP Terminal Petikemas Surabaya": pojok kiri atas halaman login dan kop PDF |
+| `Logo_Terminal_Petikemas_Surabaya...png` | Cadangan: dipakai hanya jika berkas di atas ternyata bukan logo yang dimaksud (periksa nama lengkapnya di folder dan laporkan) |
+| `background aset.png` | Foto latar halaman login (pelabuhan saat senja) |
+| `TPS Monokrom.png` (putih) | Latar navy: header sidebar |
+| `Logo TPS Lama Monokrom.png` | TIDAK dipakai (logo lama) |
 
 - Buka dan periksa tiap gambar sebelum dipakai; salin ke `public/images/` dengan nama aman (`logo-tps-warna.png`, `logo-tps-putih.png`, `login-bg.png`). Jangan hapus atau ubah berkas asli di `aset/`.
 - Jangan ubah proporsi, warna, atau beri efek pada logo. Beri ruang kosong di sekelilingnya. Gunakan `next/image` dengan `alt` yang jelas. Foto latar memakai `next/image` (`fill`, `priority`), bukan CSS background-image.
@@ -70,11 +69,11 @@ Tombol utama: #1175BB, hover #0E63A1, pressed #0B5A94, fokus ring 2px primary de
 Badge teks saja, tanpa titik, radius 6px, 12px medium, border 1px.
 | Status | Teks / Latar / Border |
 |---|---|
-| Final, Disetujui, Aktif | #1E8E3E / #EBF7EE / #C8E9D0 |
-| Diajukan | #0B5A94 / #E8F2FA / #BBD9EE |
-| Draft, Nonaktif | #6E6E73 / #F2F2F7 / #E5E5EA |
-| Revisi, Menunggu Verifikasi | #9A5B00 / #FFF8E6 / #FFE2A4 |
-| Belum Input, Ditolak | #D70015 / #FDECEE / danger 20% |
+| Final, Disetujui, Menyanggupi, Selesai, Cocok | #1E8E3E / #EBF7EE / #C8E9D0 |
+| Dikirim, Baru | #0B5A94 / #E8F2FA / #BBD9EE |
+| Draft, Menunggu (progres), Belum Merespons, Nonaktif | #6E6E73 / #F2F2F7 / #E5E5EA |
+| Revisi, Menunggu Verifikasi, Diproses, Perlu Dicek | #9A5B00 / #FFF8E6 / #FFE2A4 |
+| Belum Input, Tidak Menyanggupi, Dibatalkan, Error | #D70015 / #FDECEE / danger 20% |
 
 ## Icon Whitelist (Anti AI Slop)
 Ikon hanya untuk:
@@ -95,9 +94,9 @@ Radius >12px, kartu bertumpuk bayangan tebal, gradien dekoratif, glassmorphism b
 ## Teks, Bahasa, dan Format
 - Seluruh antarmuka Bahasa Indonesia baku, formal, singkat. Komentar kode Bahasa Inggris singkat.
 - Root layout `<html lang="id" translate="no">`. Semua format lewat satu helper `src/lib/format.ts` memakai `Intl` locale `id-ID` dan `timeZone: 'Asia/Jakarta'` eksplisit.
-- Tanggal di tabel dan input: `19-10-2026`. Tanggal panjang di header dashboard: `Senin, 19 Oktober 2026`. Tanggal dan jam: `19-10-2026 08.15`. Jam shift: `06.00 - 14.00`. Label shift: `Shift 1 (06.00 - 14.00)`.
+- Tanggal di tabel dan input: `19-10-2026`. Tanggal panjang di header dashboard: `Senin, 19 Oktober 2026`. Tanggal dan jam: `19-10-2026 08.15`. Jam shift: `08.00 - 16.00`. Label shift: `Shift 1 (08.00 - 16.00)`. Tengah malam ditulis `24.00` pada jam selesai.
 - Angka memakai pemisah ribuan id-ID. Selisih revisi ditulis dengan tanda: `+3`, `-2`.
-- Label status baku: Belum Input, Draft, Diajukan, Revisi, Final; revisi: Menunggu Verifikasi, Disetujui, Ditolak.
+- Label status baku: Belum Input, Draft, Final, Revisi; respons vendor: Belum Merespons, Menyanggupi, Tidak Menyanggupi; progres: Menunggu, Diproses, Dikirim, Selesai; revisi: Menunggu Verifikasi, Disetujui, Dibatalkan.
 
 ## App Shell, Viewport, dan 100dvh (Zero Page Scroll)
 - Target viewport: 1190x670 (utama), 1366x680, 1440x800, 1920x950.
@@ -109,12 +108,20 @@ Radius >12px, kartu bertumpuk bayangan tebal, gradien dekoratif, glassmorphism b
 Semua halaman setelah login memakai `PageContainer`: lebar 100%, `px-6`, `max-w-[1360px] mx-auto`. Header halaman tinggi tetap 56px (`h-14`): judul 20px semi-bold, subjudul satu baris (`text-xs text-text-muted truncate`), slot aksi di kanan. Halaman tidak menetapkan max-width atau padding luar sendiri.
 
 ## Sidebar dan Topbar
-- Sidebar lebar 264px, latar `navy`, tetap (tanpa mode ciut). Header sidebar memuat logo putih tinggi sekitar 40px.
-- Menu satu daftar rata sesuai mockup, urutan: Dashboard, Data Bagian, Data Vendor, Periode Catering, Input Data Catering, Verifikasi Data, Rekapitulasi, Laporan, Manajemen User. Menu yang tidak berhak disembunyikan sesuai role (lihat PRD.md). Item aktif: latar `primary`, teks putih. Item lain: teks putih 80%, hover latar putih 8%.
-- Angka kecil polos rata kanan pada menu Verifikasi Data (jumlah menunggu tindakan), tanpa bentuk pil.
-- Bagian bawah sidebar: tombol Keluar saja (tanpa teks versi).
-- Topbar tinggi 56px, latar surface, border bawah. Kiri: "Pengelolaan Data Catering Karyawan" (14px semi-bold) dan "PT Terminal Petikemas Surabaya" (12px muted). Kanan: lonceng notifikasi dengan angka kecil di sudut (bukan titik), lalu profil (avatar lingkaran berisi inisial, nama, peran).
-- Dropdown lonceng: daftar item menunggu tindakan sesuai role (Supervisor: pesanan Diajukan dan revisi menunggu; PIC Unit dan Admin GA: pesanan yang dikembalikan ke Draft). Tiap item menaut ke halaman terkait. Empty state: "Tidak ada notifikasi".
+- Sidebar lebar 264px, latar `navy`, tetap (tanpa mode ciut). Header sidebar memuat logo putih tinggi sekitar 40px. Menu dikelompokkan dengan label teks kecil uppercase (jarak antar grup 20px). Item aktif: latar `primary`, teks putih; item lain teks putih 80%, hover latar putih 8%. Tombol Keluar di bagian bawah. Angka kecil polos rata kanan (tanpa bentuk pil) untuk jumlah yang menunggu tindakan.
+- Sidebar Admin GA:
+  - `UTAMA`: Dashboard
+  - `DATA MASTER`: Data Bagian, Data Vendor, Periode Catering, Impor Data
+  - `OPERASIONAL`: Input Data Catering, Verifikasi Data (angka: revisi menunggu verifikasi)
+  - `ANALISIS`: Rekapitulasi dan Laporan
+  - `AKUN`: Manajemen User, Pengaturan
+- Sidebar Vendor:
+  - `UTAMA`: Dashboard
+  - `PERMINTAAN`: Permintaan Masuk, Ketersediaan (angka: belum direspons)
+  - `LAPORAN`: Progres Catering, Riwayat Pesanan
+  - `AKUN`: Pengaturan
+- Topbar tinggi 56px, latar surface, border bawah. Kiri: "Pengelolaan Data Catering Karyawan" (14px semi-bold) dan "PT Terminal Petikemas Surabaya" (12px muted). Kanan: lonceng notifikasi dengan angka kecil di sudut (bukan titik), lalu profil (avatar lingkaran berisi inisial, nama, peran: "Admin GA" atau nama vendor).
+- Dropdown lonceng: daftar item yang menunggu tindakan sesuai role, tiap item menaut ke halaman terkait. Empty state: "Tidak ada notifikasi".
 - Mobile (< lg): sidebar menjadi drawer dengan tombol hamburger di topbar.
 
 ## Halaman Login
@@ -128,23 +135,36 @@ Mengikuti gambar referensi login dari client.
 - Keadaan: fokus terlihat, error per field ("Username wajib diisi", "Password wajib diisi"), tombol Masuk menjadi "Memproses..." dan nonaktif saat mengirim.
 - Desktop (lg+) tanpa scrollbar halaman (`h-dvh overflow-hidden`). Mobile dan tablet (< lg): alur kolom `min-h-dvh`, footer mengalir di bawah kartu, boleh scroll vertikal, target sentuh minimal 44px, font input 16px, padding safe-area.
 
-## Dashboard
-- Header halaman: judul "Dashboard", subjudul tanggal panjang hari ini; aksi kanan: pemilih Periode Aktif (bulan dan tahun).
-- Grid 12 kolom: baris 1 empat KPI (masing-masing 3 kolom): Bagian, Vendor Catering, Total Karyawan Hari Ini, Total Kebutuhan Catering. Baris 2 tiga KPI (masing-masing 4 kolom): Shift Aktif, Data Belum Diverifikasi (subbaris "N pesanan, M revisi"), Data Sudah Final.
-- Kartu KPI: label 12px muted di atas, nilai 24px semi-bold di bawah, tanpa ikon.
-- Baris 3 dua panel sama lebar mengisi sisa tinggi: "Jumlah Catering per Bagian (Hari Ini)" bar vertikal (`#1175BB`, nilai di atas batang, nama bagian utuh boleh dua baris) dan "Distribusi Catering per Shift (Hari Ini)" donut (Shift 1 `#1175BB`, Shift 2 `#9CC9EA`, Shift 3 `#E08F26`), total di tengah, legenda dengan jumlah dan persentase.
-- Angka KPI dan kedua grafik berasal dari satu sumber query agar identik. Empty state grafik: "Belum ada data final untuk hari ini".
+## Dashboard Admin
+- Header halaman: judul "Dashboard", subjudul rentang aktif. Aksi kanan: filter periode ala kalender: tombol preset (Hari Ini, 7 Hari, 30 Hari, Bulan Ini, 3 Bulan, 6 Bulan, 1 Tahun), tombol mundur dan maju satu rentang, dan tombol kalender yang membuka dialog "Pilih Rentang Tanggal" (react-day-picker, pintasan cepat, tanggal mulai dan selesai, pratinjau jumlah hari).
+- Baris KPI (5 kartu, tanpa ikon): Total Porsi, Rata-rata Porsi per Hari, Jumlah Revisi, Menunggu Verifikasi, Belum Input (hari ini dan besok). Label 12px muted, nilai 24px semi-bold, subbaris opsional.
+- Dua baris grafik mengisi sisa tinggi tanpa scroll halaman: Baris 1: Tren Porsi Harian (garis, periode ini `#1175BB`, periode lalu putus-putus `#94A3B8`) dan Distribusi per Shift (donut: Shift 1 `#1175BB`, Shift 2 `#9CC9EA`, Shift 3 `#E08F26`, total di tengah, legenda dengan jumlah dan persentase). Baris 2: Porsi per Bagian (bar vertikal, nilai di atas batang, nama bagian utuh) dan Porsi per Vendor (bar horizontal).
+- Semua angka dan grafik dihitung dari satu sumber (view `v_rekap`) untuk rentang yang sama sehingga identik. Empty state: "Belum ada data final pada rentang ini".
+
+## Halaman Vendor
+- Dashboard: 4 KPI (Permintaan Hari Ini dalam porsi, Menunggu Respons, Sedang Diproses, Selesai Bulan Ini) dan satu panel "Pesanan Hari Ini" (tiga shift: jam, total porsi, status, tombol cepat menuju respons atau progres).
+- Permintaan Masuk: tabel periode final milik vendor (tanggal, shift, total porsi, status revisi, respons, progres). Klik baris membuka panel rincian (inspector): tabel per bagian dengan lokasi antar, batas jam tiba (dari shift), catatan antar, dan revisi yang menunggu.
+- Ketersediaan: antrean item yang belum direspons (permintaan baru dan revisi). Tiap kartu menampilkan ringkasan dan dua tombol: Menyanggupi dan Tidak Menyanggupi (dialog catatan; wajib untuk Tidak Menyanggupi). Empty state: "Tidak ada permintaan yang perlu direspons".
+- Progres Catering: tabel pesanan yang sudah disanggupi dengan tombol langkah berikutnya (Mulai Proses, Tandai Dikirim, Tandai Selesai) dan catatan opsional. Progres hanya maju.
+- Riwayat Pesanan: tabel penuh dengan filter rentang tanggal dan status, pencarian, dan inspector rincian.
+- Semua halaman mengikuti PageContainer dan aturan 100dvh.
 
 ## Tabel dan Form
-- DataTable: header sticky 12px muted, baris 40px, hover `primary-soft`, angka rata kanan, kolom Aksi rata kanan, pagination di bawah ("Menampilkan 1-5 dari 12" dan tombol Sebelumnya/Berikutnya).
-- Filter bar di atas tabel: pencarian, dropdown, dan tombol aksi utama di kanan (Tambah ...).
-- Input Data Catering: strip filter (Tanggal, Shift, Vendor) dengan badge status pesanan di kanan; sel angka berupa input angka (min 0, `tabular-nums`, lebar sempit); baris Total tebal di bawah daftar; bar aksi bawah: Simpan Draft (sekunder) dan Ajukan (utama) rata kanan. Saat Final, sel read-only dan muncul tombol Ajukan Revisi pada tiap baris.
-- Dialog revisi menampilkan jumlah awal, kolom jumlah baru, selisih otomatis bertanda (+/-), dan alasan wajib.
-- Verifikasi: tabel dengan tombol aksi (Verifikasi, Review, Detail). Detail berupa dialog besar: ringkasan, tabel angka per bagian, daftar revisi menunggu, tombol Setujui dan Tolak (catatan wajib saat Tolak), tautan "Lihat Riwayat".
-- Riwayat: kartu ringkasan satu baris (Tanggal, Shift, Vendor, Status) di atas tabel kronologi; tombol "Kembali" tanpa ikon.
-- Rekapitulasi: strip filter, tombol Ekspor Excel dan Cetak PDF di kanan, tabel matriks dengan baris "Total Per Periode" menempel di bawah.
+- DataTable: header sticky 12px muted, baris 40px, hover `primary-soft`, angka rata kanan, kolom Aksi rata kanan, pagination di bawah ("Menampilkan 1-5 dari 12", Sebelumnya dan Berikutnya).
+- Filter bar di atas tabel: pencarian, dropdown, dan tombol aksi utama di kanan (Tambah ...). Aksi baris (Ubah, Hapus) memakai tombol ikon dengan tooltip dan dialog konfirmasi untuk Hapus.
+- Periode Catering: tabel jadwal berpaginasi dengan kolom Tanggal, Shift, Vendor, Kontak Vendor (no. WhatsApp atau telp), Total Porsi, Diupdate Oleh, Status, Progres, Aksi.
+- Input Data Catering: strip atas pemilih tanggal (default besok) dengan tombol hari sebelumnya dan berikutnya. Grid: kolom pertama Bagian (nama dan lokasi antar kecil di bawahnya), lalu tiga kelompok kolom shift (urutan Shift 3, Shift 1, Shift 2). Header kelompok memuat nama shift dan jam, nama vendor, badge status, dan badge respons vendor. Tiap kelompok memiliki sub-kolom Karyawan dan Porsi (input angka sempit, min 0, `tabular-nums`; porsi mengikuti karyawan sampai diedit manual). Baris Total tebal di bawah grid. Footer tiap kelompok: "Terakhir diupdate oleh {nama}, {waktu}", tombol Simpan Draft (sekunder) dan Kirim ke Vendor (utama, dialog konfirmasi). Kelompok Final read-only dengan tombol Ajukan Revisi per baris. Baris yang berubah ditandai halus (garis kiri `primary`). Grid boleh scroll horizontal di dalam kontainernya pada layar sempit.
+- Dialog Ajukan Revisi: menampilkan jumlah awal, kolom jumlah baru (karyawan dan porsi), selisih otomatis bertanda (+/-), dan alasan wajib.
+- Verifikasi Data: segmented control `Revisi | Respons Vendor`. Tabel revisi dengan kolom perubahan "20 menjadi 23 (+3)", badge respons vendor, dan aksi Verifikasi, Batalkan, Detail, Hubungi Vendor (tautan WhatsApp dengan pesan terisi otomatis). Dialog verifikasi menampilkan peringatan jika vendor belum menyanggupi. Tombol Setujui dan Batalkan (catatan wajib saat Batalkan). Tautan "Lihat Riwayat" membuka halaman Riwayat Update/Revisi (kartu ringkasan satu baris di atas tabel kronologi, tombol "Kembali" tanpa ikon).
 
-## Laporan, Ekspor, dan Cetak
-- Segmented control `Harian | Mingguan | Bulanan` tanpa ikon, pemilih periode sesuai jenis, pratinjau tabel, dua tombol: Ekspor Excel dan Ekspor PDF.
-- Excel: baris judul, header tebal, kolom sama dengan Rekapitulasi, format angka, nama sheet jelas, baris total.
-- PDF: kop dengan logo berwarna dan "PT Terminal Petikemas Surabaya", judul laporan, rentang periode, tanggal cetak (Asia/Jakarta), tabel rekap, ringkasan total per shift dan per vendor. Tanpa emoji dan tanpa elemen dekoratif.
+## Rekapitulasi dan Laporan
+- Header: judul "Rekapitulasi dan Laporan". Strip filter: rentang (segmented `Mingguan | Bulanan | 3 Bulan | 6 Bulan | Tahunan` ditambah kalender kustom), Vendor, Bagian, Shift. Tombol Ekspor Excel dan Ekspor PDF di kanan.
+- Segmented control `Rekap Harian | Ringkasan`. Rekap Harian: tabel baris (Tanggal, Shift, Vendor), kolom per bagian aktif dan Total, baris Total Per Periode menempel di bawah. Ringkasan: tiga panel kecil (per bagian, per shift, per vendor) dan tabel per bulan untuk rentang panjang, dengan strip metrik (Total Porsi, Jumlah Revisi, Rata-rata per Hari).
+- Dialog Ekspor: pilih format, kolom Catatan (teks bebas yang masuk ke footer), tombol Unduh. Format Excel dan PDF mengikuti ARCHITECTURE.md. PDF ber-kop dengan logo berwarna dan tanggal cetak (Asia/Jakarta), tanpa elemen dekoratif.
+
+## Impor Data
+- Satu halaman dengan alur bertahap (stepper teks tanpa ikon): `1 Unggah`, `2 Periksa`, `3 Konfirmasi`.
+- Unggah: area tarik-lepas dan tombol Pilih Berkas (xlsx, csv, docx, pdf, maks 10 MB), pemilih Jenis Dokumen (Otomatis, Jadwal Catering, Daftar Vendor, Data Bagian, Jumlah Catering Harian), tombol Analisis. Saat memproses tampilkan skeleton dan teks status; untuk OCR tampilkan progres persen. Label kecil "Mesin: Aturan", "Mesin: OCR", atau "Mesin: AI" menunjukkan cara dokumen dibaca.
+- Tombol sekunder "Coba dengan AI" hanya muncul bila fallback AI diaktifkan dan keyakinan parser rendah; membuka dialog persetujuan bahwa isi dokumen dikirim ke layanan eksternal.
+- Periksa: strip ringkasan (jumlah baris, Cocok, Baru, Perlu Dicek, Error) dan DataTable pratinjau yang sel-selnya dapat diedit, dengan filter status, tombol Tambah Baris dan Hapus Baris. Baris Perlu Dicek dan Error diberi latar tint dan alasan singkat di kolom Catatan. Panel perbandingan menunjukkan Baru, Diubah, atau Sama terhadap data di database. Opsi: "Buat vendor baru otomatis" dan "Timpa periode yang sudah terisi" (default mati).
+- Konfirmasi: dialog ringkasan perubahan (jumlah vendor dan periode yang akan dibuat atau diubah), tombol Konfirmasi dan Simpan, lalu halaman hasil dengan tautan ke Periode Catering dan Data Vendor. Tombol Konfirmasi nonaktif selama masih ada baris Error.
