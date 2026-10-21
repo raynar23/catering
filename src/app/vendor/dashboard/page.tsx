@@ -1,23 +1,35 @@
 import React from "react";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { getVendorDashboardData } from "@/lib/actions/vendor-portal";
+import { VendorKPICards } from "@/components/vendor/VendorKPICards";
+import { PesananHariIniPanel } from "@/components/vendor/PesananHariIniPanel";
 import { formatDateLong } from "@/lib/format";
 
-// Vendor dashboard placeholder displaying assigned shifts and delivery status
-export default function VendorDashboardPage() {
-  const todayStr = formatDateLong(new Date());
+export const metadata = {
+  title: "Dashboard Vendor | Portal Katering Pelindo TPS",
+};
+
+// Vendor operational dashboard displaying daily summary metrics and 3-shift workload
+export default async function VendorDashboardPage() {
+  const data = await getVendorDashboardData();
+  const todayFormatted = formatDateLong(new Date());
 
   return (
     <PageContainer>
       <PageHeader
-        title="Dashboard Vendor"
-        subtitle={todayStr}
+        title={`Dashboard Vendor: ${data.vendorNama}`}
+        subtitle={`Ringkasan operasional dan jadwal pesanan ${todayFormatted}`}
       />
-      <div className="flex-1 min-h-0 flex flex-col justify-center bg-surface border border-border rounded-[10px] mt-4 p-6">
-        <EmptyState
-          title="Portal Vendor Siap Digunakan"
-          description="Informasi alokasi pesanan hari ini, total porsi per bagian kerja, serta pembaruan progres pengiriman (dipersiapkan, dikirim, sampai) akan terhubung pada tahap integrasi vendor."
+
+      <div className="mt-4 flex flex-col flex-1 min-h-0 gap-4">
+        {/* 4 Summary KPI Cards */}
+        <VendorKPICards kpis={data.kpis} />
+
+        {/* 3 Shifts Today Operational Panel */}
+        <PesananHariIniPanel
+          shifts={data.shiftsToday}
+          todayFormatted={todayFormatted}
         />
       </div>
     </PageContainer>

@@ -2,6 +2,7 @@ import React from "react";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { AppShell } from "@/components/layout/AppShell";
+import { getVendorNotificationCounts } from "@/lib/actions/vendor-portal";
 
 export const metadata = {
   title: "Portal Vendor | Sistem Pengelolaan Data Catering Karyawan",
@@ -23,5 +24,17 @@ export default async function VendorLayout({
     redirect("/admin/dashboard");
   }
 
-  return <AppShell profile={profile}>{children}</AppShell>;
+  const unrespondedCount = await getVendorNotificationCounts();
+
+  return (
+    <AppShell
+      profile={profile}
+      badges={{
+        pendingVendorConfirmation: unrespondedCount,
+        pendingCount: unrespondedCount,
+      }}
+    >
+      {children}
+    </AppShell>
+  );
 }
