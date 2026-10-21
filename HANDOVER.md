@@ -1,6 +1,6 @@
 # Dokumen Handover & Ringkasan Pengerjaan Proyek Catering TPS
 ### Sistem Pengelolaan Data Catering Karyawan - PT Terminal Petikemas Surabaya
-*Pembaruan Terakhir: 21 Oktober 2026 (Tahap 02 s.d. Tahap 08)*
+*Pembaruan Terakhir: 21 Oktober 2026 (Tahap 10 - Dashboard Admin)*
 
 ---
 
@@ -12,7 +12,7 @@ Sistem ini dibangun untuk mendigitalkan dan mengotomatiskan alur kerja pemesanan
 
 | Peran (Role) | Username / Email | Password | Keterangan & Akses |
 | :--- | :--- | :--- | :--- |
-| `admin_ga` | `admin@tps.co.id` (atau `admin`) | `gatps2026` | Akses penuh seluruh master data, input 3-shift, jadwal rotasi, verifikasi revisi, ganti vendor, dan audit timeline. |
+| `admin_ga` | `admin@tps.co.id` (atau `admin`) | `gatps2026` | Akses penuh seluruh master data, input 3-shift, jadwal rotasi, verifikasi revisi, ganti vendor, dashboard KPI & analitik, dan audit timeline. |
 | `vendor` | `vendor@tps.co.id` (atau `vendor`) | `vendortps2026` | Terhubung ke mitra Aisya Catering (V001). Akses portal mandiri: konfirmasi pesanan, penyesuaian revisi, pembaruan 5 tahap progres, riwayat. |
 
 *Catatan Autentikasi:* Sistem mendukung input username langsung (`admin` atau `vendor`) yang otomatis dinormalisasi menjadi email korporat `username@tps.co.id` pada sisi autentikasi Supabase SSR.
@@ -40,11 +40,13 @@ Database menggunakan PostgreSQL pada platform Supabase dengan skema relasional, 
    - `import_batches`: Penampung riwayat impor data dokumen katering.
 
 3. **High-Performance Database Views**:
+   - `v_rekap`: View sumber kebenaran data konsumsi porsi yang hanya menyaring data pesanan berlaku (`order_status in ('final', 'revisi')`), menjamin data draft dan pesanan batal tidak ikut terhitung ke KPI dan grafik.
    - `v_periode_ringkas`: View ringkasan periode yang menggabungkan total karyawan, total porsi, jumlah revisi pending, nama vendor, dan nama shift dalam satu baris untuk menghindari masalah N+1 query.
    - `v_rekap_bulanan`: View agregasi bulanan untuk laporan keuangan dan rekapitulasi konsumsi per vendor.
    - `v_utilisasi_shift`: View monitoring beban kerja dan utilisasi katering per shift kerja.
 
-4. **Stored Procedures & RPC Berkeamanan Tinggi (`security definer`)**:
+4. **Stored Procedures & RPC Berkeamanan Tinggi (`security definer` & `security invoker`)**:
+   - `dashboard_ringkasan(p_dari date, p_sampai date)`: Fungsi analitik atomik satu panggilan untuk Admin GA (dibatasi maksimal 366 hari, verifikasi `is_admin()`). Menghasilkan JSON komprehensif berisi total porsi, rata-rata harian, jumlah revisi, revisi menunggu verifikasi, jadwal belum diinput (hari ini & besok), seri harian, per shift, per bagian, per vendor, serta seri pembanding periode sebelumnya dengan durasi yang sama.
    - `simpan_catering`: Menyimpan data katering draft per shift hanya untuk sel yang berubah (*dirty cell tracking*), mencegah konflik penimpaan data antar PIC yang mengisi baris berbeda secara bersamaan.
    - `kirim_catering`: Memvalidasi kelengkapan pengisian kuota seluruh bagian dan mengunci periode menjadi status `final`.
    - `ganti_vendor_periode`: Memfasilitasi pergantian vendor terjadwal atau vendor darurat dengan alasan wajib, otomatis memperbarui status respon, dan mencatat riwayat log.
@@ -58,49 +60,11 @@ Database menggunakan PostgreSQL pada platform Supabase dengan skema relasional, 
 ---
 
 ### B. Investigasi Mendalam & Solusi Tuntas Bug RLS Infinite Recursion (`42P17`)
-
-#### 1. Akar Masalah
-Saat pengguna melakukan login, aplikasi mengeksekusi `SELECT role, aktif FROM public.profiles WHERE id = auth.uid()`. Terjadi error PostgreSQL `42P17: infinite recursion detected in policy for relation "profiles"`.
-
-Penyebabnya berasal dari kebijakan RLS lama pada tabel `profiles`:
-```sql
-create policy "profiles_manage_policy" on profiles
-  for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
-```
-- Klausa `for all` menyebabkan policy ini dievaluasi pada semua perintah, termasuk perintah `SELECT`.
-- Di dalam klausa `using`, terdapat subquery yang membaca tabel `profiles` kembali (`select role from profiles...`).
-- Di PostgreSQL, ketika ada beberapa policy `PERMISSIVE`, PostgreSQL mengevaluasinya bersamaan dengan operator `OR` (`profiles_select_policy OR profiles_manage_policy`).
-- Karena `profiles_manage_policy` membaca tabel `profiles`, PostgreSQL memicu policy `profiles_manage_policy` kembali secara berulang tanpa batas hingga batas rekursi terlampaui.
-- Dampak turunannya: Seluruh tabel operasional lain (`shifts`, `periods`, `catering_orders`) yang mengecek role admin melalui `profiles` ikut terblokir error rekursi yang sama.
-
-#### 2. Solusi Rekayasa yang Diterapkan
-Kebijakan RLS diperbaiki dengan memisahkan kewenangan secara tegas dan meniadakan subquery melingkar:
-
-```sql
--- 1. Hapus policy manage bertipe ALL yang memicu rekursi
-drop policy if exists "profiles_manage_policy" on public.profiles;
-
--- 2. Pastikan hak baca profil terbuka bagi user yang terautentikasi tanpa subquery
-drop policy if exists "profiles_select_policy" on public.profiles;
-create policy "profiles_select_policy" on public.profiles
-  for select to authenticated
-  using (true);
-
--- 3. Batasi policy modifikasi hanya untuk operasi UPDATE berdasarkan identitas diri
-create policy "profiles_update_policy" on public.profiles
-  for update to authenticated
-  using (id = auth.uid())
-  with check (id = auth.uid());
-
--- 4. Berikan hak akses eksplisit
-grant select on public.profiles to authenticated;
-```
-
 Perubahan ini telah disinkronkan ke dalam berkas migrasi dan skrip database repositori:
 - [DATABASE_LENGKAP_CATERING.sql](DATABASE_LENGKAP_CATERING.sql)
 - [supabase/DATABASE_LENGKAP_CATERING.sql](supabase/DATABASE_LENGKAP_CATERING.sql)
 - [supabase/migrations/006_rls.sql](supabase/migrations/006_rls.sql)
+- [supabase/migrations/013_dashboard_ringkasan.sql](supabase/migrations/013_dashboard_ringkasan.sql)
 
 ---
 
@@ -120,12 +84,36 @@ Perubahan ini telah disinkronkan ke dalam berkas migrasi dan skrip database repo
 
 ---
 
-## 4. Struktur Rute Halaman Aplikasi
+## 4. Dashboard Admin & Analitik Operasional (Tahap 10)
+
+### A. Fitur Dashboard Lengkap
+1. **Filter Periode Terintegrasi & Sinkronisasi URL**:
+   - Preset cepat: Hari Ini, 7 Hari, 30 Hari, Bulan Ini, 3 Bulan, 6 Bulan, 1 Tahun.
+   - Tombol mundur (`<`) dan maju (`>`) satu durasi rentang kalender.
+   - Dialog kalender kustom terintegrasi dengan komponen `DateRangePicker`.
+   - Parameter tersimpan di URL (`?dari=...&sampai=...&preset=...`) sehingga tautan dashboard dapat langsung dibagikan atau disimpan bookmark.
+2. **5 Kartu KPI Tanpa Ikon (DESIGN.md Anti AI-Slop)**:
+   - Total Porsi (porsi pesanan berstatus final/revisi).
+   - Rata-rata/Hari (porsi dibagi hari kalender).
+   - Total Revisi (seluruh permohonan penyesuaian kuota).
+   - Revisi Menunggu (status pending verifikasi General Affairs, berwarna amber jika > 0).
+   - Belum Diinput (jadwal hari ini dan besok yang belum memiliki baris pesanan katering, berwarna merah jika kosong).
+3. **Grafik Analitik SVG Murni**:
+   - **Tren Porsi Harian**: Garis solid biru Pelindo `#1175BB` untuk periode aktif dan garis putus-putus abu-abu `#94A3B8` untuk periode sebelumnya berdurasi sama. Bucketing adaptif cerdas (harian s.d. 10 hari, per 3 hari s.d. 35 hari, mingguan s.d. 90 hari, bulanan di atasnya) dengan tooltip interaktif.
+   - **Distribusi per Shift**: Donut chart proporsi Shift 1, 2, dan 3 dengan angka total di bagian tengah dan rincian persentase pada legenda.
+   - **Porsi per Bagian**: Diagram batang vertikal alokasi porsi tiap unit kerja dengan label nama bagian utuh tanpa terpotong.
+   - **Porsi per Vendor**: Diagram batang horizontal distribusi pemenuhan pesanan oleh 5 rekanan katering mitra (V001 - V005) lengkap dengan kode vendor dan persentase pemenuhan.
+4. **Desktop 100dvh Zero Page Scroll**:
+   - Seluruh elemen dashboard dioptimalkan muat 100% di dalam 4 viewport desktop target (`1190x670`, `1366x680`, `1440x800`, `1920x950`) tanpa memunculkan scrollbar halaman vertikal.
+
+---
+
+## 5. Struktur Rute Halaman Aplikasi
 
 | Rute URL | Pengguna | Fungsi & Fitur Utama |
 | :--- | :--- | :--- |
 | `/login` | Publik | Halaman masuk dengan normalisasi username, background dermaga TPS, dan kartu form bebas pergeseran layout. |
-| `/admin/dashboard` | Admin GA | Dashboard operasional katering, KPI pesanan harian, status 3 shift, dan pintasan verifikasi. |
+| `/admin/dashboard` | Admin GA | Dashboard analitik katering, 5 KPI tanpa ikon, 4 grafik performa operasional, filter periode, dan sinkron URL. |
 | `/admin/input-catering` | Admin GA | Grid harian 3 shift berdampingan (Shift 3, 1, 2), pelacakan sel kotor, tombol kirim ke vendor. |
 | `/admin/periode` | Admin GA | Manajemen jadwal periode, filter multi-dimensi, tombol ganti vendor terjadwal/darurat via RPC. |
 | `/admin/verifikasi` | Admin GA | Verifikasi perubahan kuota (revisi) dan pemantauan respons kesanggupan vendor. |
@@ -143,17 +131,17 @@ Perubahan ini telah disinkronkan ke dalam berkas migrasi dan skrip database repo
 
 ---
 
-## 5. Ringkasan Pengujian, Kualitas, & Status Git
+## 6. Ringkasan Pengujian, Kualitas, & Status Git
 
 1. **Pengujian Unit (Vitest)**:
-   - 16 berkas pengujian: `16 passed`.
-   - 87 pengujian fungsional: `87 passed`.
-   - Mencakup logika bisnis: kalkulasi progres, reducer grid sel kotor, rotasi vendor, route guard, user guard (anti self-deactivation, anti self-demotion, minimal 1 admin aktif), formatter log audit, generator format WhatsApp, validator autentikasi, pembaca versi sistem, dan validasi skema form Zod.
+   - 17 berkas pengujian: `17 passed`.
+   - 99 pengujian fungsional: `99 passed`.
+   - Menguji: matematika rentang dashboard (preset, shift, previous period, adaptive bucketing), konsistensi total metrik KPI dan grafik, rotasi vendor, route guard, user guard, reducer sel kotor, progres vendor, dan validasi Zod.
 2. **Kompilasi TypeScript**:
    - `npx tsc --noEmit` lulus dengan 0 kesalahan.
 3. **Build Produksi Next.js**:
-   - `next build` berhasil mengompilasi 29 rute (halaman antarmuka dan route handler server) tanpa kendala.
-   - Kunci sensitif `SUPABASE_SERVICE_ROLE_KEY` terverifikasi 100% tidak pernah bocor ke bundel klien (`.next/static/`).
+   - `next build` berhasil mengompilasi 29 rute tanpa kendala.
+   - Variabel lingkungan sensitif tidak pernah bocor ke bundel JavaScript klien.
 4. **Repositori Git**:
-   - Seluruh perubahan dari Tahap 08b (`fix/08b-security-schema`) dan Tahap 09 (`feat/09-user-pengaturan`) telah di-commit dan di-push ke GitHub serta digabungkan ke cabang utama `main`.
+   - Seluruh tahapan telah di-commit secara terstruktur mengikuti Conventional Commits pada cabang `feat/10-dashboard` dan di-push ke remote origin GitHub.
    - Identitas commit terkonfigurasi pada: `Muhammad Raynar Hammam <raynarham23@gmail.com>`.
