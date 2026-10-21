@@ -44,12 +44,12 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-2.5">
+    <form onSubmit={handleSubmit} noValidate className="w-full text-left space-y-2">
       {/* Reserved alert container to maintain constant form height */}
-      <div className="min-h-[58px] flex items-center">
+      <div className="min-h-[48px] flex items-center">
         {generalError ? (
           <div
-            className="w-full px-3.5 py-2 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-relaxed"
+            className="w-full px-3 py-1.5 rounded-[8px] bg-danger-soft border border-danger/20 text-danger text-xs font-medium leading-snug"
             aria-live="polite"
             id="login-error-banner"
           >
