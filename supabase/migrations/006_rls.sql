@@ -36,10 +36,10 @@ create policy "profiles_select_policy" on profiles
   for select to authenticated
   using (true);
 
-create policy "profiles_manage_policy" on profiles
-  for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+create policy "profiles_update_policy" on profiles
+  for update to authenticated
+  using (id = auth.uid())
+  with check (id = auth.uid());
 
 -- SHIFTS
 create policy "shifts_select_policy" on shifts
