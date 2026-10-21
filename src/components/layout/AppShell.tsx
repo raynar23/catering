@@ -5,6 +5,7 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { Profile } from "@/lib/types";
 import { getNavGroupsForRole } from "@/lib/nav";
+import { ToastProvider } from "@/components/ui/Toast";
 
 interface AppShellProps {
   profile: Profile | null;
@@ -19,7 +20,8 @@ export function AppShell({ profile, children, badges = {} }: AppShellProps) {
   const navGroups = getNavGroupsForRole(role);
 
   return (
-    <div className="h-dvh max-h-dvh w-full overflow-hidden flex bg-bg text-text">
+    <ToastProvider>
+      <div className="h-dvh max-h-dvh w-full overflow-hidden flex bg-bg text-text">
       {/* Desktop Fixed Sidebar */}
       <div className="hidden lg:flex shrink-0 h-full">
         <Sidebar groups={navGroups} badges={badges} />
@@ -57,6 +59,6 @@ export function AppShell({ profile, children, badges = {} }: AppShellProps) {
           {children}
         </main>
       </div>
-    </div>
+    </ToastProvider>
   );
 }
