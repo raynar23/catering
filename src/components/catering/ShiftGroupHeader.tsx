@@ -13,7 +13,6 @@ interface ShiftGroupHeaderProps {
   isSaving: boolean;
   onSaveDraft: (shiftId: string) => void;
   onOpenKirimDialog: (shiftId: string) => void;
-  onOpenRevisiDialog?: (shiftId: string) => void;
 }
 
 // Group header displaying shift timing, vendor info, status badges, and action buttons
@@ -23,7 +22,6 @@ export function ShiftGroupHeader({
   isSaving,
   onSaveDraft,
   onOpenKirimDialog,
-  onOpenRevisiDialog,
 }: ShiftGroupHeaderProps) {
   const isFinalOrLocked =
     shift.status === "final" ||

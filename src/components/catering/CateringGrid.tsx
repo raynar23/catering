@@ -29,7 +29,7 @@ export function CateringGrid({
   isSavingShiftId,
   onSaveShiftDraft,
   onOpenKirimDialog,
-  onOpenRevisiDialog,
+  onAjukanRevisi,
 }: CateringGridProps) {
   // Modal for editing row notes
   const [activeNoteCell, setActiveNoteCell] = useState<{
@@ -112,7 +112,6 @@ export function CateringGrid({
                       isSaving={isSavingShiftId === shiftId}
                       onSaveDraft={onSaveShiftDraft}
                       onOpenKirimDialog={onOpenKirimDialog}
-                      onOpenRevisiDialog={onOpenRevisiDialog}
                     />
                   </th>
                 );

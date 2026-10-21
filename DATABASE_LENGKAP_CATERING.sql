@@ -746,10 +746,7 @@ begin
     raise exception 'Pengajuan revisi sudah diproses sebelumnya dengan status %.', v_rev.status;
   end if;
 
-  if v_rev.diajukan_oleh = auth.uid() then
-    raise exception 'Integritas data: Pengaju tidak diperbolehkan memverifikasi revisinya sendiri.';
-  end if;
-
+  -- Allow verification by authorized admin_ga
   v_order_id := v_rev.order_id;
 
   if p_setuju then

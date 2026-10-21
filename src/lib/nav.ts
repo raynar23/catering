@@ -28,8 +28,8 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
         icon: "input",
       },
       {
-        title: "Verifikasi & Riwayat",
-        href: "/admin/riwayat",
+        title: "Verifikasi Data",
+        href: "/admin/verifikasi",
         icon: "history",
         badgeKey: "pendingCount",
       },

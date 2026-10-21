@@ -226,6 +226,86 @@ export async function getPendingRevisionsCount(): Promise<number> {
   return count || 0;
 }
 
+interface RawRevisionQueryResult {
+  id: string;
+  item_id: string;
+  karyawan_awal: number;
+  karyawan_baru: number;
+  porsi_awal: number;
+  porsi_baru: number;
+  selisih_porsi: number;
+  alasan: string;
+  status: string;
+  respon_vendor: string;
+  catatan_vendor: string | null;
+  diajukan_at: string;
+  diverifikasi_at: string | null;
+  catatan_verifikator: string | null;
+  diajukan_profile?: { nama: string } | null;
+  diverifikasi_profile?: { nama: string } | null;
+  item?: {
+    id: string;
+    order_id: string;
+    bagian?: { id: string; kode: string; nama: string } | null;
+    order?: {
+      id: string;
+      period_id: string;
+      period?: {
+        id: string;
+        tanggal: string;
+        shift?: { id: string; nama: string; label: string } | null;
+        vendor?: { id: string; kode: string; nama: string; telp: string; kontak: string } | null;
+      } | null;
+    } | null;
+  } | null;
+}
+
+interface RawVendorResponseQueryResult {
+  id: string;
+  period_id: string;
+  status: string;
+  respon_vendor: string;
+  catatan_vendor: string | null;
+  respon_vendor_at: string | null;
+  updated_at: string;
+  period?: {
+    id: string;
+    tanggal: string;
+    shift?: { id: string; nama: string; label: string; jam_mulai: string; jam_selesai: string } | null;
+    vendor?: { id: string; kode: string; nama: string; telp: string; kontak: string } | null;
+  } | null;
+  items?: { jumlah_porsi: number }[] | null;
+}
+
+interface RawOrderChronologyQueryResult {
+  id: string;
+  period_id: string;
+  status: string;
+  respon_vendor: string;
+  progres_vendor: string;
+  period?: {
+    id: string;
+    tanggal: string;
+    shift?: { nama: string; label: string; jam_mulai: string; jam_selesai: string } | null;
+    vendor?: { kode: string; nama: string; telp: string; kontak: string } | null;
+  } | null;
+  items?: { jumlah_porsi: number }[] | null;
+}
+
+interface RawOrderLogQueryResult {
+  id: string;
+  aksi: string;
+  jumlah_awal: number | null;
+  selisih: number | null;
+  jumlah_baru: number | null;
+  keterangan: string | null;
+  created_at: string;
+  profile?: { nama: string; role: string } | null;
+  item?: {
+    bagian?: { nama: string } | null;
+  } | null;
+}
+
 // Get all revisions list for verification table
 export async function getVerificationRevisionsList(): Promise<
   VerificationRevisionItem[]
@@ -276,7 +356,7 @@ export async function getVerificationRevisionsList(): Promise<
     return [];
   }
 
-  return (data || []).map((r: any) => {
+  return ((data as unknown as RawRevisionQueryResult[]) || []).map((r) => {
     const item = r.item;
     const bagian = item?.bagian;
     const order = item?.order;
@@ -353,12 +433,12 @@ export async function getVendorResponseFollowUpList(): Promise<
     return [];
   }
 
-  return (data || []).map((o: any) => {
+  return ((data as unknown as RawVendorResponseQueryResult[]) || []).map((o) => {
     const p = o.period;
     const s = p?.shift;
     const v = p?.vendor;
     const totalPorsi = (o.items || []).reduce(
-      (sum: number, it: any) => sum + (it.jumlah_porsi || 0),
+      (sum: number, it: { jumlah_porsi: number }) => sum + (it.jumlah_porsi || 0),
       0
     );
 
@@ -418,11 +498,12 @@ export async function getOrderChronology(
     return null;
   }
 
-  const p = (order as any).period;
+  const typedOrder = order as unknown as RawOrderChronologyQueryResult;
+  const p = typedOrder.period;
   const s = p?.shift;
   const v = p?.vendor;
-  const totalPorsi = ((order as any).items || []).reduce(
-    (acc: number, it: any) => acc + (it.jumlah_porsi || 0),
+  const totalPorsi = (typedOrder.items || []).reduce(
+    (acc: number, it: { jumlah_porsi: number }) => acc + (it.jumlah_porsi || 0),
     0
   );
 
@@ -444,14 +525,14 @@ export async function getOrderChronology(
       )
     `
     )
-    .eq("order_id", order.id)
+    .eq("order_id", typedOrder.id)
     .order("created_at", { ascending: false });
 
   if (logsErr) {
     console.error("Failed to fetch order logs:", logsErr);
   }
 
-  const logs: ChronologyLogItem[] = (logsData || []).map((l: any) => ({
+  const logs: ChronologyLogItem[] = ((logsData as unknown as RawOrderLogQueryResult[]) || []).map((l) => ({
     id: l.id,
     aksi: l.aksi,
     jumlahAwal: l.jumlah_awal,
@@ -463,6 +544,7 @@ export async function getOrderChronology(
     olehRole: l.profile?.role || "admin_ga",
     createdAt: l.created_at,
   }));
+
 
   return {
     orderId: order.id,
