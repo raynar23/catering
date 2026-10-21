@@ -27,7 +27,10 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
 
   const [nama, setNama] = useState(shiftToEdit?.nama ?? "");
   const [label, setLabel] = useState(shiftToEdit?.label ?? "");
-  const [alias, setAlias] = useState(shiftToEdit?.alias ?? "");
+  const [alias, setAlias] = useState<string>(() => {
+    if (!shiftToEdit?.alias) return "";
+    return Array.isArray(shiftToEdit.alias) ? shiftToEdit.alias.join(", ") : String(shiftToEdit.alias);
+  });
   const [jamMulai, setJamMulai] = useState(shiftToEdit?.jam_mulai?.slice(0, 5) ?? "08:00");
   const [jamSelesai, setJamSelesai] = useState(shiftToEdit?.jam_selesai?.slice(0, 5) ?? "16:00");
   const [batasTiba, setBatasTiba] = useState(shiftToEdit?.batas_tiba?.slice(0, 5) ?? "10:00");
@@ -50,13 +53,15 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
       return;
     }
 
+    const aliasList = alias.split(",").map((s) => s.trim()).filter(Boolean);
+
     setLoading(true);
     try {
       const res = await saveShiftAction(
         {
           nama,
           label,
-          alias,
+          alias: aliasList.length > 0 ? aliasList : alias.trim(),
           jam_mulai: jamMulai,
           jam_selesai: jamSelesai,
           batas_tiba: batasTiba,

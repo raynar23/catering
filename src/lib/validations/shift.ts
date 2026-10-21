@@ -13,11 +13,10 @@ export const shiftSchema = z.object({
     .trim()
     .min(2, "Label shift minimal 2 karakter")
     .max(50, "Label shift maksimal 50 karakter"),
-  alias: z
-    .string()
-    .trim()
-    .min(1, "Alias shift minimal 1 karakter")
-    .max(50, "Alias shift maksimal 50 karakter"),
+  alias: z.union([
+    z.string().trim().min(1, "Alias shift minimal 1 karakter"),
+    z.array(z.string().trim()).min(1, "Alias shift minimal 1 elemen"),
+  ]),
   jam_mulai: z
     .string()
     .trim()

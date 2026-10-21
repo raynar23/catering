@@ -24,7 +24,7 @@ export interface Shift {
   id: string;
   nama: string; // e.g. "Shift 1"
   label: string; // e.g. "Siang"
-  alias: string; // e.g. "Siang"
+  alias: string[]; // e.g. ["siang", "pagi"]
   jam_mulai: string; // "08:00:00"
   jam_selesai: string; // "16:00:00"
   batas_tiba: string; // "10:00:00"
@@ -41,7 +41,8 @@ export interface Bagian {
   nama: string;
   kelompok: string | null;
   lokasi_antar: string | null;
-  alias: string | null;
+  catatan_antar?: string | null;
+  alias: string[] | null;
   keterangan: string | null;
   urutan: number;
   aktif: boolean;
@@ -52,6 +53,10 @@ export interface Vendor {
   id: string;
   kode: string; // V001..V005
   nama: string;
+  nama_kontak?: string | null;
+  no_wa?: string | null;
+  no_telp?: string | null;
+  alias?: string[] | null;
   kontak: string | null;
   alamat: string | null;
   urutan_rotasi: number; // 0..4
@@ -160,6 +165,9 @@ export interface ImportBatch {
   diimpor_oleh: string;
   dikonfirmasi_at: string | null;
   catatan: string | null;
+  jenis_dokumen?: string | null;
+  mesin?: string | null;
+  ringkasan?: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }

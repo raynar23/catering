@@ -11,7 +11,8 @@ export interface BagianRecord {
   nama: string;
   kelompok: string | null;
   lokasi_antar: string | null;
-  alias: string | null;
+  catatan_antar?: string | null;
+  alias: string[] | string | null;
   keterangan: string | null;
   urutan: number;
   aktif: boolean;

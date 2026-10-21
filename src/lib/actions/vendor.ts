@@ -26,8 +26,18 @@ export interface ActionResult<T = unknown> {
   data?: T;
 }
 
-// Extract contact person, WhatsApp, and phone numbers from JSON or string
-export async function parseVendorContact(kontakRaw: string | null) {
+// Extract contact person, WhatsApp, and phone numbers from dedicated columns or legacy JSON/string
+export async function parseVendorContact(
+  kontakRaw: string | null,
+  vendorRecord?: { nama_kontak?: string | null; no_wa?: string | null; no_telp?: string | null }
+) {
+  if (vendorRecord && (vendorRecord.nama_kontak || vendorRecord.no_wa || vendorRecord.no_telp)) {
+    return {
+      nama_kontak: vendorRecord.nama_kontak ?? "",
+      no_wa: vendorRecord.no_wa ?? "",
+      no_telp: vendorRecord.no_telp ?? "",
+    };
+  }
   if (!kontakRaw) return { nama_kontak: "", no_wa: "", no_telp: "" };
   try {
     if (kontakRaw.trim().startsWith("{")) {

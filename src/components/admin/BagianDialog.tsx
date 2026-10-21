@@ -28,9 +28,12 @@ function BagianFormInner({ bagianToEdit, onClose, onSuccess }: FormInnerProps) {
   const [kode, setKode] = useState(bagianToEdit?.kode ?? "");
   const [kelompok, setKelompok] = useState(bagianToEdit?.kelompok ?? "");
   const [lokasiAntar, setLokasiAntar] = useState(bagianToEdit?.lokasi_antar ?? "");
-  const [catatanAntar, setCatatanAntar] = useState("");
+  const [catatanAntar, setCatatanAntar] = useState(bagianToEdit?.catatan_antar ?? "");
   const [keterangan, setKeterangan] = useState(bagianToEdit?.keterangan ?? "");
-  const [alias, setAlias] = useState(bagianToEdit?.alias ?? "");
+  const [alias, setAlias] = useState<string>(() => {
+    if (!bagianToEdit?.alias) return "";
+    return Array.isArray(bagianToEdit.alias) ? bagianToEdit.alias.join(", ") : String(bagianToEdit.alias);
+  });
   const [urutan, setUrutan] = useState(bagianToEdit?.urutan ?? 0);
   const [aktif, setAktif] = useState(bagianToEdit?.aktif ?? true);
 
@@ -43,6 +46,8 @@ function BagianFormInner({ bagianToEdit, onClose, onSuccess }: FormInnerProps) {
       return;
     }
 
+    const aliasList = alias.split(",").map((s) => s.trim()).filter(Boolean);
+
     setLoading(true);
     try {
       const res = await saveBagianAction(
@@ -53,7 +58,7 @@ function BagianFormInner({ bagianToEdit, onClose, onSuccess }: FormInnerProps) {
           lokasi_antar: lokasiAntar || undefined,
           catatan_antar: catatanAntar || undefined,
           keterangan: keterangan || undefined,
-          alias: alias || undefined,
+          alias: aliasList.length > 0 ? aliasList : undefined,
           urutan: Number(urutan) || 0,
           aktif,
         },
