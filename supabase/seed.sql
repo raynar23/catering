@@ -103,44 +103,190 @@ begin
   select id into v_v004_id from vendors where kode = 'V004';
   select id into v_v005_id from vendors where kode = 'V005';
 
-  -- 4. PROFILES (Upsert Demo Profiles if corresponding auth users exist or for local seeds)
-  -- For local environments, fallback profiles are ensured:
-  insert into profiles (id, username, nama, role, vendor_id, bagian_id)
-  select id, 'admin.ga', 'Admin General Affairs', 'admin_ga'::app_role, null, null
-  from auth.users where email = 'admin.ga@tps.co.id'
-  on conflict (id) do update set role = excluded.role, nama = excluded.nama;
+  -- 4. AUTH USERS AND PROFILES
+  -- Ensure demo auth accounts exist before referencing in profiles
+  select id into v_admin_id from auth.users where email = 'admin.ga@tps.co.id';
+  if v_admin_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000001'::uuid) then
+      v_admin_id := gen_random_uuid();
+    else
+      v_admin_id := '00000000-0000-0000-0000-000000000001'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_admin_id, 'authenticated', 'authenticated',
+      'admin.ga@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"Admin General Affairs","username":"admin.ga"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
 
-  insert into profiles (id, username, nama, role, vendor_id, bagian_id)
-  select id, 'pic.cfs', 'PIC Unit Pergudangan CFS', 'pic_unit'::app_role, null, v_b_cfs
-  from auth.users where email = 'pic.cfs@tps.co.id'
-  on conflict (id) do update set role = excluded.role, nama = excluded.nama;
+  select id into v_pic_cfs_id from auth.users where email = 'pic.cfs@tps.co.id';
+  if v_pic_cfs_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000002'::uuid) then
+      v_pic_cfs_id := gen_random_uuid();
+    else
+      v_pic_cfs_id := '00000000-0000-0000-0000-000000000002'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_pic_cfs_id, 'authenticated', 'authenticated',
+      'pic.cfs@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"PIC Unit Pergudangan CFS","username":"pic.cfs"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
 
-  insert into profiles (id, username, nama, role, vendor_id, bagian_id)
-  select id, 'pic.mekanik', 'PIC Unit Mekanik Terminal', 'pic_unit'::app_role, null, v_b_mek_cc
-  from auth.users where email = 'pic.mekanik@tps.co.id'
-  on conflict (id) do update set role = excluded.role, nama = excluded.nama;
+  select id into v_pic_mek_id from auth.users where email = 'pic.mekanik@tps.co.id';
+  if v_pic_mek_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000003'::uuid) then
+      v_pic_mek_id := gen_random_uuid();
+    else
+      v_pic_mek_id := '00000000-0000-0000-0000-000000000003'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_pic_mek_id, 'authenticated', 'authenticated',
+      'pic.mekanik@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"PIC Unit Mekanik Terminal","username":"pic.mekanik"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
 
-  insert into profiles (id, username, nama, role, vendor_id, bagian_id)
-  select id, 'pic.operator', 'PIC Unit Operator Alat Berat', 'pic_unit'::app_role, null, v_b_cc
-  from auth.users where email = 'pic.operator@tps.co.id'
-  on conflict (id) do update set role = excluded.role, nama = excluded.nama;
+  select id into v_pic_op_id from auth.users where email = 'pic.operator@tps.co.id';
+  if v_pic_op_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000004'::uuid) then
+      v_pic_op_id := gen_random_uuid();
+    else
+      v_pic_op_id := '00000000-0000-0000-0000-000000000004'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_pic_op_id, 'authenticated', 'authenticated',
+      'pic.operator@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"PIC Unit Operator Alat Berat","username":"pic.operator"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
 
-  insert into profiles (id, username, nama, role, vendor_id, bagian_id)
-  select id, 'vendor.aisya', 'Petugas Aisya Catering', 'vendor'::app_role, v_v001_id, null
-  from auth.users where email = 'vendor.aisya@tps.co.id'
-  on conflict (id) do update set role = excluded.role, nama = excluded.nama, vendor_id = excluded.vendor_id;
+  select id into v_vendor_aisya_id from auth.users where email = 'vendor.aisya@tps.co.id';
+  if v_vendor_aisya_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000005'::uuid) then
+      v_vendor_aisya_id := gen_random_uuid();
+    else
+      v_vendor_aisya_id := '00000000-0000-0000-0000-000000000005'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_vendor_aisya_id, 'authenticated', 'authenticated',
+      'vendor.aisya@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"Petugas Aisya Catering","username":"vendor.aisya"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
 
-  insert into profiles (id, username, nama, role, vendor_id, bagian_id)
-  select id, 'vendor.ibu', 'Petugas Catering IBU', 'vendor'::app_role, v_v002_id, null
-  from auth.users where email = 'vendor.ibu@tps.co.id'
-  on conflict (id) do update set role = excluded.role, nama = excluded.nama, vendor_id = excluded.vendor_id;
+  select id into v_vendor_ibu_id from auth.users where email = 'vendor.ibu@tps.co.id';
+  if v_vendor_ibu_id is null then
+    if exists (select 1 from auth.users where id = '00000000-0000-0000-0000-000000000006'::uuid) then
+      v_vendor_ibu_id := gen_random_uuid();
+    else
+      v_vendor_ibu_id := '00000000-0000-0000-0000-000000000006'::uuid;
+    end if;
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      recovery_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data,
+      created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token
+    ) values (
+      '00000000-0000-0000-0000-000000000000'::uuid, v_vendor_ibu_id, 'authenticated', 'authenticated',
+      'vendor.ibu@tps.co.id', crypt('TpsCatering2026!', gen_salt('bf')), now(),
+      now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"nama":"Petugas Catering IBU","username":"vendor.ibu"}'::jsonb,
+      now(), now(), '', '', '', ''
+    );
+  end if;
 
-  -- Ensure fallback user id for seed logging if no auth user logged in
-  select coalesce(
-    (select id from profiles where role = 'admin_ga' limit 1),
-    (select id from auth.users limit 1),
-    v_admin_id
-  ) into v_admin_id;
+  -- Ensure matching identities exist for Supabase Auth
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'auth' and table_name = 'identities' and column_name = 'provider_id'
+  ) then
+    execute '
+      insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+      select
+        u.id::text,
+        u.id,
+        u.id::text,
+        format(''{"sub":"%s","email":"%s"}'', u.id::text, u.email)::jsonb,
+        ''email'',
+        now(),
+        now(),
+        now()
+      from auth.users u
+      where u.id in ($1, $2, $3, $4, $5, $6)
+        and not exists (select 1 from auth.identities i where i.user_id = u.id)
+      on conflict do nothing
+    ' using v_admin_id, v_pic_cfs_id, v_pic_mek_id, v_pic_op_id, v_vendor_aisya_id, v_vendor_ibu_id;
+  else
+    execute '
+      insert into auth.identities (id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+      select
+        u.id::text,
+        u.id,
+        format(''{"sub":"%s","email":"%s"}'', u.id::text, u.email)::jsonb,
+        ''email'',
+        now(),
+        now(),
+        now()
+      from auth.users u
+      where u.id in ($1, $2, $3, $4, $5, $6)
+        and not exists (select 1 from auth.identities i where i.user_id = u.id)
+      on conflict do nothing
+    ' using v_admin_id, v_pic_cfs_id, v_pic_mek_id, v_pic_op_id, v_vendor_aisya_id, v_vendor_ibu_id;
+  end if;
+
+  -- Remove stale profiles with conflicting username if ID changed
+  delete from profiles where username = 'admin.ga' and id <> v_admin_id;
+  delete from profiles where username = 'pic.cfs' and id <> v_pic_cfs_id;
+  delete from profiles where username = 'pic.mekanik' and id <> v_pic_mek_id;
+  delete from profiles where username = 'pic.operator' and id <> v_pic_op_id;
+  delete from profiles where username = 'vendor.aisya' and id <> v_vendor_aisya_id;
+  delete from profiles where username = 'vendor.ibu' and id <> v_vendor_ibu_id;
+
+  -- Upsert demo profiles
+  insert into profiles (id, username, nama, role, vendor_id, bagian_id)
+  values
+    (v_admin_id, 'admin.ga', 'Admin General Affairs', 'admin_ga'::app_role, null, null),
+    (v_pic_cfs_id, 'pic.cfs', 'PIC Unit Pergudangan CFS', 'pic_unit'::app_role, null, v_b_cfs),
+    (v_pic_mek_id, 'pic.mekanik', 'PIC Unit Mekanik Terminal', 'pic_unit'::app_role, null, v_b_mek_cc),
+    (v_pic_op_id, 'pic.operator', 'PIC Unit Operator Alat Berat', 'pic_unit'::app_role, null, v_b_cc),
+    (v_vendor_aisya_id, 'vendor.aisya', 'Petugas Aisya Catering', 'vendor'::app_role, v_v001_id, null),
+    (v_vendor_ibu_id, 'vendor.ibu', 'Petugas Catering IBU', 'vendor'::app_role, v_v002_id, null)
+  on conflict (id) do update set
+    username = excluded.username,
+    nama = excluded.nama,
+    role = excluded.role,
+    vendor_id = excluded.vendor_id,
+    bagian_id = excluded.bagian_id;
 
   -- 5. ROLLING 29-DAY SCHEDULE (-14 to +14 days from current_date in Asia/Jakarta)
   for v_day in -14..14 loop
