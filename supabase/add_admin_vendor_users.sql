@@ -1,10 +1,4 @@
--- ==============================================================================
--- SQL Script: Pembuatan Akun Uji Coba Admin GA & Vendor
--- ==============================================================================
--- 1. admin@tps.co.id (username: admin) | Password: gatps2026 | Role: admin_ga
--- 2. vendor@tps.co.id (username: vendor) | Password: vendortps2026 | Role: vendor (V001)
--- ==============================================================================
-
+-- Provision test accounts for admin_ga and vendor with fixed select policy
 create extension if not exists "pgcrypto";
 
 do $$
@@ -15,13 +9,13 @@ declare
   v_id_type text;
   v_has_provider_id boolean;
 begin
-  -- 1. Ambil vendor default V001 (Aisya Catering)
+  -- Fetch default vendor V001
   select id into v_v001_id from vendors where kode = 'V001';
   if v_v001_id is null then
     select id into v_v001_id from vendors limit 1;
   end if;
 
-  -- 2. Tambah / Perbarui admin@tps.co.id pada auth.users
+  -- Upsert admin auth user
   select id into v_admin_id from auth.users where email = 'admin@tps.co.id';
   if v_admin_id is null then
     v_admin_id := gen_random_uuid();
@@ -54,7 +48,7 @@ begin
     where id = v_admin_id;
   end if;
 
-  -- 3. Tambah / Perbarui vendor@tps.co.id pada auth.users
+  -- Upsert vendor auth user
   select id into v_vendor_id from auth.users where email = 'vendor@tps.co.id';
   if v_vendor_id is null then
     v_vendor_id := gen_random_uuid();
@@ -87,7 +81,7 @@ begin
     where id = v_vendor_id;
   end if;
 
-  -- 4. Tambah / Perbarui identitas autentikasi pada auth.identities
+  -- Upsert auth identities for email provider
   select data_type into v_id_type
   from information_schema.columns
   where table_schema = 'auth' and table_name = 'identities' and column_name = 'id';
@@ -169,7 +163,7 @@ begin
     end if;
   end if;
 
-  -- 5. Tambah / Perbarui public.profiles
+  -- Upsert public profiles
   delete from profiles where username = 'admin' and id <> v_admin_id;
   delete from profiles where username = 'vendor' and id <> v_vendor_id;
 
@@ -185,10 +179,10 @@ begin
     bagian_id = excluded.bagian_id,
     aktif = true;
 
-  raise notice 'Penyetelan akun admin@tps.co.id dan vendor@tps.co.id berhasil diselesaikan!';
+  raise notice 'User provisioning completed successfully';
 end $$;
 
--- 6. Pastikan kebijakan SELECT pada profiles bebas dari infinite recursion
+-- Fix recursive select policy on profiles
 drop policy if exists "profiles_select_policy" on profiles;
 create policy "profiles_select_policy" on profiles
   for select to authenticated
