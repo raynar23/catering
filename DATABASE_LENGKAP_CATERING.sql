@@ -326,22 +326,46 @@ join profiles pr on pr.id = ol.oleh;
 -- Row Level Security policies and vendor isolation
 
 -- Helper security functions
+create or replace function public.is_admin()
+returns boolean as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid()
+      and role = 'admin_ga'
+      and aktif = true
+  );
+$$ language sql stable security definer set search_path = public, pg_temp;
+
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
+
+create or replace function public.my_vendor_id()
+returns uuid as $$
+  select vendor_id from public.profiles
+  where id = auth.uid()
+    and role = 'vendor'
+    and aktif = true;
+$$ language sql stable security definer set search_path = public, pg_temp;
+
+revoke execute on function public.my_vendor_id() from public;
+grant execute on function public.my_vendor_id() to authenticated;
+
+create or replace function public.is_admin_or_pic()
+returns boolean as $$
+  select public.is_admin();
+$$ language sql stable security definer set search_path = public, pg_temp;
+
+revoke execute on function public.is_admin_or_pic() from public;
+grant execute on function public.is_admin_or_pic() to authenticated;
+
 create or replace function current_user_role()
 returns app_role as $$
-  select role from profiles where id = auth.uid();
+  select role from public.profiles where id = auth.uid();
 $$ language sql stable security definer set search_path = public, pg_temp;
 
 create or replace function current_user_vendor_id()
 returns uuid as $$
-  select vendor_id from profiles where id = auth.uid();
-$$ language sql stable security definer set search_path = public, pg_temp;
-
-create or replace function is_admin_or_pic()
-returns boolean as $$
-  select coalesce(
-    (select role = 'admin_ga' from profiles where id = auth.uid()),
-    false
-  );
+  select public.my_vendor_id();
 $$ language sql stable security definer set search_path = public, pg_temp;
 
 -- Enable RLS on all operational and master tables
@@ -359,12 +383,44 @@ alter table import_batches enable row level security;
 -- PROFILES
 create policy "profiles_select_policy" on profiles
   for select to authenticated
-  using (true);
+  using (id = auth.uid() or public.is_admin());
 
 create policy "profiles_update_policy" on profiles
   for update to authenticated
-  using (id = auth.uid())
-  with check (id = auth.uid());
+  using (id = auth.uid() or public.is_admin())
+  with check (id = auth.uid() or public.is_admin());
+
+-- Revoke blanket table update and grant only to safe self-service column nama
+revoke update on public.profiles from authenticated, anon;
+grant update (nama) on public.profiles to authenticated;
+
+-- Trigger guard: prevent unauthorized changes to sensitive profile columns
+create or replace function public.guard_profiles_update()
+returns trigger as $$
+begin
+  -- Allow service_role or superuser to update any column
+  if current_user in ('postgres', 'service_role') or coalesce(current_setting('request.jwt.claim.role', true), '') = 'service_role' then
+    return new;
+  end if;
+
+  if new.role is distinct from old.role or
+     new.vendor_id is distinct from old.vendor_id or
+     new.aktif is distinct from old.aktif or
+     new.bagian_id is distinct from old.bagian_id or
+     new.id is distinct from old.id or
+     new.username is distinct from old.username then
+    raise exception 'Modifikasi kolom terlindungi pada profiles tidak diizinkan';
+  end if;
+
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public, pg_temp;
+
+drop trigger if exists trg_guard_profiles_update on public.profiles;
+create trigger trg_guard_profiles_update
+  before update on public.profiles
+  for each row
+  execute function public.guard_profiles_update();
 
 -- SHIFTS
 create policy "shifts_select_policy" on shifts
@@ -373,8 +429,8 @@ create policy "shifts_select_policy" on shifts
 
 create policy "shifts_manage_policy" on shifts
   for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- BAGIAN
 create policy "bagian_select_policy" on bagian
@@ -383,47 +439,46 @@ create policy "bagian_select_policy" on bagian
 
 create policy "bagian_manage_policy" on bagian
   for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- VENDORS (Vendor Isolation)
 create policy "vendors_select_policy" on vendors
   for select to authenticated
-  using (is_admin_or_pic() or id = current_user_vendor_id());
+  using (public.is_admin() or id = public.my_vendor_id());
 
 create policy "vendors_manage_policy" on vendors
   for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- PERIODS (Vendor Isolation: Vendor only sees assigned periods)
 create policy "periods_select_policy" on periods
   for select to authenticated
-  using (is_admin_or_pic() or vendor_id = current_user_vendor_id());
+  using (public.is_admin() or vendor_id = public.my_vendor_id());
 
 create policy "periods_manage_policy" on periods
   for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- CATERING ORDERS (Vendors only see their own orders with status Final or Revisi)
 create policy "orders_select_policy" on catering_orders
   for select to authenticated
   using (
-    is_admin_or_pic()
-    or (vendor_id = current_user_vendor_id() and status in ('final', 'revisi'))
+    public.is_admin()
+    or (vendor_id = public.my_vendor_id() and status in ('final', 'revisi'))
   );
--- NOTE: No insert/update/delete policies for client; changes occur strictly through security definer RPCs.
 
 -- CATERING ITEMS (Vendors only see items from their own Final or Revisi orders)
 create policy "items_select_policy" on catering_items
   for select to authenticated
   using (
-    is_admin_or_pic()
+    public.is_admin()
     or exists (
       select 1 from catering_orders o
       where o.id = catering_items.order_id
-        and o.vendor_id = current_user_vendor_id()
+        and o.vendor_id = public.my_vendor_id()
         and o.status in ('final', 'revisi')
     )
   );
@@ -432,12 +487,12 @@ create policy "items_select_policy" on catering_items
 create policy "revisions_select_policy" on revisions
   for select to authenticated
   using (
-    is_admin_or_pic()
+    public.is_admin()
     or exists (
       select 1 from catering_items ci
       join catering_orders o on o.id = ci.order_id
       where ci.id = revisions.item_id
-        and o.vendor_id = current_user_vendor_id()
+        and o.vendor_id = public.my_vendor_id()
         and o.status in ('final', 'revisi')
     )
   );
@@ -446,11 +501,11 @@ create policy "revisions_select_policy" on revisions
 create policy "order_logs_select_policy" on order_logs
   for select to authenticated
   using (
-    is_admin_or_pic()
+    public.is_admin()
     or exists (
       select 1 from catering_orders o
       where o.id = order_logs.order_id
-        and o.vendor_id = current_user_vendor_id()
+        and o.vendor_id = public.my_vendor_id()
         and o.status in ('final', 'revisi')
     )
   );
@@ -458,8 +513,30 @@ create policy "order_logs_select_policy" on order_logs
 -- IMPORT BATCHES (GA only)
 create policy "import_batches_policy" on import_batches
   for all to authenticated
-  using (is_admin_or_pic())
-  with check (is_admin_or_pic());
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- Revoke all table and routine permissions from anon on public schema
+revoke all on all tables in schema public from anon;
+revoke all on all routines in schema public from anon;
+
+-- Revoke direct writes from authenticated on operational tables (mutations only via security definer RPCs)
+revoke insert, update, delete on public.catering_orders from authenticated;
+revoke insert, update, delete on public.catering_items from authenticated;
+revoke insert, update, delete on public.revisions from authenticated;
+revoke insert, update, delete on public.order_logs from authenticated;
+revoke insert, update, delete on public.import_batches from authenticated;
+
+-- Ensure select access on tables for authenticated users according to RLS
+grant select on public.catering_orders to authenticated;
+grant select on public.catering_items to authenticated;
+grant select on public.revisions to authenticated;
+grant select on public.order_logs to authenticated;
+grant select on public.import_batches to authenticated;
+grant select on public.shifts to authenticated;
+grant select on public.bagian to authenticated;
+grant select on public.vendors to authenticated;
+grant select on public.periods to authenticated;
 
 -- Migration: 007_rpc_admin.sql
 -- Administrative RPC functions
@@ -1288,6 +1365,120 @@ create index if not exists idx_periods_tanggal_shift on periods(tanggal, shift_i
 create index if not exists idx_periods_vendor_id on periods(vendor_id);
 create index if not exists idx_catering_orders_period_id on catering_orders(period_id);
 create index if not exists idx_catering_items_order_id on catering_items(order_id);
+
+-- Migration: 011_schema_alignment.sql
+-- Migration: 011_schema_alignment
+-- Schema alignment for vendors, bagian, shifts, sync triggers, and analytical views
+
+-- 1. VENDORS ALIGNMENT
+alter table vendors
+  add column if not exists nama_kontak text,
+  add column if not exists no_wa text,
+  add column if not exists no_telp text,
+  add column if not exists alias text[] default '{}'::text[];
+
+-- Migrate existing kontak column into no_wa
+update vendors
+set no_wa = coalesce(no_wa, kontak)
+where kontak is not null and (no_wa is null or no_wa = '');
+
+-- 2. BAGIAN ALIGNMENT
+alter table bagian
+  add column if not exists catatan_antar text;
+
+-- Convert alias to text[] if not already an array
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'bagian' and column_name = 'alias' and data_type = 'text'
+  ) then
+    alter table bagian alter column alias type text[] using case
+      when alias is null or alias = '' then '{}'::text[]
+      else string_to_array(alias, ',')
+    end;
+    alter table bagian alter column alias set default '{}'::text[];
+  end if;
+end $$;
+
+-- 3. SHIFTS ALIGNMENT
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'shifts' and column_name = 'alias' and data_type = 'text'
+  ) then
+    alter table shifts alter column alias type text[] using case
+      when alias is null or alias = '' then '{}'::text[]
+      else string_to_array(alias, ',')
+    end;
+    alter table shifts alter column alias set default '{}'::text[];
+  end if;
+end $$;
+
+-- Update shift aliases to match client document terms:
+-- Shift 1 = {"siang", "pagi"}, Shift 2 = {"sore"}, Shift 3 = {"malam"}
+update shifts set alias = array['siang', 'pagi'] where nama = 'Shift 1' or urutan = 1 or label like '%Pagi%';
+update shifts set alias = array['sore'] where nama = 'Shift 2' or urutan = 2 or label like '%Siang%';
+update shifts set alias = array['malam'] where nama = 'Shift 3' or urutan = 0 or label like '%Malam%';
+
+-- 4. IMPORT BATCHES ALIGNMENT
+alter table import_batches
+  add column if not exists jenis_dokumen text,
+  add column if not exists mesin text,
+  add column if not exists ringkasan jsonb default '{}'::jsonb;
+
+-- 5. VENDOR SYNCHRONIZATION TRIGGER (catering_orders.vendor_id must match periods.vendor_id)
+create or replace function public.sync_order_vendor_id()
+returns trigger as $$
+declare
+  v_expected_vendor_id uuid;
+begin
+  select vendor_id into v_expected_vendor_id from periods where id = new.period_id;
+  if v_expected_vendor_id is not null and (new.vendor_id is null or new.vendor_id <> v_expected_vendor_id) then
+    new.vendor_id := v_expected_vendor_id;
+  end if;
+  return new;
+end;
+$$ language plpgsql security definer set search_path = public, pg_temp;
+
+drop trigger if exists trg_sync_order_vendor_id on catering_orders;
+create trigger trg_sync_order_vendor_id
+  before insert or update on catering_orders
+  for each row
+  execute function public.sync_order_vendor_id();
+
+-- 6. VIEWS ALIGNMENT (only final and revisi, security_invoker = true)
+create or replace view v_rekap_bulanan with (security_invoker = true) as
+select
+  to_char(p.tanggal, 'YYYY-MM') as bulan,
+  v.id as vendor_id,
+  v.kode as vendor_kode,
+  v.nama as vendor_nama,
+  sum(ci.jumlah_porsi) as total_porsi,
+  count(distinct p.id) as total_periode
+from catering_orders o
+join periods p on p.id = o.period_id
+join vendors v on v.id = o.vendor_id
+join catering_items ci on ci.order_id = o.id
+where o.status in ('final', 'revisi')
+group by to_char(p.tanggal, 'YYYY-MM'), v.id, v.kode, v.nama;
+
+create or replace view v_utilisasi_shift with (security_invoker = true) as
+select
+  s.id as shift_id,
+  s.nama as shift_nama,
+  s.label as shift_label,
+  s.urutan_laporan,
+  count(distinct p.id) as total_periode,
+  sum(ci.jumlah_karyawan) as total_karyawan,
+  sum(ci.jumlah_porsi) as total_porsi
+from catering_orders o
+join periods p on p.id = o.period_id
+join shifts s on s.id = p.shift_id
+join catering_items ci on ci.order_id = o.id
+where o.status in ('final', 'revisi')
+group by s.id, s.nama, s.label, s.urutan_laporan;
 
 -- Seed data
 -- Demo seed data for shifts, sections, vendors, profiles, and 29-day rolling schedule
