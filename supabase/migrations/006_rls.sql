@@ -104,8 +104,8 @@ create policy "shifts_select_policy" on shifts
 
 create policy "shifts_manage_policy" on shifts
   for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- BAGIAN
 create policy "bagian_select_policy" on bagian
@@ -114,47 +114,46 @@ create policy "bagian_select_policy" on bagian
 
 create policy "bagian_manage_policy" on bagian
   for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- VENDORS (Vendor Isolation)
 create policy "vendors_select_policy" on vendors
   for select to authenticated
-  using (is_admin_or_pic() or id = current_user_vendor_id());
+  using (public.is_admin() or id = public.my_vendor_id());
 
 create policy "vendors_manage_policy" on vendors
   for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- PERIODS (Vendor Isolation: Vendor only sees assigned periods)
 create policy "periods_select_policy" on periods
   for select to authenticated
-  using (is_admin_or_pic() or vendor_id = current_user_vendor_id());
+  using (public.is_admin() or vendor_id = public.my_vendor_id());
 
 create policy "periods_manage_policy" on periods
   for all to authenticated
-  using (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false))
-  with check (coalesce((select role = 'admin_ga' from profiles where id = auth.uid()), false));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- CATERING ORDERS (Vendors only see their own orders with status Final or Revisi)
 create policy "orders_select_policy" on catering_orders
   for select to authenticated
   using (
-    is_admin_or_pic()
-    or (vendor_id = current_user_vendor_id() and status in ('final', 'revisi'))
+    public.is_admin()
+    or (vendor_id = public.my_vendor_id() and status in ('final', 'revisi'))
   );
--- NOTE: No insert/update/delete policies for client; changes occur strictly through security definer RPCs.
 
 -- CATERING ITEMS (Vendors only see items from their own Final or Revisi orders)
 create policy "items_select_policy" on catering_items
   for select to authenticated
   using (
-    is_admin_or_pic()
+    public.is_admin()
     or exists (
       select 1 from catering_orders o
       where o.id = catering_items.order_id
-        and o.vendor_id = current_user_vendor_id()
+        and o.vendor_id = public.my_vendor_id()
         and o.status in ('final', 'revisi')
     )
   );
@@ -163,12 +162,12 @@ create policy "items_select_policy" on catering_items
 create policy "revisions_select_policy" on revisions
   for select to authenticated
   using (
-    is_admin_or_pic()
+    public.is_admin()
     or exists (
       select 1 from catering_items ci
       join catering_orders o on o.id = ci.order_id
       where ci.id = revisions.item_id
-        and o.vendor_id = current_user_vendor_id()
+        and o.vendor_id = public.my_vendor_id()
         and o.status in ('final', 'revisi')
     )
   );
@@ -177,11 +176,11 @@ create policy "revisions_select_policy" on revisions
 create policy "order_logs_select_policy" on order_logs
   for select to authenticated
   using (
-    is_admin_or_pic()
+    public.is_admin()
     or exists (
       select 1 from catering_orders o
       where o.id = order_logs.order_id
-        and o.vendor_id = current_user_vendor_id()
+        and o.vendor_id = public.my_vendor_id()
         and o.status in ('final', 'revisi')
     )
   );
@@ -189,5 +188,5 @@ create policy "order_logs_select_policy" on order_logs
 -- IMPORT BATCHES (GA only)
 create policy "import_batches_policy" on import_batches
   for all to authenticated
-  using (is_admin_or_pic())
-  with check (is_admin_or_pic());
+  using (public.is_admin())
+  with check (public.is_admin());
