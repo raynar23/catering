@@ -114,7 +114,7 @@ begin
   join bagian b on b.id = ci.bagian_id
   where ci.order_id = p_order_id
     and b.aktif = true
-    and ci.jumlah_porsi > 0;
+    and ci.jumlah_porsi >= 0;
 
   if v_total_terisi < v_total_aktif then
     raise exception 'Pengiriman ditolak: seluruh bagian aktif wajib diisi jumlah porsinya sebelum dikirim ke vendor.';
