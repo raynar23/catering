@@ -76,9 +76,9 @@ export function ShiftDistributionDonut({
           Belum ada data final pada rentang ini
         </div>
       ) : (
-        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-6 min-h-[140px]">
+        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-4 xl:gap-6 min-h-[120px]">
           {/* SVG Donut Circle */}
-          <div className="relative w-40 h-40 shrink-0 flex items-center justify-center">
+          <div className="relative w-32 h-32 xl:w-36 xl:h-36 shrink-0 flex items-center justify-center">
             <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
               {/* Background ring */}
               <circle

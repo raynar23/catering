@@ -64,7 +64,7 @@ export function DashboardFilterBar({
   };
 
   return (
-    <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 py-2 select-none">
+    <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-2.5 py-1.5 select-none shrink-0">
       {/* Quick Presets Segmented Control */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1 xl:pb-0 scrollbar-none">
         <div className="inline-flex items-center bg-[#F2F2F7] p-1 rounded-[8px] gap-1 shrink-0">

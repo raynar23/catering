@@ -117,17 +117,17 @@ export function AdminDashboardView({
       />
 
       {/* Two Rows of Analytical Charts (100dvh Zero Page Scroll on Desktop) */}
-      <div className="flex-1 min-h-0 flex flex-col gap-3 pb-1">
+      <div className="flex-1 min-h-0 flex flex-col gap-2.5 pb-1">
         {/* Row 1: Trend line chart & Shift distribution donut */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-0">
-          <div className="lg:col-span-8 h-full min-h-[160px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1 min-h-0">
+          <div className="lg:col-span-8 h-full min-h-0">
             <DailyTrendChart
               currentSeries={data?.seri_harian ?? []}
               previousSeries={data?.seri_periode_sebelumnya ?? []}
               isLoading={loading}
             />
           </div>
-          <div className="lg:col-span-4 h-full min-h-[160px]">
+          <div className="lg:col-span-4 h-full min-h-0">
             <ShiftDistributionDonut
               series={data?.seri_shift ?? []}
               totalPorsi={data?.total_porsi ?? 0}
@@ -137,14 +137,14 @@ export function AdminDashboardView({
         </div>
 
         {/* Row 2: Department vertical bars & Vendor horizontal bars */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-0">
-          <div className="lg:col-span-7 h-full min-h-[150px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1 min-h-0">
+          <div className="lg:col-span-7 h-full min-h-0">
             <BagianBarChart
               series={data?.seri_bagian ?? []}
               isLoading={loading}
             />
           </div>
-          <div className="lg:col-span-5 h-full min-h-[150px]">
+          <div className="lg:col-span-5 h-full min-h-0">
             <VendorBarChart
               series={data?.seri_vendor ?? []}
               totalPorsi={data?.total_porsi ?? 0}

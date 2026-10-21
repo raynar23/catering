@@ -47,7 +47,7 @@ export function VendorBarChart({
           Belum ada data final pada rentang ini
         </div>
       ) : (
-        <div className="flex-1 min-h-[140px] flex flex-col justify-around py-1 space-y-2">
+        <div className="flex-1 min-h-[120px] flex flex-col justify-around py-0.5 space-y-1.5">
           {series.map((item) => {
             const widthPct = Math.max(2, Math.round((item.total_porsi / maxVal) * 100));
             const isHovered = hoveredVendorId === item.vendor_id;
