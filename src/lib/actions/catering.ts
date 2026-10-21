@@ -89,17 +89,57 @@ export async function getDateCateringData(
     throw new Error("Gagal memuat jadwal periode");
   }
 
+interface PeriodQueryResult {
+  id: string;
+  tanggal: string;
+  shift_id: string;
+  vendor_id: string;
+  vendor?: { id: string; kode: string; nama: string } | null;
+}
+
+interface OrderLogQueryResult {
+  id: string;
+  aksi: string;
+  keterangan: string;
+  created_at: string;
+  profile?: { nama: string } | null;
+}
+
+interface OrderQueryResult {
+  id: string;
+  period_id: string;
+  status: string;
+  respon_vendor: string;
+  progres_vendor: string;
+  catatan: string | null;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  submitted_by: string | null;
+  created_profile?: { nama: string } | null;
+  submitted_profile?: { nama: string } | null;
+  logs?: OrderLogQueryResult[];
+}
+
+interface CateringItemQueryResult {
+  order_id: string;
+  bagian_id: string;
+  jumlah_karyawan: number;
+  jumlah_porsi: number;
+  keterangan: string | null;
+}
+
   const hasPeriods = Boolean(periodsData && periodsData.length > 0);
-  const periodMap = new Map<string, any>();
+  const periodMap = new Map<string, PeriodQueryResult>();
   const periodIds: string[] = [];
 
-  for (const p of periodsData || []) {
+  for (const p of (periodsData as unknown as PeriodQueryResult[]) || []) {
     periodMap.set(p.shift_id, p);
     periodIds.push(p.id);
   }
 
   // 4. Fetch orders for periods on this date
-  const ordersMap = new Map<string, any>();
+  const ordersMap = new Map<string, OrderQueryResult>();
   const orderIds: string[] = [];
 
   if (periodIds.length > 0) {
@@ -133,7 +173,7 @@ export async function getDateCateringData(
     if (ordersErr) {
       console.error("Failed to fetch orders:", ordersErr);
     } else {
-      for (const ord of ordersData || []) {
+      for (const ord of (ordersData as unknown as OrderQueryResult[]) || []) {
         ordersMap.set(ord.period_id, ord);
         orderIds.push(ord.id);
       }
@@ -141,7 +181,7 @@ export async function getDateCateringData(
   }
 
   // 5. Fetch catering items for existing orders
-  const itemsMap = new Map<string, Map<string, any>>();
+  const itemsMap = new Map<string, Map<string, CateringItemQueryResult>>();
   if (orderIds.length > 0) {
     const { data: itemsData, error: itemsErr } = await supabase
       .from("catering_items")
@@ -151,7 +191,7 @@ export async function getDateCateringData(
     if (itemsErr) {
       console.error("Failed to fetch catering items:", itemsErr);
     } else {
-      for (const item of itemsData || []) {
+      for (const item of (itemsData as unknown as CateringItemQueryResult[]) || []) {
         if (!itemsMap.has(item.order_id)) {
           itemsMap.set(item.order_id, new Map());
         }
@@ -176,7 +216,7 @@ export async function getDateCateringData(
 
     if (order) {
       const logs = (order.logs || []).sort(
-        (a: any, b: any) =>
+        (a: OrderLogQueryResult, b: OrderLogQueryResult) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       if (logs.length > 0 && logs[0].profile?.nama) {

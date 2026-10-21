@@ -39,6 +39,9 @@ begin
     set catatan = coalesce(p_catatan, catatan),
         updated_at = now()
     where id = v_order_id;
+
+    insert into order_logs (order_id, aksi, keterangan, oleh)
+    values (v_order_id, 'simpan_draft', 'Memperbarui draft kebutuhan catering', auth.uid());
   else
     insert into catering_orders (
       period_id,
