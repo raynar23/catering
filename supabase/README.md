@@ -30,13 +30,13 @@ File migrasi tersimpan di folder `supabase/migrations/`:
 
 | Username | Email Auth | Role | Akses / Keterangan | Kata Sandi Default |
 |---|---|---|---|---|
-| `admin.ga` | `admin.ga@tps.co.id` | `admin_ga` | Administrator General Affairs 1 (Input, Kelola Master, Laporan) | `TpsCatering2026!` |
-| `admin2.ga` | `admin2.ga@tps.co.id` | `admin_ga` | Administrator General Affairs 2 (Verifikasi Revisi / Multi-PIC) | `TpsCatering2026!` |
-| `vendor.aisya` | `vendor.aisya@tps.co.id` | `vendor` | Rekanan Aisya Catering (V001 - Urutan Rotasi 0) | `TpsCatering2026!` |
-| `vendor.ibu` | `vendor.ibu@tps.co.id` | `vendor` | Rekanan Catering IBU (V002 - Urutan Rotasi 1) | `TpsCatering2026!` |
-| `vendor.nikmat` | `vendor.nikmat@tps.co.id` | `vendor` | Rekanan Nikmat Rasa (V003 - Urutan Rotasi 2) | `TpsCatering2026!` |
-| `vendor.adhi` | `vendor.adhi@tps.co.id` | `vendor` | Rekanan Adhi Hidayah (V004 - Urutan Rotasi 3) | `TpsCatering2026!` |
-| `vendor.nurina` | `vendor.nurina@tps.co.id` | `vendor` | Rekanan Nurina Catering (V005 - Urutan Rotasi 4) | `TpsCatering2026!` |
+| `admin` / `admin.ga` | `admin@tps.co.id` | `admin_ga` | Administrator General Affairs (Kelola Master, Input, Verifikasi, Pengaturan) | `gatps2026` |
+| `vendor` / `vendor.aisya` | `vendor@tps.co.id` | `vendor` | Rekanan Aisya Catering (V001) | `vendortps2026` |
+| `vendor.ibu` | `vendor.ibu@tps.co.id` | `vendor` | Rekanan Catering IBU (V002) - Akun Demo Vendor Kedua untuk Uji Isolasi | `vendortps2026` |
+| `admin2.ga` | `admin2.ga@tps.co.id` | `admin_ga` | Administrator General Affairs 2 (Multi-PIC) | `TpsCatering2026!` |
+| `vendor.nikmat` | `vendor.nikmat@tps.co.id` | `vendor` | Rekanan Nikmat Rasa (V003) | `TpsCatering2026!` |
+| `vendor.adhi` | `vendor.adhi@tps.co.id` | `vendor` | Rekanan Adhi Hidayah (V004) | `TpsCatering2026!` |
+| `vendor.nurina` | `vendor.nurina@tps.co.id` | `vendor` | Rekanan Nurina Catering (V005) | `TpsCatering2026!` |
 
 Seluruh akun di atas otomatis terdaftar saat mengeksekusi `DATABASE_LENGKAP_CATERING.sql`. Anda juga dapat menyinkronkannya kembali lewat perintah:
 ```bash
