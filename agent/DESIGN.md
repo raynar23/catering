@@ -45,11 +45,12 @@ Tombol utama: #1175BB, hover #0E63A1, pressed #0B5A94, fokus ring 2px primary de
 ## Aset dan Logo (folder `aset/`)
 | Berkas | Pemakaian |
 |---|---|
-| `Terminal_Petikemas_Surabaya.png` | Logo berwarna "TP Terminal Petikemas Surabaya": pojok kiri atas halaman login dan kop PDF |
-| `Logo_Terminal_Petikemas_Surabaya...png` | Cadangan: dipakai hanya jika berkas di atas ternyata bukan logo yang dimaksud (periksa nama lengkapnya di folder dan laporkan) |
-| `background aset.png` | Foto latar halaman login (pelabuhan saat senja) |
-| `TPS Monokrom.png` (putih) | Latar navy: header sidebar |
-| `Logo TPS Lama Monokrom.png` | TIDAK dipakai (logo lama) |
+| `Logo_TPS.png` | Logo baru berwarna "PELINDO TERMINAL PETIKEMAS TPS SURABAYA" (disalin ke `public/images/logo-tps-warna.png` dan lambang diekstrak ke `public/images/tps-symbol.png`) |
+| `Logo TPS Monokrom.png` | Logo baru monokrom putih "PELINDO TERMINAL PETIKEMAS TPS SURABAYA" (disalin ke `public/images/logo-tps-monokrom.png`): header login dan sidebar |
+| `background aset-2.png` | Foto latar halaman login (pelabuhan saat senja) disalin ke `public/images/login-bg.png` |
+| `Logo TPS Lama Monokrom.png` | Aset arsip logo lama |
+| `Logo_Terminal_Petikemas_Surabaya.png` | Aset arsip logo lama berwarna |
+| `Terminal_Petikemas_Surabaya.png` | Aset arsip lambang lama |
 
 - Buka dan periksa tiap gambar sebelum dipakai; salin ke `public/images/` dengan nama aman (`logo-tps-warna.png`, `logo-tps-putih.png`, `login-bg.png`). Jangan hapus atau ubah berkas asli di `aset/`.
 - Jangan ubah proporsi, warna, atau beri efek pada logo. Beri ruang kosong di sekelilingnya. Gunakan `next/image` dengan `alt` yang jelas. Foto latar memakai `next/image` (`fill`, `priority`), bukan CSS background-image.

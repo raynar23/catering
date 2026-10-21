@@ -12,10 +12,10 @@ export default function LoginPage() {
         <Image
           src="/images/logo-tps-monokrom.png"
           alt="PT Terminal Petikemas Surabaya"
-          width={300}
-          height={90}
+          width={360}
+          height={120}
           priority
-          className="h-[50px] sm:h-[62px] lg:h-[74px] w-auto object-contain select-none drop-shadow-[0_2px_5px_rgba(0,0,0,0.35)]"
+          className="h-[46px] sm:h-[56px] lg:h-[68px] w-auto object-contain select-none drop-shadow-[0_2px_5px_rgba(0,0,0,0.35)]"
         />
       </header>
 
