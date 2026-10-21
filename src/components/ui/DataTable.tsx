@@ -1,0 +1,220 @@
+"use client";
+
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Skeleton } from "./Skeleton";
+import { EmptyState } from "./EmptyState";
+import { formatNumber } from "@/lib/format";
+import { cn } from "@/lib/utils";
+
+export interface ColumnDef<T> {
+  key: string;
+  header: string;
+  render?: (row: T, index: number) => React.ReactNode;
+  align?: "left" | "center" | "right";
+  width?: string | number;
+  className?: string;
+}
+
+interface DataTableProps<T> {
+  columns: ColumnDef<T>[];
+  data: T[];
+  keyExtractor: (row: T, index: number) => string;
+  isLoading?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  emptyAction?: React.ReactNode;
+  rowHeight?: number;
+  minRows?: number;
+  page?: number;
+  onPageChange?: (page: number) => void;
+  className?: string;
+}
+
+// Adaptive table computing rows dynamically via ResizeObserver for zero page scroll
+export function DataTable<T>({
+  columns,
+  data,
+  keyExtractor,
+  isLoading = false,
+  emptyTitle = "Tidak ada data",
+  emptyDescription = "Belum ada catatan yang tersedia untuk ditampilkan.",
+  emptyAction,
+  rowHeight = 40,
+  minRows = 5,
+  page: controlledPage,
+  onPageChange,
+  className,
+}: DataTableProps<T>) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [internalPage, setInternalPage] = useState(1);
+  const [pageSize, setPageSize] = useState(minRows);
+
+  const activePage = controlledPage ?? internalPage;
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const height = entry.contentRect.height;
+        // Subtract 40px sticky header and 48px pagination bar
+        const availableHeight = height - 88;
+        if (availableHeight > 0) {
+          const calculated = Math.floor(availableHeight / rowHeight);
+          setPageSize(Math.max(minRows, calculated));
+        }
+      }
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [rowHeight, minRows]);
+
+  const totalItems = data.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+  // Reset page when out of bounds
+  useEffect(() => {
+    if (activePage > totalPages) {
+      if (onPageChange) {
+        onPageChange(totalPages);
+      } else {
+        setInternalPage(totalPages);
+      }
+    }
+  }, [activePage, totalPages, onPageChange]);
+
+  const paginatedData = useMemo(() => {
+    const start = (activePage - 1) * pageSize;
+    return data.slice(start, start + pageSize);
+  }, [data, activePage, pageSize]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    if (onPageChange) {
+      onPageChange(newPage);
+    } else {
+      setInternalPage(newPage);
+    }
+  };
+
+  const startRecord = totalItems === 0 ? 0 : (activePage - 1) * pageSize + 1;
+  const endRecord = Math.min(activePage * pageSize, totalItems);
+  const summaryText = `Menampilkan ${startRecord}-${endRecord} dari ${formatNumber(totalItems)} data`;
+  const pageText = `${activePage} / ${totalPages}`;
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        "flex-1 min-h-0 flex flex-col bg-surface border border-border rounded-[10px] overflow-hidden shadow-xs",
+        className
+      )}
+    >
+      <div className="flex-1 min-h-0 overflow-auto">
+        <table className="w-full text-left border-collapse text-xs">
+          <thead className="sticky top-0 z-10 bg-bg border-b border-border">
+            <tr className="h-10">
+              {columns.map((col) => (
+                <th
+                  key={col.key}
+                  style={col.width ? { width: col.width } : undefined}
+                  className={cn(
+                    "px-4 text-[12px] font-semibold text-text-muted select-none",
+                    col.align === "right" && "text-right",
+                    col.align === "center" && "text-center",
+                    col.className
+                  )}
+                >
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-border/60">
+            {isLoading ? (
+              Array.from({ length: pageSize }).map((_, i) => (
+                <tr key={`skeleton-${i}`} className="h-10">
+                  {columns.map((col) => (
+                    <td key={`skeleton-cell-${col.key}`} className="px-4 py-2">
+                      <Skeleton className="h-4 w-full" />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : paginatedData.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="p-0">
+                  <EmptyState
+                    title={emptyTitle}
+                    description={emptyDescription}
+                    action={emptyAction}
+                  />
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((row, index) => {
+                const key = keyExtractor(row, index);
+                return (
+                  <tr
+                    key={key}
+                    className="h-10 hover:bg-[#E8F2FA] transition-colors duration-100"
+                  >
+                    {columns.map((col) => {
+                      const value = (row as Record<string, unknown>)[col.key];
+                      return (
+                        <td
+                          key={`${key}-${col.key}`}
+                          className={cn(
+                            "px-4 text-text tabular-nums truncate",
+                            col.align === "right" && "text-right",
+                            col.align === "center" && "text-center",
+                            col.className
+                          )}
+                        >
+                          {col.render
+                            ? col.render(row, index)
+                            : (value as React.ReactNode) ?? "-"}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="h-12 border-t border-border px-4 flex items-center justify-between text-xs text-text-muted shrink-0 bg-surface select-none">
+        <span className="tabular-nums">
+          {summaryText}
+        </span>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            disabled={activePage <= 1 || isLoading}
+            onClick={() => handlePageChange(activePage - 1)}
+            className="h-7 px-3 rounded-[6px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+          >
+            Sebelumnya
+          </button>
+          <span className="px-2 text-text font-medium tabular-nums">
+            {pageText}
+          </span>
+          <button
+            type="button"
+            disabled={activePage >= totalPages || isLoading}
+            onClick={() => handlePageChange(activePage + 1)}
+            className="h-7 px-3 rounded-[6px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+          >
+            Berikutnya
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
