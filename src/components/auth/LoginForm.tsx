@@ -33,10 +33,12 @@ export function LoginForm() {
       const result = await signIn({ username, password });
       if (!result.ok) {
         setGeneralError(result.message);
+        setIsSubmitting(false);
+      } else {
+        window.location.href = result.redirectTo;
       }
     } catch {
       setGeneralError("Terjadi kesalahan sistem. Silakan coba lagi.");
-    } finally {
       setIsSubmitting(false);
     }
   }

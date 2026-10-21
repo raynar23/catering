@@ -1,4 +1,5 @@
-// Temporary sign-in implementation returning error to preview states, will be replaced with Supabase Auth in Phase 3.
+import { createClient } from '@/lib/supabase/client';
+import { AppRole } from '@/lib/types';
 
 export interface SignInCredentials {
   username: string;
@@ -6,20 +7,60 @@ export interface SignInCredentials {
 }
 
 export type SignInResult =
-  | { ok: true }
+  | { ok: true; role: AppRole; redirectTo: string }
   | { ok: false; message: string };
 
-export async function signIn(credentials: SignInCredentials): Promise<SignInResult> {
-  // Simulate network latency for review
-  await new Promise((resolve) => setTimeout(resolve, 600));
+export function usernameToEmail(input: string): string {
+  const trimmed = input.trim().toLowerCase();
+  if (!trimmed) return '';
+  if (trimmed.includes('@')) {
+    return trimmed;
+  }
+  return `${trimmed}@tps.co.id`;
+}
 
-  if (!credentials.username.trim() || !credentials.password) {
-    return { ok: false, message: "Username atau password tidak sesuai." };
+export async function signIn(credentials: SignInCredentials): Promise<SignInResult> {
+  const username = credentials.username.trim();
+  const password = credentials.password;
+
+  if (!username || !password) {
+    return { ok: false, message: 'Username dan kata sandi wajib diisi.' };
   }
 
-  // Temporary stub always returns invalid credentials until Phase 3
+  const email = usernameToEmail(username);
+  const supabase = createClient();
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error || !data.user) {
+    return { ok: false, message: 'Username atau kata sandi tidak sesuai.' };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role, aktif')
+    .eq('id', data.user.id)
+    .single();
+
+  if (profileError || !profile) {
+    await supabase.auth.signOut();
+    return { ok: false, message: 'Profil pengguna tidak ditemukan. Silakan hubungi Administrator General Affairs.' };
+  }
+
+  if (!profile.aktif) {
+    await supabase.auth.signOut();
+    return { ok: false, message: 'Akun Anda dinonaktifkan. Silakan hubungi Administrator General Affairs.' };
+  }
+
+  const role = profile.role as AppRole;
+  const redirectTo = role === 'admin_ga' ? '/admin/dashboard' : '/vendor/dashboard';
+
   return {
-    ok: false,
-    message: "Username atau password tidak sesuai.",
+    ok: true,
+    role,
+    redirectTo,
   };
 }
