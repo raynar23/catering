@@ -44,7 +44,6 @@ export function NumberInputCell({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (disabled) return;
-    // Disallow negative sign or decimal point
     if (e.key === "-" || e.key === "." || e.key === "e" || e.key === "E") {
       e.preventDefault();
     }
@@ -54,8 +53,8 @@ export function NumberInputCell({
     return (
       <div
         className={cn(
-          "w-full h-8 px-2 flex items-center justify-end font-mono text-sm text-text select-none",
-          value === null && "text-muted",
+          "w-full h-8 px-2.5 flex items-center justify-end font-mono text-sm text-text select-none",
+          value === null && "text-text-muted/60",
           className
         )}
       >
@@ -76,11 +75,11 @@ export function NumberInputCell({
         placeholder={placeholder}
         aria-label={ariaLabel}
         className={cn(
-          "w-full h-8 px-2 text-right font-mono text-sm bg-transparent rounded-[6px] border border-transparent transition-all outline-none",
-          "hover:border-border hover:bg-slate-50/50 focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary/30",
-          isDirty && "border-amber-400/80 bg-amber-50/30 font-semibold text-amber-900",
+          "w-full h-8 px-2.5 text-right font-mono text-sm bg-transparent rounded-md border border-transparent transition-all outline-none",
+          "hover:border-border hover:bg-white focus:bg-white focus:border-[#003366] focus:ring-1 focus:ring-[#003366]/20",
+          isDirty && "border-amber-400 bg-amber-50/40 font-semibold text-amber-950",
           isConflict && "border-rose-400 bg-rose-50/40 ring-1 ring-rose-300",
-          isCustom && !isDirty && "text-blue-900 font-medium",
+          isCustom && !isDirty && "text-[#003366] font-semibold",
           className
         )}
       />

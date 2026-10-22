@@ -9,9 +9,7 @@ import {
 import { NumberInputCell } from "./NumberInputCell";
 import { ShiftGroupHeader } from "./ShiftGroupHeader";
 import { AjukanRevisiTarget } from "./AjukanRevisiDialog";
-import { FileText, History } from "lucide-react";
 import { Dialog } from "@/components/ui/Dialog";
-import { cn } from "@/lib/utils";
 
 interface CateringGridProps {
   state: GridState;
@@ -22,7 +20,7 @@ interface CateringGridProps {
   onAjukanRevisi?: (target: AjukanRevisiTarget) => void;
 }
 
-// Interactive 3-shift catering matrix with sticky headers and totals row
+// Enterprise 3-shift catering matrix with clean typography and zero visual noise
 export function CateringGrid({
   state,
   dispatch,
@@ -31,7 +29,6 @@ export function CateringGrid({
   onOpenKirimDialog,
   onAjukanRevisi,
 }: CateringGridProps) {
-  // Modal for editing row notes
   const [activeNoteCell, setActiveNoteCell] = useState<{
     shiftId: string;
     bagianId: string;
@@ -78,18 +75,18 @@ export function CateringGrid({
   };
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col bg-surface border border-border rounded-[10px] overflow-hidden shadow-xs">
+    <div className="flex-1 min-h-0 flex flex-col bg-surface border border-border rounded-[10px] overflow-hidden shadow-2xs">
       {/* Scrollable table container */}
       <div className="flex-1 min-h-0 overflow-auto">
         <table className="w-full text-left border-collapse min-w-[980px]">
           {/* Header */}
-          <thead className="sticky top-0 z-20 bg-surface shadow-xs">
+          <thead className="sticky top-0 z-20 bg-surface shadow-2xs">
             {/* Top Header Row: Bagian Title & 3 Shift Headers */}
             <tr className="border-b border-border">
               <th className="sticky left-0 z-30 bg-surface w-[240px] min-w-[240px] p-3 text-xs font-semibold text-text align-bottom border-r border-border">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-sm font-bold text-text">Data Bagian</span>
-                  <span className="text-[11px] font-normal text-muted">
+                  <span className="text-[11px] font-normal text-text-muted">
                     Unit kerja & lokasi antar
                   </span>
                 </div>
@@ -119,17 +116,17 @@ export function CateringGrid({
             </tr>
 
             {/* Sub-Header Row: Sub-columns Karyawan & Porsi */}
-            <tr className="bg-slate-50 border-b border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
+            <tr className="bg-slate-50 border-b border-border text-[11px] font-semibold text-text-muted uppercase tracking-wider">
               <th className="sticky left-0 z-30 bg-slate-50 px-3 py-2 border-r border-border">
                 Nama Bagian
               </th>
 
               {shiftOrder.map((shiftId) => (
                 <React.Fragment key={shiftId}>
-                  <th className="px-2 py-2 text-right w-[110px] min-w-[110px] border-r border-border/40">
+                  <th className="px-3 py-2 text-right w-[110px] min-w-[110px] border-r border-border/40">
                     Karyawan
                   </th>
-                  <th className="px-2 py-2 text-right w-[110px] min-w-[110px] border-r border-border last:border-r-0">
+                  <th className="px-3 py-2 text-right w-[110px] min-w-[110px] border-r border-border last:border-r-0">
                     Porsi
                   </th>
                 </React.Fragment>
@@ -145,12 +142,12 @@ export function CateringGrid({
                 className="hover:bg-slate-50/70 transition-colors group"
               >
                 {/* Bagian sticky left column */}
-                <td className="sticky left-0 z-10 bg-surface group-hover:bg-slate-50/90 px-3 py-2.5 border-r border-border transition-colors">
+                <td className="sticky left-0 z-10 bg-surface group-hover:bg-slate-50/90 px-3 py-2 border-r border-border transition-colors">
                   <div className="flex flex-col">
                     <span className="font-semibold text-text text-sm">
                       {bagian.nama}
                     </span>
-                    <span className="text-[11px] text-muted">
+                    <span className="text-[11px] text-text-muted">
                       {bagian.lokasi_antar || "Lokasi utama"}
                     </span>
                   </div>
@@ -193,7 +190,7 @@ export function CateringGrid({
 
                       {/* Sub-column: Porsi */}
                       <td className="p-1 border-r border-border last:border-r-0 text-right align-middle">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 justify-end">
                           <NumberInputCell
                             value={cell.porsi}
                             onChange={(v) =>
@@ -211,7 +208,7 @@ export function CateringGrid({
                             <>
                               {cell.hasPendingRevision ? (
                                 <span
-                                  className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 px-1 py-0.5 rounded leading-none shrink-0"
+                                  className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 px-1.5 py-0.5 rounded leading-none shrink-0"
                                   title="Pengajuan revisi sedang menunggu verifikasi"
                                 >
                                   Revisi
@@ -232,38 +229,50 @@ export function CateringGrid({
                                     })
                                   }
                                   title="Ajukan perubahan porsi"
-                                  className="p-1 rounded hover:bg-slate-100 text-muted hover:text-primary transition-colors shrink-0"
+                                  className="text-[10px] text-primary hover:text-[#002850] font-semibold px-1.5 py-0.5 rounded hover:bg-primary/5 transition-colors shrink-0 cursor-pointer"
                                 >
-                                  <History className="w-3.5 h-3.5" />
+                                  Revisi
                                 </button>
                               )}
                             </>
                           )}
 
-                          {/* Note icon button */}
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setActiveNoteCell({
-                                shiftId,
-                                bagianId: bagian.id,
-                                bagianNama: bagian.nama,
-                                shiftNama: shift.shiftNama,
-                                note: cell.keterangan || "",
-                              })
-                            }
-                            title={
-                              cell.keterangan
-                                ? `Catatan: ${cell.keterangan}`
-                                : "Tambah catatan baris"
-                            }
-                            className={cn(
-                              "p-1 rounded hover:bg-slate-100 text-muted transition-colors shrink-0",
-                              cell.keterangan && "text-primary font-bold"
-                            )}
-                          >
-                            <FileText className="w-3.5 h-3.5" />
-                          </button>
+                          {/* Note indicator: Clean text tag if note exists, or subtle on row hover */}
+                          {cell.keterangan ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setActiveNoteCell({
+                                  shiftId,
+                                  bagianId: bagian.id,
+                                  bagianNama: bagian.nama,
+                                  shiftNama: shift.shiftNama,
+                                  note: cell.keterangan || "",
+                                })
+                              }
+                              title={`Catatan: ${cell.keterangan}`}
+                              className="text-[10px] font-semibold text-primary bg-primary/10 hover:bg-primary/20 px-1.5 py-0.5 rounded transition-colors shrink-0 cursor-pointer"
+                            >
+                              Catatan
+                            </button>
+                          ) : !isLocked ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setActiveNoteCell({
+                                  shiftId,
+                                  bagianId: bagian.id,
+                                  bagianNama: bagian.nama,
+                                  shiftNama: shift.shiftNama,
+                                  note: "",
+                                })
+                              }
+                              title="Tambah catatan untuk baris ini"
+                              className="opacity-0 group-hover:opacity-100 text-[10px] text-text-muted hover:text-text px-1.5 py-0.5 rounded hover:bg-slate-100 transition-opacity shrink-0 cursor-pointer font-medium"
+                            >
+                              +
+                            </button>
+                          ) : null}
                         </div>
                       </td>
                     </React.Fragment>
@@ -287,10 +296,10 @@ export function CateringGrid({
 
                 return (
                   <React.Fragment key={shiftId}>
-                    <td className="px-3 py-2.5 text-right font-mono text-muted border-r border-border/40">
+                    <td className="px-3 py-2.5 text-right font-mono text-text-muted border-r border-border/40">
                       {totals.totalKaryawan}
                     </td>
-                    <td className="px-3 py-2.5 text-right font-mono text-primary font-extrabold border-r border-border last:border-r-0">
+                    <td className="px-3 py-2.5 text-right font-mono text-[#003366] font-extrabold border-r border-border last:border-r-0">
                       {totals.totalPorsi}
                     </td>
                   </React.Fragment>
@@ -310,7 +319,7 @@ export function CateringGrid({
           description={`Keterangan khusus pesanan untuk ${activeNoteCell.shiftNama}`}
           maxWidth="sm"
         >
-          <div className="space-y-3">
+          <div className="space-y-3 pt-2">
             <textarea
               rows={3}
               value={activeNoteCell.note}
@@ -320,7 +329,7 @@ export function CateringGrid({
                   note: e.target.value,
                 })
               }
-              placeholder="Misal: 2 porsi vegetarian / lembur operasional..."
+              placeholder="Contoh: 2 porsi vegetarian / tambahan lembur kapal..."
               className="w-full px-3 py-2 text-xs rounded-[8px] border border-border bg-white text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
             />
 
@@ -328,14 +337,14 @@ export function CateringGrid({
               <button
                 type="button"
                 onClick={() => setActiveNoteCell(null)}
-                className="px-3 py-1.5 text-xs rounded-[6px] border border-border text-muted hover:bg-slate-50"
+                className="px-3 py-1.5 text-xs rounded-md border border-border text-text hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleSaveNote}
-                className="px-3 py-1.5 text-xs font-medium rounded-[6px] bg-primary text-white hover:bg-[#0E63A1]"
+                className="px-3 py-1.5 text-xs font-semibold rounded-md bg-[#003366] text-white hover:bg-[#002850] transition-colors cursor-pointer"
               >
                 Simpan Catatan
               </button>

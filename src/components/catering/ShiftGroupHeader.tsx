@@ -4,7 +4,6 @@ import React from "react";
 import { formatTimeShort } from "@/lib/date";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ShiftColumnState } from "@/lib/catering/grid-reducer";
-import { Save, Send, History, Building2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ShiftGroupHeaderProps {
@@ -15,7 +14,7 @@ interface ShiftGroupHeaderProps {
   onOpenKirimDialog: (shiftId: string) => void;
 }
 
-// Group header displaying shift timing, vendor info, status badges, and action buttons
+// Enterprise shift header displaying operational schedule, assigned vendor, and actions
 export function ShiftGroupHeader({
   shift,
   hasDirty,
@@ -34,18 +33,18 @@ export function ShiftGroupHeader({
   )}`;
 
   return (
-    <div className="flex flex-col gap-2 p-3 bg-surface border-b border-border/80">
-      {/* Top row: Shift Name, Hours, and Badges */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="font-semibold text-text text-sm tracking-tight truncate">
+    <div className="flex flex-col p-3 bg-surface border-b border-border select-none">
+      {/* Row 1: Shift Title and Status Tag */}
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="font-bold text-text text-sm tracking-tight">
             {shift.shiftNama}
           </span>
-          <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-medium shrink-0">
-            {shift.shiftLabel}
+          <span className="text-[11px] font-medium text-text-muted">
+            • {shift.shiftLabel}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <StatusBadge status={shift.status} />
           {shift.status !== "belum_input" && shift.status !== "tidak_ada_periode" && (
             <StatusBadge status={shift.responVendor} />
@@ -53,26 +52,25 @@ export function ShiftGroupHeader({
         </div>
       </div>
 
-      {/* Middle row: Hours and Assigned Vendor */}
-      <div className="flex items-center justify-between gap-2 text-xs text-muted">
-        <div className="flex items-center gap-1">
-          <Clock className="w-3.5 h-3.5 text-muted shrink-0" />
-          <span>{jamFormatted}</span>
-        </div>
-        <div className="flex items-center gap-1 truncate max-w-[180px]" title={shift.vendorNama || "Vendor belum dipilih"}>
-          <Building2 className="w-3.5 h-3.5 text-muted shrink-0" />
-          <span className="truncate font-medium text-text">
-            {shift.vendorNama ? `${shift.vendorNama}` : "-"}
-          </span>
-        </div>
+      {/* Row 2: Vendor and Operating Hours (Text metadata without decorative icon clutter) */}
+      <div className="flex items-center justify-between text-xs pb-2 border-b border-border/40">
+        <span
+          className="font-medium text-text truncate max-w-[170px]"
+          title={shift.vendorNama || "Vendor belum dipilih"}
+        >
+          {shift.vendorNama || "Vendor belum ditentukan"}
+        </span>
+        <span className="tabular-nums text-text-muted text-[11px] shrink-0 font-mono">
+          {jamFormatted}
+        </span>
       </div>
 
-      {/* Action buttons row */}
-      <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40">
-        <div className="text-[11px] text-muted truncate">
+      {/* Row 3: PIC update info and clear action buttons */}
+      <div className="flex items-center justify-between gap-2 pt-2">
+        <div className="text-[11px] text-text-muted truncate max-w-[130px]">
           {shift.lastUpdatedBy ? (
-            <span title={`Diupdate oleh ${shift.lastUpdatedBy}`}>
-              Diupdate: <strong className="font-medium text-text">{shift.lastUpdatedBy}</strong>
+            <span title={`Terakhir diubah oleh ${shift.lastUpdatedBy}`}>
+              PIC: <strong className="font-semibold text-text">{shift.lastUpdatedBy}</strong>
             </span>
           ) : (
             <span>Belum ada draft</span>
@@ -87,43 +85,36 @@ export function ShiftGroupHeader({
                 onClick={() => onSaveDraft(shift.shiftId)}
                 disabled={isSaving || !hasDirty}
                 className={cn(
-                  "inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-[6px] transition-colors border shadow-xs select-none",
+                  "px-2.5 py-1 text-xs font-medium rounded-md border transition-all cursor-pointer",
                   hasDirty
-                    ? "bg-surface border-border text-text hover:bg-slate-50 active:bg-slate-100"
-                    : "opacity-40 cursor-not-allowed bg-slate-50 border-border/50 text-muted"
+                    ? "border-primary/40 bg-white text-primary hover:bg-primary/5 shadow-2xs font-semibold"
+                    : "opacity-40 cursor-not-allowed border-border/60 bg-slate-50 text-text-muted"
                 )}
-                title="Simpan perubahan bagian yang diubah pada shift ini"
+                title="Simpan perubahan porsi pada shift ini"
               >
-                <Save className="w-3 h-3 text-muted" />
-                <span>Simpan</span>
+                Simpan
               </button>
 
               <button
                 type="button"
                 onClick={() => onOpenKirimDialog(shift.shiftId)}
                 disabled={isSaving}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-[6px] transition-colors bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white shadow-xs select-none"
+                className="px-3 py-1 text-xs font-semibold rounded-md bg-[#003366] hover:bg-[#002850] active:bg-[#001f3f] text-white shadow-2xs transition-all cursor-pointer"
                 title="Kirim kebutuhan catering ke vendor"
               >
-                <Send className="w-3 h-3" />
-                <span>Kirim</span>
+                Kirim
               </button>
             </>
           )}
 
-          {isFinalOrLocked && (
-            <div className="flex items-center gap-1.5">
-              {shift.orderId && (
-                <a
-                  href={`/admin/verifikasi/${shift.orderId}/riwayat`}
-                  className="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs select-none"
-                  title="Lihat riwayat kronologi pesanan"
-                >
-                  <History className="w-3 h-3 text-muted" />
-                  <span>Riwayat</span>
-                </a>
-              )}
-            </div>
+          {isFinalOrLocked && shift.orderId && (
+            <a
+              href={`/admin/verifikasi/${shift.orderId}/riwayat`}
+              className="px-2.5 py-1 text-xs font-medium rounded-md border border-border bg-white text-text hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+              title="Lihat riwayat transaksi pesanan"
+            >
+              Riwayat
+            </a>
           )}
         </div>
       </div>

@@ -7,7 +7,7 @@ import {
   getTomorrowDateIso,
   formatDateIso,
 } from "@/lib/date";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CateringDateToolbarProps {
@@ -18,7 +18,7 @@ interface CateringDateToolbarProps {
   isDirty: boolean;
 }
 
-// Date selector toolbar with previous/next controls, shortcuts, and refresh action
+// Enterprise date selector toolbar with connected navigation controls and clean typography
 export function CateringDateToolbar({
   tanggal,
   onDateChange,
@@ -38,64 +38,64 @@ export function CateringDateToolbar({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-surface border border-border rounded-[10px] shadow-xs">
-      {/* Date navigation controls */}
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={handlePrevDay}
-          disabled={isLoading}
-          className="p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs"
-          title="Hari Sebelumnya"
-          aria-label="Hari Sebelumnya"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
+    <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 bg-surface border border-border rounded-[10px] shadow-2xs select-none">
+      {/* Date navigation group */}
+      <div className="flex items-center gap-3">
+        <div className="inline-flex items-center rounded-lg border border-border bg-white shadow-2xs overflow-hidden">
+          <button
+            type="button"
+            onClick={handlePrevDay}
+            disabled={isLoading}
+            className="h-8 px-2.5 hover:bg-slate-50 text-text-muted hover:text-text border-r border-border transition-colors cursor-pointer disabled:opacity-40"
+            title="Hari Sebelumnya"
+            aria-label="Hari Sebelumnya"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
 
-        <div className="relative flex items-center">
-          <CalendarIcon className="w-4 h-4 text-muted absolute left-3 pointer-events-none" />
           <input
             type="date"
             value={tanggal}
             onChange={(e) => e.target.value && onDateChange(e.target.value)}
             disabled={isLoading}
-            className="pl-9 pr-3 py-1.5 text-xs font-semibold rounded-[6px] border border-border bg-white text-text cursor-pointer hover:border-primary focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
+            className="h-8 px-2.5 text-xs font-semibold text-text bg-transparent cursor-pointer focus:outline-none focus:bg-slate-50/60 tabular-nums border-none"
           />
+
+          <button
+            type="button"
+            onClick={handleNextDay}
+            disabled={isLoading}
+            className="h-8 px-2.5 hover:bg-slate-50 text-text-muted hover:text-text border-l border-border transition-colors cursor-pointer disabled:opacity-40"
+            title="Hari Berikutnya"
+            aria-label="Hari Berikutnya"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={handleNextDay}
-          disabled={isLoading}
-          className="p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs"
-          title="Hari Berikutnya"
-          aria-label="Hari Berikutnya"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-
-        <div className="hidden sm:flex items-center pl-2 text-sm font-semibold text-text tracking-tight">
+        <span className="hidden sm:inline-block text-sm font-bold text-text tracking-tight">
           {formatDateIndonesian(tanggal)}
-        </div>
+        </span>
       </div>
 
-      {/* Quick filters & refresh */}
-      <div className="flex items-center gap-2">
+      {/* Quick filters & actions */}
+      <div className="flex items-center gap-2.5">
         {isDirty && (
-          <span className="text-[11px] font-medium text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-[6px]">
-            Ada perubahan belum tersimpan
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-300/80 px-2.5 py-1 rounded-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
+            <span>Ada perubahan belum tersimpan</span>
           </span>
         )}
 
-        <div className="flex items-center rounded-[6px] border border-border bg-slate-50 p-0.5 text-xs">
+        <div className="inline-flex items-center rounded-lg border border-border bg-slate-100/70 p-0.5 text-xs">
           <button
             type="button"
             onClick={() => onDateChange(todayIso)}
             className={cn(
-              "px-2.5 py-1 rounded-[4px] font-medium transition-colors",
+              "px-3 py-1 rounded-md font-medium transition-all cursor-pointer",
               tanggal === todayIso
-                ? "bg-white text-primary shadow-xs font-semibold"
-                : "text-muted hover:text-text"
+                ? "bg-white text-[#003366] font-bold shadow-2xs"
+                : "text-text-muted hover:text-text"
             )}
           >
             Hari Ini
@@ -104,10 +104,10 @@ export function CateringDateToolbar({
             type="button"
             onClick={() => onDateChange(tomorrowIso)}
             className={cn(
-              "px-2.5 py-1 rounded-[4px] font-medium transition-colors",
+              "px-3 py-1 rounded-md font-medium transition-all cursor-pointer",
               tanggal === tomorrowIso
-                ? "bg-white text-primary shadow-xs font-semibold"
-                : "text-muted hover:text-text"
+                ? "bg-white text-[#003366] font-bold shadow-2xs"
+                : "text-text-muted hover:text-text"
             )}
           >
             Besok
@@ -118,11 +118,11 @@ export function CateringDateToolbar({
           type="button"
           onClick={onRefresh}
           disabled={isLoading}
-          className="p-2 rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs"
-          title="Muat ulang data terbaru dari server"
-          aria-label="Muat ulang"
+          className="h-8 px-2.5 rounded-lg border border-border bg-white text-text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1.5 text-xs font-medium cursor-pointer disabled:opacity-40"
+          title="Muat ulang data terbaru"
         >
-          <RefreshCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
+          <RotateCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
+          <span className="hidden md:inline">Perbarui</span>
         </button>
       </div>
     </div>
