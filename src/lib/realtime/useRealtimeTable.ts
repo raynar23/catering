@@ -38,7 +38,7 @@ export function useRealtimeTable<T = any>({
   onChange,
   onReconnect,
 }: UseRealtimeTableOptions<T>) {
-  const [status, setStatus] = useState<RealtimeStatus>("CONNECTING");
+  const [status, setStatus] = useState<RealtimeStatus>(enabled ? "CONNECTING" : "CLOSED");
   const channelRef = useRef<RealtimeChannel | null>(null);
   const prevStatusRef = useRef<RealtimeStatus | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -60,7 +60,6 @@ export function useRealtimeTable<T = any>({
 
   useEffect(() => {
     if (!enabled) {
-      setStatus("CLOSED");
       return;
     }
 

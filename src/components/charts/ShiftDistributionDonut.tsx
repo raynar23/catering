@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { ShiftPoint } from "@/lib/dashboard";
 import { formatNumber } from "@/lib/format";
 
@@ -26,6 +26,34 @@ export function ShiftDistributionDonut({
 }: ShiftDistributionDonutProps) {
   const [hoveredShiftId, setHoveredShiftId] = useState<string | null>(null);
 
+  // Compute SVG arc angles
+  const radius = 64;
+  const strokeWidth = 18;
+  const center = 80;
+  const circumference = 2 * Math.PI * radius;
+
+  const slices = useMemo(() => {
+    let accAngle = -90;
+    const items = [];
+    for (let i = 0; i < series.length; i++) {
+      const item = series[i];
+      const fraction = totalPorsi > 0 ? item.total_porsi / totalPorsi : 0;
+      const strokeDasharray = `${fraction * circumference} ${circumference}`;
+      const angle = accAngle;
+      accAngle += fraction * 360;
+      const color = SHIFT_COLORS[item.urutan] || SHIFT_COLORS[i + 1] || "#1175BB";
+
+      items.push({
+        ...item,
+        color,
+        fraction,
+        strokeDasharray,
+        angle,
+      });
+    }
+    return items;
+  }, [series, totalPorsi, circumference]);
+
   if (isLoading) {
     return (
       <div className="bg-surface border border-border rounded-[10px] p-4 flex flex-col h-full animate-pulse">
@@ -38,31 +66,6 @@ export function ShiftDistributionDonut({
   }
 
   const isEmpty = totalPorsi === 0 || series.every((s) => s.total_porsi === 0);
-
-  // Compute SVG arc angles
-  const radius = 64;
-  const strokeWidth = 18;
-  const center = 80;
-  const circumference = 2 * Math.PI * radius;
-
-  let currentAngle = -90; // Start at 12 o'clock
-
-  const slices = series.map((item, idx) => {
-    const fraction = totalPorsi > 0 ? item.total_porsi / totalPorsi : 0;
-    const strokeDasharray = `${fraction * circumference} ${circumference}`;
-    const angle = currentAngle;
-    currentAngle += fraction * 360;
-
-    const color = SHIFT_COLORS[item.urutan] || SHIFT_COLORS[idx + 1] || "#1175BB";
-
-    return {
-      ...item,
-      color,
-      fraction,
-      strokeDasharray,
-      angle,
-    };
-  });
 
   return (
     <div className="bg-surface border border-border rounded-[10px] p-4 flex flex-col h-full select-none">
