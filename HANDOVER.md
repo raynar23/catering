@@ -1,6 +1,6 @@
 # Dokumen Handover & Ringkasan Pengerjaan Proyek Catering TPS
 ### Sistem Pengelolaan Data Catering Karyawan - PT Terminal Petikemas Surabaya
-*Pembaruan Terakhir: 21 Oktober 2026 (Tahap 11 - Rekapitulasi dan Laporan Excel & PDF)*
+*Pembaruan Terakhir: 22 Oktober 2026 (Tahap 12 - Impor Data Cerdas: Parser Aturan, OCR, AI Opsional)*
 
 ---
 
@@ -12,7 +12,7 @@ Sistem ini dibangun untuk mendigitalkan dan mengotomatiskan alur kerja pemesanan
 
 | Peran (Role) | Username / Email | Password | Keterangan & Akses |
 | :--- | :--- | :--- | :--- |
-| `admin_ga` | `admin@tps.co.id` (atau `admin`) | `gatps2026` | Akses penuh seluruh master data, input 3-shift, jadwal rotasi, verifikasi revisi, ganti vendor, dashboard analitik, rekapitulasi, ekspor Excel & PDF, dan audit timeline. |
+| `admin_ga` | `admin@tps.co.id` (atau `admin`) | `gatps2026` | Akses penuh seluruh master data, input 3-shift, jadwal rotasi, verifikasi revisi, ganti vendor, dashboard analitik, rekapitulasi, impor data cerdas, ekspor Excel & PDF, dan audit timeline. |
 | `vendor` | `vendor@tps.co.id` (atau `vendor`) | `vendortps2026` | Terhubung ke mitra Aisya Catering (V001). Akses portal mandiri: konfirmasi pesanan, penyesuaian revisi, pembaruan 5 tahap progres, riwayat. |
 
 *Catatan Autentikasi:* Sistem mendukung input username langsung (`admin` atau `vendor`) yang otomatis dinormalisasi menjadi email korporat `username@tps.co.id` pada sisi autentikasi Supabase SSR.
@@ -37,7 +37,7 @@ Database menggunakan PostgreSQL pada platform Supabase dengan skema relasional, 
    - `catering_items`: Detail jumlah karyawan dan porsi per bagian. Rasio default 1:1 dengan validasi integritas.
    - `revisions`: Log permintaan perubahan kuota pasca status final. Menyimpan kuota lama, kuota baru, selisih bertanda (+/-), alasan wajib, serta status persetujuan General Affairs. Kolom-kolom revisi dijaga immutable melalui database trigger.
    - `order_logs`: Audit trail append-only mencatat seluruh kronologi (pembuatan, perubahan sel, pengiriman, perubahan status respon, pergantian vendor, verifikasi revisi) lengkap dengan aktor dan timestamp.
-   - `import_batches`: Penampung riwayat impor data dokumen katering.
+   - `import_batches`: Penampung riwayat impor data dokumen katering (`data_parsed`, `ringkasan`, `jenis_dokumen`, `mesin`, `status`).
 
 3. **High-Performance Database Views**:
    - `v_rekap`: View sumber kebenaran data konsumsi porsi yang hanya menyaring data pesanan berlaku (`order_status in ('final', 'revisi')`), menjamin data draft dan pesanan batal tidak ikut terhitung ke KPI, grafik, rekap, maupun berkas ekspor.
@@ -46,6 +46,7 @@ Database menggunakan PostgreSQL pada platform Supabase dengan skema relasional, 
    - `v_utilisasi_shift`: View monitoring beban kerja dan utilisasi katering per shift kerja.
 
 4. **Stored Procedures & RPC Berkeamanan Tinggi (`security definer` & `security invoker`)**:
+   - `konfirmasi_impor(p_batch_id, p_baris, p_opsi)`: Prosedur transaksi tunggal Admin GA untuk validasi server, sinkronisasi `periods.vendor_id` dan `catering_orders.vendor_id`, pembuatan vendor otomatis opsional, proteksi overwrite status non-draft, audit logging ke `order_logs`, dan finalisasi status batch impor.
    - `get_rekap_harian(p_dari, p_sampai, p_vendor_id, p_bagian_id, p_shift_id, p_page, p_page_size)`: Mengembalikan matriks porsi per bagian aktif dan per shift harian secara terpaginasi beserta total baris dan total kolom untuk seluruh rentang.
    - `get_rekap_ringkasan(p_dari, p_sampai, p_vendor_id, p_bagian_id, p_shift_id)`: Mengagregasikan metrik 4 dimensi (per bagian, per shift, per vendor, per bulan) dan indikator operasional dalam satu panggilan.
    - `dashboard_ringkasan(p_dari date, p_sampai date)`: Fungsi analitik atomik satu panggilan untuk Admin GA (dibatasi maksimal 366 hari, verifikasi `is_admin()`).
@@ -67,6 +68,8 @@ Perubahan skema dan query telah disinkronkan ke dalam berkas:
 - [supabase/DATABASE_LENGKAP_CATERING.sql](supabase/DATABASE_LENGKAP_CATERING.sql)
 - [supabase/migrations/013_dashboard_ringkasan.sql](supabase/migrations/013_dashboard_ringkasan.sql)
 - [supabase/migrations/014_rekapitulasi_queries.sql](supabase/migrations/014_rekapitulasi_queries.sql)
+- [supabase/migrations/015_konfirmasi_impor.sql](supabase/migrations/015_konfirmasi_impor.sql)
+- [supabase/tests/06_konfirmasi_impor.sql](supabase/tests/06_konfirmasi_impor.sql)
 
 ---
 
@@ -124,7 +127,59 @@ Perubahan skema dan query telah disinkronkan ke dalam berkas:
 
 ---
 
-## 5. Struktur Rute Halaman Aplikasi
+## 5. Modul Impor Data Cerdas (Tahap 12)
+
+Modul Impor Data Cerdas (`/admin/impor-data`) memungkinkan Admin GA mengekstrak jadwal katering, master vendor, data bagian, dan rekapitulasi porsi harian dari berkas eksternal tanpa bergantung pada AI secara bawaan.
+
+### A. Arsitektur Parser Aturan & Mesin Deterministik
+1. **Ekstraksi Berkas Multi-Format**:
+   - `xlsx` & `csv` ([xlsx.ts](src/lib/import/extract/xlsx.ts)): Menggunakan `exceljs` untuk mengekstrak nilai sel terkomputasi (bukan rumus), memetakan sel gabungan (*merged cells*) agar tanggal berlaku merata ke tiga baris shift, dan membatasi dekompresi maksimal 5.000 baris.
+   - `docx` ([docx.ts](src/lib/import/extract/docx.ts)): Menggunakan `mammoth` untuk mengekstrak tabel dan paragraf terstruktur.
+   - `pdf` ([pdf.ts](src/lib/import/extract/pdf.ts)): Menggunakan `pdfjs-dist` untuk mengekstrak lapisan teks berdasarkan koordinat spasial baris/kolom. Jika lapisan teks kosong (berkas pindaian), sistem secara otomatis menandai kebutuhan OCR.
+   - `ocr` ([ocr.ts](src/lib/import/extract/ocr.ts)): Menggunakan `tesseract.js` Web Worker di browser dengan bahasa Indonesia (`ind`) disertai pelaporan progres persentase (0–100%). Menjaga berkas fisik tetap di sisi klien tanpa membebani batas waktu komputasi server. Seluruh baris hasil OCR selalu ditandai dengan status `perlu_cek`.
+
+2. **Deteksi Cerdas Jenis Dokumen** ([detect.ts](src/lib/import/detect.ts)):
+   - Mendeteksi jenis dokumen (`jadwal`, `vendor`, `bagian`, `rekap_harian`) secara otomatis dari sinonim header dan frekuensi kata kunci dengan skor keyakinan (*confidence score* 0.0 - 1.0).
+   - Pengguna tetap dapat memaksa jenis dokumen secara manual melalui dropdown pilihan.
+
+3. **Normalisasi, Pencocokan Fuzzy, & Validasi Aturan Domain**:
+   - `match.ts`: Membersihkan spasi ganda dan karakter tak terlihat (contoh: `"Nikmat Rasa  "` dan `"Adhi Hidayah  "` otomatis dibersihkan dan disatukan ke vendor master).
+   - Pencocokan nama vendor menggunakan jarak Levenshtein (kemiripan fuzzy > 75% ditandai `perlu_cek`, vendor tidak dikenal ditandai `baru`).
+   - `validate.ts`: Memvalidasi kelengkapan 3 shift per tanggal (Siang, Sore, Malam), mendeteksi celah urutan kalender atau duplikasi shift pada hari yang sama.
+   - Kesesuaian rotasi vendor diperiksa terhadap algoritma paten `src/lib/jadwal/rotasi.ts`: ketidaksesuaian penugasan katering hanya diberikan peringatan `perlu_cek` (bukan error kritis), karena penugasan operasional di lapangan dapat mengalami penyesuaian.
+
+4. **AI Fallback Opsional (Google Gemini)** ([gemini.ts](src/lib/import/ai/gemini.ts)):
+   - Nonaktif secara bawaan di belakang flag `IMPORT_AI_ENABLED=false`.
+   - Tombol "Coba dengan AI" hanya muncul jika flag aktif dan keyakinan parser aturan rendah.
+   - Wajib melalui dialog persetujuan ([AiConsentDialog.tsx](src/components/import/AiConsentDialog.tsx)) per dokumen sebelum data dikirim ke API Gemini.
+   - Menggunakan model stabil dari `GEMINI_MODEL`, `temperature: 0`, dan `responseMimeType: "application/json"`. Isi dokumen diperlakukan murni sebagai data tanpa pernah dicatat ke log server.
+
+### B. Alur Antarmuka Wizard 3 Langkah
+1. **`1 Unggah`** ([UploadDropzone.tsx](src/components/import/UploadDropzone.tsx)):
+   - Area tarik-lepas berkas dengan validasi ukuran maksimal 10 MB dan pemeriksaan tanda tangan berkas (*magic number*).
+   - Pemilih jenis dokumen dan indikator badge mesin pemroses ("Mesin: Aturan", "Mesin: OCR", atau "Mesin: AI").
+   - Progress bar pindaian OCR interaktif saat memproses berkas gambar/pindaian.
+2. **`2 Periksa`** ([EditablePreviewTable.tsx](src/components/import/EditablePreviewTable.tsx)):
+   - Strip indikator status: Total Baris, Cocok (hijau), Baru (biru), Perlu Dicek (kuning), Error (merah).
+   - Filter status baris dan panel perbandingan perubahan terhadap database (Baru, Diubah, Sama).
+   - Sel-sel DataTable dapat diedit langsung (tanggal, shift, vendor). Tombol Tambah Baris dan Hapus Baris terpilih.
+   - Opsi konfirmasi: "Buat vendor baru otomatis" dan "Timpa periode yang sudah terisi" (default nonaktif).
+   - Tombol Lanjut ke Konfirmasi terkunci secara otomatis selama masih ada baris berstatus `error`.
+3. **`3 Konfirmasi`** ([ConfirmationPanel.tsx](src/components/import/ConfirmationPanel.tsx)):
+   - Kartu ringkasan perubahan sebelum disimpan ke sistem.
+   - Eksekusi transaksi atomik via RPC `konfirmasi_impor`.
+   - Banner sukses dengan tautan instan ke `/admin/periode` dan `/admin/vendor`.
+
+### C. Skrip Verifikasi Mandiri CLI
+Tersedia skrip lokal untuk menguji dan memverifikasi berkas jadwal katering client tanpa menyentuh UI:
+```bash
+npm run import:check -- <jalur-berkas>
+```
+Skrip membaca berkas dari `data-real/` (di-gitignore) atau fixture sintetis, mencetak jumlah baris, rentang hari, daftar vendor unik, dan anomali, serta memastikan kriteria terpenuhi: **276 baris (92 hari x 3 shift), tepat 5 vendor tanpa duplikasi spasi, tanpa celah tanggal**.
+
+---
+
+## 6. Struktur Rute Halaman Aplikasi
 
 | Rute URL | Pengguna | Fungsi & Fitur Utama |
 | :--- | :--- | :--- |
@@ -132,6 +187,7 @@ Perubahan skema dan query telah disinkronkan ke dalam berkas:
 | `/admin/dashboard` | Admin GA | Dashboard analitik katering, 5 KPI tanpa ikon, 4 grafik performa operasional, filter periode, dan sinkron URL. |
 | `/admin/rekapitulasi` | Admin GA | Rekapitulasi porsi per bagian & shift, ringkasan 4 dimensi, filter multi-dimensi, dan modal ekspor Excel/PDF. |
 | `/admin/laporan` | Admin GA | Rute alias resmi yang otomatis mengarahkan ke modul rekapitulasi dan ekspor terpadu. |
+| `/admin/impor-data` | Admin GA | Wizard impor cerdas 3-tahap (Unggah, Periksa, Konfirmasi) dengan editor tabel dan OCR browser. |
 | `/admin/input-catering` | Admin GA | Grid harian 3 shift berdampingan (Shift 3, 1, 2), pelacakan sel kotor, tombol kirim ke vendor. |
 | `/admin/periode` | Admin GA | Manajemen jadwal periode, filter multi-dimensi, tombol ganti vendor terjadwal/darurat via RPC. |
 | `/admin/verifikasi` | Admin GA | Verifikasi perubahan kuota (revisi) dan pemantauan respons kesanggupan vendor. |
@@ -146,22 +202,25 @@ Perubahan skema dan query telah disinkronkan ke dalam berkas:
 | `/vendor/progres` | Vendor | Pelaporan progres pengiriman 5 tahap satu arah (Menunggu -> Dipersiapkan -> Dikirim -> Sampai -> Selesai). |
 | `/vendor/riwayat` | Vendor | Arsip riwayat pesanan katering vendor dengan filter status dan rentang tanggal. |
 | `/vendor/pengaturan` | Vendor | Pengaturan profil perwakilan vendor, ganti kata sandi, dan footer versi sistem. |
+| `/api/impor/analisis` | Admin GA | Route handler server pemrosesan berkas impor in-memory, validasi magic bytes, batas 10 MB, dan rate limit. |
+| `/api/impor/konfirmasi` | Admin GA | Route handler server pemanggilan RPC konfirmasi_impor transaksi tunggal dengan opsi overwrite. |
 | `/api/ekspor/excel` | Admin GA | Route handler server pengunduhan berkas rekapitulasi format spreadsheet Excel (.xlsx). |
 | `/api/ekspor/pdf` | Admin GA | Route handler server pengunduhan dokumen laporan resmi format PDF (.pdf). |
 
 ---
 
-## 6. Ringkasan Pengujian, Kualitas, & Status Git
+## 7. Ringkasan Pengujian, Kualitas, & Status Git
 
 1. **Pengujian Unit (Vitest)**:
-   - 20 berkas pengujian: `20 passed`.
-   - 120 pengujian fungsional: `120 passed`.
-   - Menguji: matematika rentang rekap & partisi bulan, sanitasi nama sheet, generator penamaan berkas ekspor, model sel Excel dengan fixture sintetis 5 bagian & 2 minggu, aturan proteksi wewenang ekspor dan batasan 366 hari, konsistensi metrik dashboard, rotasi vendor, route guard, user guard, reducer sel kotor, progres vendor, dan skema form Zod.
+   - 31 berkas pengujian: `31 passed`.
+   - 157 pengujian fungsional: `157 passed`.
+   - Menguji: extractor xlsx (sel gabungan & formula tersimpan), docx (tabel & paragraf), pdf (lapisan teks & OCR fallback), ocr runner, validasi magic number, normalisasi string & pencocokan fuzzy vendor/shift/bagian, validasi domain jadwal & rotasi, deteksi otomatis jenis dokumen, parser jadwal, vendor, bagian, dan rekap-harian, matematika rekap, model sel Excel, konsistensi metrik dashboard, rotasi vendor, route guard, user guard, reducer sel kotor, progres vendor, dan skema form Zod.
 2. **Kompilasi TypeScript**:
    - `npx tsc --noEmit` lulus dengan 0 kesalahan.
 3. **Build Produksi Next.js**:
-   - `next build` berhasil mengompilasi 31 rute tanpa kendala.
+   - `next build` berhasil mengompilasi 34 rute (termasuk modul impor data cerdas dan API route pendukung) tanpa kendala.
    - Seluruh variabel lingkungan sensitif terjaga aman di sisi server.
 4. **Repositori Git**:
-   - Seluruh tahapan telah di-commit secara terstruktur mengikuti Conventional Commits pada cabang `feat/11-rekap-laporan` dan siap digabungkan ke cabang utama `main`.
+   - Seluruh tahapan telah di-commit secara terstruktur mengikuti Conventional Commits pada cabang `feat/12-impor-data` dan siap digabungkan ke cabang utama `main`.
    - Identitas commit terkonfigurasi pada: `Muhammad Raynar Hammam <raynarham23@gmail.com>`.
+
