@@ -361,3 +361,37 @@ export async function gantiVendorAction(input: GantiVendorInput): Promise<Action
   revalidatePath("/admin/master/periode");
   return { success: true, message: "Vendor periode berhasil diganti dan dicatat di riwayat" };
 }
+
+// Wipe all transaction data - periods, orders, items, revisions, logs (admin only)
+export async function deleteAllTransactionDataAction(): Promise<ActionResult> {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.role !== "admin_ga") {
+    return { success: false, error: "Hanya Admin GA yang berhak menghapus seluruh data transaksi" };
+  }
+
+  // Use service-role client to bypass RLS for destructive sweep
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+
+  // Delete in dependency order: logs -> revisions -> items -> orders -> periods
+  const { error: logErr } = await admin.from("order_logs").delete().gte("created_at", "2000-01-01");
+  if (logErr) return { success: false, error: "Gagal menghapus order_logs: " + logErr.message };
+
+  const { error: revErr } = await admin.from("revisions").delete().gte("created_at", "2000-01-01");
+  if (revErr) return { success: false, error: "Gagal menghapus revisi: " + revErr.message };
+
+  const { error: itemErr } = await admin.from("catering_items").delete().gte("created_at", "2000-01-01");
+  if (itemErr) return { success: false, error: "Gagal menghapus catering_items: " + itemErr.message };
+
+  const { error: orderErr } = await admin.from("catering_orders").delete().gte("created_at", "2000-01-01");
+  if (orderErr) return { success: false, error: "Gagal menghapus catering_orders: " + orderErr.message };
+
+  const { error: periodErr } = await admin.from("periods").delete().gte("created_at", "2000-01-01");
+  if (periodErr) return { success: false, error: "Gagal menghapus periods: " + periodErr.message };
+
+  revalidatePath("/admin/periode");
+  revalidatePath("/admin/master/periode");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/rekapitulasi");
+  return { success: true, message: "Seluruh data transaksi berhasil dihapus. Master data (shift, bagian, vendor, user) tetap tersimpan." };
+}

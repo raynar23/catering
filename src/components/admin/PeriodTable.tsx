@@ -11,6 +11,7 @@ import {
   PeriodListItem,
   getPeriodList,
   deletePeriodAction,
+  deleteAllTransactionDataAction,
 } from "@/lib/actions/periode";
 import { getShiftList } from "@/lib/actions/shift";
 import { getVendorList, VendorRecord } from "@/lib/actions/vendor";
@@ -20,7 +21,7 @@ import { formatTimeShort, MONTH_OPTIONS } from "@/lib/date";
 import { waLink } from "@/lib/whatsapp";
 import { useToast } from "@/components/ui/Toast";
 import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
-import { Plus, Settings2, Pencil, Trash2, ArrowLeftRight, MessageSquare } from "lucide-react";
+import { Plus, Settings2, Pencil, Trash2, ArrowLeftRight, MessageSquare, DatabaseZap } from "lucide-react";
 
 export function PeriodTable() {
   const { toast } = useToast();
@@ -48,6 +49,11 @@ export function PeriodTable() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [periodToDelete, setPeriodToDelete] = useState<PeriodListItem | null>(null);
+
+  // State for the destructive "delete all transaction data" action
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false);
+  const [deleteAllChecked, setDeleteAllChecked] = useState(false);
+  const [deleteAllLoading, setDeleteAllLoading] = useState(false);
 
   // Load shifts and vendors options
   const loadOptions = useCallback(async () => {
@@ -219,6 +225,30 @@ export function PeriodTable() {
       toast({
         title: "Gagal Menghapus",
         description: res.error ?? "Terjadi kesalahan",
+        variant: "danger",
+      });
+    }
+  };
+
+  // Wipe all catering transaction data, preserving master data
+  const handleDeleteAll = async () => {
+    if (!deleteAllChecked) return;
+    setDeleteAllLoading(true);
+    const res = await deleteAllTransactionDataAction();
+    setDeleteAllLoading(false);
+    setDeleteAllOpen(false);
+    setDeleteAllChecked(false);
+    if (res.success) {
+      toast({
+        title: "Semua Data Dihapus",
+        description: res.message ?? "Seluruh data transaksi berhasil dihapus.",
+        variant: "success",
+      });
+      loadData();
+    } else {
+      toast({
+        title: "Gagal",
+        description: res.error ?? "Terjadi kesalahan saat menghapus data",
         variant: "danger",
       });
     }
@@ -448,6 +478,17 @@ export function PeriodTable() {
             <Plus className="w-4 h-4" />
             <span>Tambah Jadwal</span>
           </button>
+
+          {/* Destructive action: wipe all transaction data for client handover */}
+          <button
+            type="button"
+            onClick={() => { setDeleteAllChecked(false); setDeleteAllOpen(true); }}
+            className="h-9 px-3 rounded-[8px] border border-danger/50 bg-danger-soft/30 hover:bg-danger-soft text-danger text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2"
+            title="Hapus seluruh data transaksi (untuk serah terima ke client)"
+          >
+            <DatabaseZap className="w-3.5 h-3.5" />
+            <span>Hapus Semua Data</span>
+          </button>
         </div>
       </div>
 
@@ -493,6 +534,72 @@ export function PeriodTable() {
         variant="danger"
         onConfirm={handleConfirmDelete}
       />
+
+      {/* Modal: Hapus Semua Data Transaksi */}
+      {deleteAllOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-all-title"
+        >
+          <div className="bg-surface border border-danger/30 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="shrink-0 w-10 h-10 rounded-full bg-danger-soft flex items-center justify-center">
+                <DatabaseZap className="w-5 h-5 text-danger" />
+              </div>
+              <div>
+                <h2 id="delete-all-title" className="text-base font-semibold text-text">
+                  Hapus Semua Data Transaksi
+                </h2>
+                <p className="text-xs text-text-muted mt-1">
+                  Tindakan ini akan menghapus <span className="font-semibold text-danger">seluruh periode, pesanan, item, revisi, dan log</span> secara permanen.
+                  Master data (shift, bagian, vendor, akun pengguna) <span className="font-semibold text-text">tidak akan terhapus</span>.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-bg border border-border rounded-xl p-4 mb-5">
+              <label
+                htmlFor="confirm-delete-all"
+                className="flex items-start gap-3 cursor-pointer select-none"
+              >
+                <input
+                  id="confirm-delete-all"
+                  type="checkbox"
+                  checked={deleteAllChecked}
+                  onChange={(e) => setDeleteAllChecked(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-border accent-danger cursor-pointer"
+                />
+                <span className="text-xs text-text leading-relaxed">
+                  Saya memahami bahwa seluruh data catering akan dihapus permanen dan
+                  <span className="font-semibold"> tidak dapat dipulihkan</span>. Tindakan ini
+                  hanya untuk keperluan serah terima ke client.
+                </span>
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => { setDeleteAllOpen(false); setDeleteAllChecked(false); }}
+                disabled={deleteAllLoading}
+                className="h-9 px-4 rounded-[8px] border border-border bg-surface hover:bg-bg text-text text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAll}
+                disabled={!deleteAllChecked || deleteAllLoading}
+                className="h-9 px-4 rounded-[8px] bg-danger hover:bg-danger/90 active:bg-danger/80 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2"
+              >
+                {deleteAllLoading ? "Menghapus..." : "Hapus Semua Data"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
