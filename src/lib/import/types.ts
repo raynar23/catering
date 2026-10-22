@@ -78,7 +78,7 @@ export interface RawTableCell {
 export interface RawTableData {
   sheetName?: string;
   headers: string[];
-  rows: (string | number | boolean | null)[][];
+  rows: (string | number | boolean | Date | null)[][];
 }
 
 export interface DetectionResult {

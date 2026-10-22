@@ -31,7 +31,7 @@ describe("extract/ocr.ts", () => {
     vi.mocked(tesseract.createWorker).mockImplementation(async (_lang, _oem, options) => {
       // Simulate progress callback
       if (options?.logger) {
-        options.logger({ status: "recognizing text", progress: 0.5 });
+        options.logger({ status: "recognizing text", progress: 0.5 } as any);
       }
       return {
         recognize: mockRecognize,

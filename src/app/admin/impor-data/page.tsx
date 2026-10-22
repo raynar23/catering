@@ -123,7 +123,7 @@ export default function AdminImporDataPage() {
     <PageContainer>
       <PageHeader
         title="Impor Data Cerdas"
-        description="Ekstraksi jadwal catering, daftar vendor, dan rekap porsi dari berkas Excel, CSV, Word, PDF, atau pindaian OCR"
+        subtitle="Ekstraksi jadwal catering, daftar vendor, dan rekap porsi dari berkas Excel, CSV, Word, PDF, atau pindaian OCR"
       />
 
       <div className="mt-6">

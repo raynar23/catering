@@ -63,11 +63,11 @@ export class XlsxExtractor implements ExtractorInterface {
           const masterVal = getCellValue(masterCell);
 
           // Get row/col coordinates
-          const startCol = masterCell.col;
-          const startRow = masterCell.row;
+          const startCol = Number(masterCell.col);
+          const startRow = Number(masterCell.row);
           const slaveCell = worksheet.getCell(bottomSlave);
-          const endCol = slaveCell.col;
-          const endRow = slaveCell.row;
+          const endCol = Number(slaveCell.col);
+          const endRow = Number(slaveCell.row);
 
           for (let r = startRow; r <= endRow; r++) {
             for (let c = startCol; c <= endCol; c++) {
