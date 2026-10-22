@@ -86,7 +86,7 @@ export function parseJadwal(
 
   for (const table of tables) {
     const sheetName = table.sheetName || "Sheet1";
-    let { dateCol, shiftCol, vendorCol } = findColumnIndices(table.headers);
+    const { dateCol, shiftCol, vendorCol } = findColumnIndices(table.headers);
 
     let lastValidDate: string | null = null;
 
