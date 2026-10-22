@@ -109,7 +109,7 @@ export function useRealtimeTable<T = any>({
     });
 
     // Handle channel connection status
-    channel.subscribe((subStatus, err) => {
+    channel.subscribe((subStatus: string, err?: Error) => {
       const currentSubStatus = subStatus as RealtimeStatus;
       setStatus(currentSubStatus);
 

@@ -1,16 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   VerificationRevisionItem,
   VendorResponseItem,
   verifikasiRevisiAction,
+  getVerificationRevisionsList,
+  getVendorResponseFollowUpList,
 } from "@/lib/actions/revisi";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { RevisiTable } from "./RevisiTable";
 import { ResponsVendorTable } from "./ResponsVendorTable";
 import { VerifikasiDialog } from "./VerifikasiDialog";
 import { useToast } from "@/components/ui/Toast";
+import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
 import { Search, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +33,7 @@ export function VerifikasiView({
   const [statusFilter, setStatusFilter] = useState<string>("semua");
 
   const [revisions, setRevisions] = useState<VerificationRevisionItem[]>(initialRevisions);
-  const [vendorResponses] = useState<VendorResponseItem[]>(initialVendorResponses);
+  const [vendorResponses, setVendorResponses] = useState<VendorResponseItem[]>(initialVendorResponses);
 
   // Dialog state
   const [selectedRevision, setSelectedRevision] = useState<VerificationRevisionItem | null>(null);
@@ -38,6 +41,69 @@ export function VerifikasiView({
 
   const pendingRevisionsCount = revisions.filter((r) => r.status === "menunggu").length;
   const vendorRejectionsCount = vendorResponses.length;
+
+  const refreshRevisions = useCallback(async () => {
+    try {
+      const fresh = await getVerificationRevisionsList();
+      setRevisions(fresh);
+    } catch (err) {
+      console.error("Failed to refresh revisions", err);
+    }
+  }, []);
+
+  const refreshVendorResponses = useCallback(async () => {
+    try {
+      const fresh = await getVendorResponseFollowUpList();
+      setVendorResponses(fresh);
+    } catch (err) {
+      console.error("Failed to refresh vendor responses", err);
+    }
+  }, []);
+
+  // Subscribe to real-time revisions updates
+  useRealtimeTable({
+    table: "revisions",
+    onUpdate: (newRev: any) => {
+      setRevisions((prev) =>
+        prev.map((r) =>
+          r.id === newRev.id
+            ? {
+                ...r,
+                status: newRev.status ?? r.status,
+                responVendor: newRev.respon_vendor ?? r.responVendor,
+                catatanVendor:
+                  newRev.catatan_vendor !== undefined
+                    ? newRev.catatan_vendor
+                    : r.catatanVendor,
+                catatanVerifikator:
+                  newRev.catatan_verifikator !== undefined
+                    ? newRev.catatan_verifikator
+                    : r.catatanVerifikator,
+                diverifikasiAt: newRev.diverifikasi_at ?? r.diverifikasiAt,
+              }
+            : r
+        )
+      );
+    },
+    onInsert: () => {
+      refreshRevisions();
+    },
+    onReconnect: () => {
+      refreshRevisions();
+      refreshVendorResponses();
+    },
+  });
+
+  // Subscribe to real-time catering orders for vendor rejection follow-ups
+  useRealtimeTable({
+    table: "catering_orders",
+    onUpdate: () => {
+      refreshVendorResponses();
+    },
+    onReconnect: () => {
+      refreshVendorResponses();
+    },
+  });
 
   const handleVerify = async (
     revisionId: string,

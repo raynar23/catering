@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { VendorDetailInspector } from "./VendorDetailInspector";
 import { Dialog } from "@/components/ui/Dialog";
 import { useToast } from "@/components/ui/Toast";
+import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
 import { formatNumber } from "@/lib/format";
 
 interface PesananHariIniPanelProps {
@@ -20,10 +21,11 @@ interface PesananHariIniPanelProps {
 
 // 3-shift operational order panel displaying today's catering workload and quick actions
 export function PesananHariIniPanel({
-  shifts,
+  shifts: initialShifts,
   todayFormatted,
 }: PesananHariIniPanelProps) {
   const { toast } = useToast();
+  const [shifts, setShifts] = useState<VendorShiftOrder[]>(initialShifts);
   const [selectedShift, setSelectedShift] = useState<VendorShiftOrder | null>(null);
   const [inspectorOpen, setInspectorOpen] = useState(false);
 
@@ -33,6 +35,30 @@ export function PesananHariIniPanel({
   const [isSanggup, setIsSanggup] = useState(true);
   const [catatan, setCatatan] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  // Subscribe to real-time catering order updates
+  useRealtimeTable({
+    table: "catering_orders",
+    onUpdate: (newOrder: any) => {
+      setShifts((prev) =>
+        prev.map((s) => {
+          if (s.orderId === newOrder.id) {
+            return {
+              ...s,
+              status: newOrder.status ?? s.status,
+              responVendor: newOrder.respon_vendor ?? s.responVendor,
+              progresVendor: newOrder.progres_vendor ?? s.progresVendor,
+              totalPorsi:
+                typeof newOrder.total_porsi === "number"
+                  ? newOrder.total_porsi
+                  : s.totalPorsi,
+            };
+          }
+          return s;
+        })
+      );
+    },
+  });
 
   const handleOpenInspector = (shift: VendorShiftOrder) => {
     setSelectedShift(shift);
@@ -71,6 +97,17 @@ export function PesananHariIniPanel({
           description: res.message || "Status respon kesanggupan berhasil diperbarui.",
           variant: "success",
         });
+        setShifts((prev) =>
+          prev.map((s) =>
+            s.orderId === targetOrder.orderId
+              ? {
+                  ...s,
+                  responVendor: isSanggup ? "disanggupi" : "tidak_sanggup",
+                  catatanVendor: catatan || null,
+                }
+              : s
+          )
+        );
         setResponseModalOpen(false);
       } else {
         toast({

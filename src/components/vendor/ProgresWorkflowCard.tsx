@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useCallback, useTransition } from "react";
 import {
   Clock,
   Truck,
@@ -12,10 +12,13 @@ import {
 import {
   VendorProgresItem,
   updateProgresVendorAction,
+  getVendorProgresList,
 } from "@/lib/actions/vendor-portal";
 import { VendorProgress } from "@/lib/types";
+import { getNextProgressStep } from "@/lib/vendor/progress";
 import { Dialog } from "@/components/ui/Dialog";
 import { useToast } from "@/components/ui/Toast";
+import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
 import { VendorDetailInspector } from "./VendorDetailInspector";
 import { formatNumber } from "@/lib/format";
 
@@ -32,8 +35,9 @@ const PROGRESS_STEPS: Array<{ key: VendorProgress; label: string }> = [
 ];
 
 // Stepper workflow component managing sequential delivery progression
-export function ProgresWorkflowCard({ orders }: ProgresWorkflowCardProps) {
+export function ProgresWorkflowCard({ orders: initialOrders }: ProgresWorkflowCardProps) {
   const { toast } = useToast();
+  const [orders, setOrders] = useState<VendorProgresItem[]>(initialOrders);
   const [selectedOrder, setSelectedOrder] = useState<VendorProgresItem | null>(null);
   const [inspectorOpen, setInspectorOpen] = useState(false);
 
@@ -42,6 +46,51 @@ export function ProgresWorkflowCard({ orders }: ProgresWorkflowCardProps) {
   const [targetOrder, setTargetOrder] = useState<VendorProgresItem | null>(null);
   const [catatan, setCatatan] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  const refreshOrders = useCallback(async () => {
+    try {
+      const fresh = await getVendorProgresList();
+      setOrders(fresh);
+    } catch (err) {
+      console.error("Failed to refresh progres list", err);
+    }
+  }, []);
+
+  // Subscribe to real-time catering orders to update progress state in-place
+  useRealtimeTable({
+    table: "catering_orders",
+    onUpdate: (newOrder: any) => {
+      setOrders((prev) =>
+        prev.map((ord) => {
+          if (ord.orderId === newOrder.id) {
+            const progresVendor = (newOrder.progres_vendor ?? ord.progresVendor) as VendorProgress;
+            const nextStep = getNextProgressStep(progresVendor);
+            return {
+              ...ord,
+              progresVendor,
+              progresVendorAt: newOrder.progres_vendor_at ?? ord.progresVendorAt,
+              catatanVendor:
+                newOrder.catatan_vendor !== undefined
+                  ? newOrder.catatan_vendor
+                  : ord.catatanVendor,
+              totalPorsi:
+                typeof newOrder.total_porsi === "number"
+                  ? newOrder.total_porsi
+                  : ord.totalPorsi,
+              nextStep,
+            };
+          }
+          return ord;
+        })
+      );
+    },
+    onInsert: () => {
+      refreshOrders();
+    },
+    onReconnect: () => {
+      refreshOrders();
+    },
+  });
 
   const handleOpenConfirm = (order: VendorProgresItem) => {
     if (order.nextStep.isComplete || !order.nextStep.next) return;
@@ -54,9 +103,10 @@ export function ProgresWorkflowCard({ orders }: ProgresWorkflowCardProps) {
     if (!targetOrder || !targetOrder.nextStep.next) return;
 
     startTransition(async () => {
+      const targetStep = targetOrder.nextStep.next!;
       const res = await updateProgresVendorAction({
         orderId: targetOrder.orderId,
-        targetProgres: targetOrder.nextStep.next!,
+        targetProgres: targetStep,
         catatan,
       });
 
@@ -66,6 +116,19 @@ export function ProgresWorkflowCard({ orders }: ProgresWorkflowCardProps) {
           description: res.message || "Tahap progres pengiriman berhasil dimajukan.",
           variant: "success",
         });
+        setOrders((prev) =>
+          prev.map((ord) => {
+            if (ord.orderId === targetOrder.orderId) {
+              return {
+                ...ord,
+                progresVendor: targetStep,
+                nextStep: getNextProgressStep(targetStep),
+                catatanVendor: catatan || ord.catatanVendor,
+              };
+            }
+            return ord;
+          })
+        );
         setConfirmModalOpen(false);
       } else {
         toast({

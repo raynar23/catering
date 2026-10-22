@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useCallback, useTransition } from "react";
 import {
   Clock,
   CheckCircle2,
@@ -15,10 +15,12 @@ import {
   VendorPendingRevisionConfirmation,
   responPeriodeVendorAction,
   responRevisiVendorAction,
+  getVendorKetersediaanQueue,
 } from "@/lib/actions/vendor-portal";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Dialog } from "@/components/ui/Dialog";
 import { useToast } from "@/components/ui/Toast";
+import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
 import { VendorDetailInspector } from "./VendorDetailInspector";
 import { formatNumber, formatDelta } from "@/lib/format";
 
@@ -37,6 +39,9 @@ export function KetersediaanQueue({
   const [selectedOrder, setSelectedOrder] = useState<VendorPendingOrderConfirmation | null>(null);
   const [inspectorOpen, setInspectorOpen] = useState(false);
 
+  const [orders, setOrders] = useState<VendorPendingOrderConfirmation[]>(initialOrders);
+  const [revisions, setRevisions] = useState<VendorPendingRevisionConfirmation[]>(initialRevisions);
+
   // Response dialog state
   const [responseModalOpen, setResponseModalOpen] = useState(false);
   const [dialogType, setDialogType] = useState<"order" | "revision">("order");
@@ -46,6 +51,52 @@ export function KetersediaanQueue({
   const [isSanggup, setIsSanggup] = useState(true);
   const [catatan, setCatatan] = useState("");
   const [isPending, startTransition] = useTransition();
+
+  const refreshQueue = useCallback(async () => {
+    try {
+      const queue = await getVendorKetersediaanQueue();
+      setOrders(queue.orders);
+      setRevisions(queue.revisions);
+    } catch (err) {
+      console.error("Failed to refresh vendor queue", err);
+    }
+  }, []);
+
+  // Subscribe to real-time catering orders to remove responded orders or add incoming requests
+  useRealtimeTable({
+    table: "catering_orders",
+    onUpdate: (newOrder: any) => {
+      if (newOrder.respon_vendor && newOrder.respon_vendor !== "belum_respon") {
+        setOrders((prev) => prev.filter((o) => o.orderId !== newOrder.id));
+      } else {
+        refreshQueue();
+      }
+    },
+    onInsert: () => {
+      refreshQueue();
+    },
+    onReconnect: () => {
+      refreshQueue();
+    },
+  });
+
+  // Subscribe to real-time revisions to remove responded revisions or add incoming ones
+  useRealtimeTable({
+    table: "revisions",
+    onUpdate: (newRev: any) => {
+      if (newRev.respon_vendor && newRev.respon_vendor !== "belum_respon") {
+        setRevisions((prev) => prev.filter((r) => r.revisionId !== newRev.id));
+      } else {
+        refreshQueue();
+      }
+    },
+    onInsert: () => {
+      refreshQueue();
+    },
+    onReconnect: () => {
+      refreshQueue();
+    },
+  });
 
   const handleOpenOrderResponse = (
     order: VendorPendingOrderConfirmation,
@@ -95,6 +146,7 @@ export function KetersediaanQueue({
             description: res.message || "Respon kesanggupan pesanan berhasil dicatat.",
             variant: "success",
           });
+          setOrders((prev) => prev.filter((o) => o.orderId !== targetOrderId));
           setResponseModalOpen(false);
         } else {
           toast({
@@ -116,6 +168,7 @@ export function KetersediaanQueue({
             description: res.message || "Respon kesanggupan revisi berhasil dicatat.",
             variant: "success",
           });
+          setRevisions((prev) => prev.filter((r) => r.revisionId !== targetRevisionId));
           setResponseModalOpen(false);
         } else {
           toast({
@@ -136,11 +189,11 @@ export function KetersediaanQueue({
           options={[
             {
               value: "orders",
-              label: `Permintaan Baru (${initialOrders.length})`,
+              label: `Permintaan Baru (${orders.length})`,
             },
             {
               value: "revisions",
-              label: `Perubahan Revisi (${initialRevisions.length})`,
+              label: `Perubahan Revisi (${revisions.length})`,
             },
           ]}
           value={activeTab}
@@ -151,7 +204,7 @@ export function KetersediaanQueue({
       {/* Content Area */}
       <div className="flex-1 min-h-0 overflow-y-auto space-y-3">
         {activeTab === "orders" ? (
-          initialOrders.length === 0 ? (
+          orders.length === 0 ? (
             <div className="py-16 text-center bg-surface border border-border rounded-[10px] p-6 text-text-muted text-[13px]">
               <CheckCircle2 className="w-8 h-8 text-[#1E8E3E] mx-auto mb-2 opacity-80" />
               <p className="font-semibold text-text">Semua Permintaan Sudah Dikonfirmasi</p>
@@ -160,7 +213,7 @@ export function KetersediaanQueue({
               </p>
             </div>
           ) : (
-            initialOrders.map((order) => (
+            orders.map((order) => (
               <div
                 key={order.orderId}
                 className="bg-surface border border-border rounded-[10px] p-4 sm:p-5 shadow-xs flex flex-col gap-4"
@@ -247,7 +300,7 @@ export function KetersediaanQueue({
               </div>
             ))
           )
-        ) : initialRevisions.length === 0 ? (
+        ) : revisions.length === 0 ? (
           <div className="py-16 text-center bg-surface border border-border rounded-[10px] p-6 text-text-muted text-[13px]">
             <CheckCircle2 className="w-8 h-8 text-[#1E8E3E] mx-auto mb-2 opacity-80" />
             <p className="font-semibold text-text">Semua Revisi Sudah Dikonfirmasi</p>
@@ -256,7 +309,7 @@ export function KetersediaanQueue({
             </p>
           </div>
         ) : (
-          initialRevisions.map((rev) => (
+          revisions.map((rev) => (
             <div
               key={rev.revisionId}
               className="bg-surface border border-border rounded-[10px] p-4 sm:p-5 shadow-xs flex flex-col gap-3"

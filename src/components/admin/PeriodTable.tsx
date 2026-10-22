@@ -19,6 +19,7 @@ import { formatDate } from "@/lib/format";
 import { formatTimeShort, MONTH_OPTIONS } from "@/lib/date";
 import { waLink } from "@/lib/whatsapp";
 import { useToast } from "@/components/ui/Toast";
+import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
 import { Plus, Settings2, Pencil, Trash2, ArrowLeftRight, MessageSquare } from "lucide-react";
 
 export function PeriodTable() {
@@ -73,6 +74,68 @@ export function PeriodTable() {
       setLoading(false);
     }
   }, [selectedYear, selectedMonth, selectedShift, selectedVendor, selectedStatus]);
+
+  // Subscribe to real-time catering order updates to mutate row statuses in place
+  useRealtimeTable({
+    table: "catering_orders",
+    onUpdate: (newOrder: any) => {
+      setData((prev) =>
+        prev.map((row) => {
+          if (row.id === newOrder.period_id) {
+            return {
+              ...row,
+              status: newOrder.status ?? row.status,
+              respon_vendor: newOrder.respon_vendor ?? row.respon_vendor,
+              progres_vendor: newOrder.progres_vendor ?? row.progres_vendor,
+              total_porsi:
+                typeof newOrder.total_porsi === "number"
+                  ? newOrder.total_porsi
+                  : row.total_porsi,
+            };
+          }
+          return row;
+        })
+      );
+    },
+    onInsert: () => {
+      loadData();
+    },
+    onReconnect: () => {
+      loadData();
+    },
+  });
+
+  // Subscribe to real-time period updates for vendor assignment and status changes
+  useRealtimeTable({
+    table: "periods",
+    onUpdate: (newPeriod: any) => {
+      setData((prev) =>
+        prev.map((row) => {
+          if (row.id === newPeriod.id) {
+            const v = vendors.find((x) => x.id === newPeriod.vendor_id);
+            return {
+              ...row,
+              vendor_id: newPeriod.vendor_id ?? row.vendor_id,
+              vendor_nama: v ? v.nama : row.vendor_nama,
+              vendor_kode: v ? v.kode : row.vendor_kode,
+              vendor_kontak: v ? (v.no_wa || v.no_telp || "") : row.vendor_kontak,
+              keterangan: newPeriod.keterangan !== undefined ? newPeriod.keterangan : row.keterangan,
+            };
+          }
+          return row;
+        })
+      );
+    },
+    onInsert: () => {
+      loadData();
+    },
+    onDelete: () => {
+      loadData();
+    },
+    onReconnect: () => {
+      loadData();
+    },
+  });
 
   useEffect(() => {
     let active = true;
