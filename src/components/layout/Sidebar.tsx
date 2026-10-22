@@ -86,7 +86,8 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
                   pathname === item.href ||
                   (item.href !== "/admin/dashboard" &&
                     item.href !== "/vendor/dashboard" &&
-                    pathname.startsWith(item.href));
+                    pathname.startsWith(item.href)) ||
+                  (item.href === "/admin/rekapitulasi" && pathname.startsWith("/admin/laporan"));
                 const badgeCount = item.badgeKey ? badges[item.badgeKey] : undefined;
 
                 return (

@@ -34,14 +34,9 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
         badgeKey: "pendingCount",
       },
       {
-        title: "Rekapitulasi",
+        title: "Rekapitulasi dan Laporan",
         href: "/admin/rekapitulasi",
         icon: "rekap",
-      },
-      {
-        title: "Laporan",
-        href: "/admin/laporan",
-        icon: "laporan",
       },
     ],
   },
