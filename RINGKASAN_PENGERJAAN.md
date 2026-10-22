@@ -125,10 +125,12 @@ Perubahan ini telah disinkronkan ke dalam berkas migrasi dan skrip database repo
 | Rute URL | Pengguna | Fungsi & Fitur Utama |
 | :--- | :--- | :--- |
 | `/login` | Publik | Halaman masuk dengan normalisasi username, background dermaga TPS, dan kartu form bebas pergeseran layout. |
-| `/admin/dashboard` | Admin GA | Dashboard operasional katering, KPI pesanan harian, status 3 shift, dan pintasan verifikasi. |
+| `/admin/dashboard` | Admin GA | Dashboard operasional katering, filter rentang tanggal, KPI ringkasan, grafik distribusi porsi, tren, dan donat shift. |
 | `/admin/input-catering` | Admin GA | Grid harian 3 shift berdampingan (Shift 3, 1, 2), pelacakan sel kotor, tombol kirim ke vendor. |
 | `/admin/periode` | Admin GA | Manajemen jadwal periode, filter multi-dimensi, tombol ganti vendor terjadwal/darurat via RPC. |
 | `/admin/verifikasi` | Admin GA | Verifikasi perubahan kuota (revisi) dan pemantauan respons kesanggupan vendor. |
+| `/admin/rekapitulasi` | Admin GA | Rekap harian tabular per bagian dan ringkasan metrik agregat dengan ekspor Excel dan PDF ber-kop resmi. |
+| `/admin/impor-data` | Admin GA | Ekstraksi dokumen cerdas (xlsx, csv, docx, pdf, OCR gambar), deteksi tipe otomatis, pemetaan entitas, dan eksekusi batch. |
 | `/admin/riwayat/[periodId]` | Admin GA | Kronologi audit timeline lengkap per periode katering dari log append-only. |
 | `/admin/data-bagian` | Admin GA | Master data bagian operasional, kelompok, lokasi antar fisik, dan catatan antar. |
 | `/admin/data-vendor` | Admin GA | Master data mitra katering (V001 - V005), kontak WhatsApp, dan PIC vendor. |
@@ -140,20 +142,30 @@ Perubahan ini telah disinkronkan ke dalam berkas migrasi dan skrip database repo
 | `/vendor/progres` | Vendor | Pelaporan progres pengiriman 5 tahap satu arah (Menunggu -> Dipersiapkan -> Dikirim -> Sampai -> Selesai). |
 | `/vendor/riwayat` | Vendor | Arsip riwayat pesanan katering vendor dengan filter status dan rentang tanggal. |
 | `/vendor/pengaturan` | Vendor | Pengaturan profil perwakilan vendor, ganti kata sandi, dan footer versi sistem. |
+| `/api/ekspor/excel` | Admin GA | Route handler ekspor berkas Excel (.xlsx) format resmi Pelindo TPS dengan styling exceljs. |
+| `/api/ekspor/pdf` | Admin GA | Route handler ekspor dokumen laporan PDF (.pdf) ber-kop resmi dengan AutoTable landscape. |
+| `/api/impor/analisis` | Admin GA | Route handler parsing berkas dokumen multi-format dan deteksi struktur. |
+| `/api/impor/konfirmasi` | Admin GA | Route handler eksekusi penulisan batch impor transaksi dan master data ke database. |
 
 ---
 
-## 5. Ringkasan Pengujian, Kualitas, & Status Git
+## 5. Ringkasan Pengujian, Kualitas, & Status Git (v1.0.0)
 
 1. **Pengujian Unit (Vitest)**:
-   - 16 berkas pengujian: `16 passed`.
-   - 87 pengujian fungsional: `87 passed`.
-   - Mencakup logika bisnis: kalkulasi progres, reducer grid sel kotor, rotasi vendor, route guard, user guard (anti self-deactivation, anti self-demotion, minimal 1 admin aktif), formatter log audit, generator format WhatsApp, validator autentikasi, pembaca versi sistem, dan validasi skema form Zod.
-2. **Kompilasi TypeScript**:
-   - `npx tsc --noEmit` lulus dengan 0 kesalahan.
-3. **Build Produksi Next.js**:
-   - `next build` berhasil mengompilasi 29 rute (halaman antarmuka dan route handler server) tanpa kendala.
-   - Kunci sensitif `SUPABASE_SERVICE_ROLE_KEY` terverifikasi 100% tidak pernah bocor ke bundel klien (`.next/static/`).
-4. **Repositori Git**:
-   - Seluruh perubahan dari Tahap 08b (`fix/08b-security-schema`) dan Tahap 09 (`feat/09-user-pengaturan`) telah di-commit dan di-push ke GitHub serta digabungkan ke cabang utama `main`.
-   - Identitas commit terkonfigurasi pada: `Muhammad Raynar Hammam <raynarham23@gmail.com>`.
+   - 32 berkas pengujian: `32 passed (100%)`.
+   - 163 pengujian fungsional: `163 passed (100%)`.
+   - Mencakup logika bisnis: kalkulasi progres, reducer grid sel kotor, rotasi vendor, route guard, user guard, audit formatter, format WhatsApp, autentikasi, versi sistem, validasi Zod, parser jadwal/master/rekap harian, ekspor guard, realtime mapper, dan dashboard aggregates.
+2. **Pengujian Database & Keamanan (`npm run test:db`)**:
+   - 6 pengujian keamanan terverifikasi lolos: isolasi RLS antar vendor, pencegahan eskalasi role, pemblokiran insert langsung client, perlindungan log audit append-only, dan penolakan RPC admin oleh vendor.
+3. **Kompilasi TypeScript & Linting**:
+   - `npx tsc --noEmit`: 0 kesalahan.
+   - `npm run lint`: 0 kesalahan.
+4. **Build Produksi Next.js**:
+   - `next build` berhasil mengompilasi 34 rute (halaman antarmuka dan route handler server) dalam 749ms.
+   - Kunci sensitif `SUPABASE_SERVICE_ROLE_KEY` dan `GEMINI_API_KEY` terverifikasi 100% tidak pernah bocor ke bundel klien (`.next/static/`).
+5. **CI/CD & Dokumentasi**:
+   - GitHub Actions CI workflow (`.github/workflows/ci.yml`) siap otomatis mengeksekusi lint, typecheck, test, dan build.
+   - Dokumentasi lengkap di direktori `docs/` (Instalasi, Arsitektur Teknis + Diagram Mermaid, Panduan Admin GA, Panduan Vendor, Skrip Demo End-to-End).
+   - Single source of truth database SQL terpadu: `DATABASE_LENGKAP_CATERING.sql`.
+   - Rilis resmi: tag git `v1.0.0` telah dibuat dan di-push ke cabang utama `main`.
+   - Identitas commit: `Muhammad Raynar Hammam <raynarham23@gmail.com>`.
