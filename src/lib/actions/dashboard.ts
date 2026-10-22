@@ -71,7 +71,7 @@ export async function getDashboardSummaryAction(
       await Promise.all([
         supabase
           .from("v_rekap")
-          .select("tanggal, shift_id, shift_nama, shift_label, shift_urutan, bagian_id, bagian_nama, bagian_kelompok, bagian_urutan, vendor_id, vendor_nama, vendor_kode, vendor_rotasi:urutan_rotasi, jumlah_porsi")
+          .select("tanggal, shift_id, shift_nama, shift_label, shift_urutan, bagian_id, bagian_nama, bagian_kelompok, bagian_urutan, vendor_id, vendor_nama, vendor_kode, jumlah_porsi")
           .gte("tanggal", dari)
           .lte("tanggal", sampai),
         supabase

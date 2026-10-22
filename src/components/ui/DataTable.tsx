@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 export interface ColumnDef<T> {
   key: string;
-  header: string;
+  header: React.ReactNode;
   render?: (row: T, index: number) => React.ReactNode;
   align?: "left" | "center" | "right";
   width?: string | number;

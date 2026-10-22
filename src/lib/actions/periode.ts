@@ -362,36 +362,83 @@ export async function gantiVendorAction(input: GantiVendorInput): Promise<Action
   return { success: true, message: "Vendor periode berhasil diganti dan dicatat di riwayat" };
 }
 
-// Wipe all transaction data - periods, orders, items, revisions, logs (admin only)
-export async function deleteAllTransactionDataAction(): Promise<ActionResult> {
+// Delete multiple selected periods and their dependent transactions via atomic RPC
+export async function deleteSelectedPeriodsAction(ids: string[]): Promise<ActionResult> {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "admin_ga") {
-    return { success: false, error: "Hanya Admin GA yang berhak menghapus seluruh data transaksi" };
+    return { success: false, error: "Hanya Admin GA yang berhak menghapus data periode" };
   }
 
-  // Use service-role client to bypass RLS for destructive sweep
-  const { createAdminClient } = await import("@/lib/supabase/admin");
-  const admin = createAdminClient();
+  if (!ids || ids.length === 0) {
+    return { success: false, error: "Tidak ada jadwal periode yang dipilih" };
+  }
 
-  // Delete in dependency order: logs -> revisions -> items -> orders -> periods
-  const { error: logErr } = await admin.from("order_logs").delete().gte("created_at", "2000-01-01");
-  if (logErr) return { success: false, error: "Gagal menghapus order_logs: " + logErr.message };
+  const supabase = await createClient();
 
-  const { error: revErr } = await admin.from("revisions").delete().gte("created_at", "2000-01-01");
-  if (revErr) return { success: false, error: "Gagal menghapus revisi: " + revErr.message };
+  const { data: rpcRes, error: rpcErr } = await supabase.rpc("delete_selected_periods", {
+    p_period_ids: ids,
+  });
 
-  const { error: itemErr } = await admin.from("catering_items").delete().gte("created_at", "2000-01-01");
-  if (itemErr) return { success: false, error: "Gagal menghapus catering_items: " + itemErr.message };
+  if (!rpcErr && rpcRes) {
+    revalidatePath("/admin/periode");
+    revalidatePath("/admin/master/periode");
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/rekapitulasi");
+    return {
+      success: true,
+      message: (rpcRes as { message?: string })?.message ?? `${ids.length} jadwal periode berhasil dihapus`,
+    };
+  }
 
-  const { error: orderErr } = await admin.from("catering_orders").delete().gte("created_at", "2000-01-01");
-  if (orderErr) return { success: false, error: "Gagal menghapus catering_orders: " + orderErr.message };
-
-  const { error: periodErr } = await admin.from("periods").delete().gte("created_at", "2000-01-01");
-  if (periodErr) return { success: false, error: "Gagal menghapus periods: " + periodErr.message };
+  const { error: delErr } = await supabase.from("periods").delete().in("id", ids);
+  if (delErr) {
+    return {
+      success: false,
+      error: delErr.message.includes("foreign key") || delErr.message.includes("restrict")
+        ? "Sebagian periode memiliki pesanan terkait. Jalankan dummy_data_dashboard.sql di Supabase SQL Editor untuk mengaktifkan penghapusan menyeluruh."
+        : "Gagal menghapus data periode terpilih",
+    };
+  }
 
   revalidatePath("/admin/periode");
   revalidatePath("/admin/master/periode");
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/rekapitulasi");
-  return { success: true, message: "Seluruh data transaksi berhasil dihapus. Master data (shift, bagian, vendor, user) tetap tersimpan." };
+  return { success: true, message: `${ids.length} jadwal periode berhasil dihapus` };
+}
+
+// Reset all operational catering data for client handover
+export async function resetOperationalDataAction(confirmation: string): Promise<ActionResult> {
+  const profile = await getCurrentProfile();
+  if (!profile || profile.role !== "admin_ga") {
+    return { success: false, error: "Hanya Admin GA yang berhak mereset data operasional" };
+  }
+
+  if (confirmation.trim().toUpperCase() !== "HAPUS") {
+    return { success: false, error: 'Ketik "HAPUS" untuk mengonfirmasi pembersihan data' };
+  }
+
+  const supabase = await createClient();
+
+  const { data: rpcRes, error: rpcErr } = await supabase.rpc("reset_operational_data", {
+    p_konfirmasi: "HAPUS",
+  });
+
+  if (rpcErr) {
+    return {
+      success: false,
+      error: rpcErr.message || "Gagal mereset data operasional. Pastikan dummy_data_dashboard.sql telah dijalankan di Supabase.",
+    };
+  }
+
+  revalidatePath("/admin/periode");
+  revalidatePath("/admin/master/periode");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/rekapitulasi");
+  revalidatePath("/admin/input-catering");
+  revalidatePath("/admin/verifikasi");
+  return {
+    success: true,
+    message: (rpcRes as { message?: string })?.message ?? "Seluruh data operasional catering berhasil dibersihkan",
+  };
 }

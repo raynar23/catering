@@ -10,8 +10,7 @@ import { ShiftDialog } from "./ShiftDialog";
 import {
   PeriodListItem,
   getPeriodList,
-  deletePeriodAction,
-  deleteAllTransactionDataAction,
+  deleteSelectedPeriodsAction,
 } from "@/lib/actions/periode";
 import { getShiftList } from "@/lib/actions/shift";
 import { getVendorList, VendorRecord } from "@/lib/actions/vendor";
@@ -21,7 +20,17 @@ import { formatTimeShort, MONTH_OPTIONS } from "@/lib/date";
 import { waLink } from "@/lib/whatsapp";
 import { useToast } from "@/components/ui/Toast";
 import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
-import { Plus, Settings2, Pencil, Trash2, ArrowLeftRight, MessageSquare, DatabaseZap } from "lucide-react";
+import { ResetOperationalModal } from "./ResetOperationalModal";
+import {
+  Plus,
+  Settings2,
+  Pencil,
+  Trash2,
+  ArrowLeftRight,
+  MessageSquare,
+  CheckSquare,
+  X,
+} from "lucide-react";
 
 export function PeriodTable() {
   const { toast } = useToast();
@@ -50,10 +59,10 @@ export function PeriodTable() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [periodToDelete, setPeriodToDelete] = useState<PeriodListItem | null>(null);
 
-  // State for the destructive "delete all transaction data" action
-  const [deleteAllOpen, setDeleteAllOpen] = useState(false);
-  const [deleteAllChecked, setDeleteAllChecked] = useState(false);
-  const [deleteAllLoading, setDeleteAllLoading] = useState(false);
+  const [selectedPeriodIds, setSelectedPeriodIds] = useState<Set<string>>(new Set());
+  const [deleteSelectedConfirmOpen, setDeleteSelectedConfirmOpen] = useState(false);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   // Load shifts and vendors options
   const loadOptions = useCallback(async () => {
@@ -196,28 +205,68 @@ export function PeriodTable() {
     setGantiVendorOpen(true);
   };
 
-  const handleDeletePeriodClick = (row: PeriodListItem) => {
-    if (row.status !== "belum_input") {
-      toast({
-        title: "Penghapusan Ditolak",
-        description: "Hanya periode berstatus Belum Input yang dapat dihapus dari jadwal.",
-        variant: "danger",
-      });
-      return;
+  const handleToggleSelectAll = () => {
+    if (data.length === 0) return;
+    const allSelected = data.every((item) => selectedPeriodIds.has(item.id));
+    if (allSelected) {
+      setSelectedPeriodIds(new Set());
+    } else {
+      setSelectedPeriodIds(new Set(data.map((item) => item.id)));
     }
+  };
+
+  const handleToggleSelectOne = (id: string) => {
+    setSelectedPeriodIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleConfirmDeleteSelected = async () => {
+    if (selectedPeriodIds.size === 0) return;
+    setIsBulkDeleting(true);
+    try {
+      const res = await deleteSelectedPeriodsAction(Array.from(selectedPeriodIds));
+      setDeleteSelectedConfirmOpen(false);
+      if (res.success) {
+        toast({
+          title: "Berhasil Menghapus",
+          description: res.message ?? `${selectedPeriodIds.size} periode berhasil dihapus`,
+          variant: "success",
+        });
+        setSelectedPeriodIds(new Set());
+        loadData();
+      } else {
+        toast({
+          title: "Gagal Menghapus",
+          description: res.error ?? "Terjadi kesalahan saat menghapus data terpilih",
+          variant: "danger",
+        });
+      }
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  };
+
+  const handleDeletePeriodClick = (row: PeriodListItem) => {
     setPeriodToDelete(row);
     setDeleteConfirmOpen(true);
   };
 
   const handleConfirmDelete = async () => {
     if (!periodToDelete) return;
-    const res = await deletePeriodAction(periodToDelete.id);
+    const res = await deleteSelectedPeriodsAction([periodToDelete.id]);
     setDeleteConfirmOpen(false);
 
     if (res.success) {
       toast({
         title: "Berhasil",
-        description: res.message ?? "Jadwal periode berhasil dihapus",
+        description: "Jadwal periode berhasil dihapus",
         variant: "success",
       });
       loadData();
@@ -230,31 +279,34 @@ export function PeriodTable() {
     }
   };
 
-  // Wipe all catering transaction data, preserving master data
-  const handleDeleteAll = async () => {
-    if (!deleteAllChecked) return;
-    setDeleteAllLoading(true);
-    const res = await deleteAllTransactionDataAction();
-    setDeleteAllLoading(false);
-    setDeleteAllOpen(false);
-    setDeleteAllChecked(false);
-    if (res.success) {
-      toast({
-        title: "Semua Data Dihapus",
-        description: res.message ?? "Seluruh data transaksi berhasil dihapus.",
-        variant: "success",
-      });
-      loadData();
-    } else {
-      toast({
-        title: "Gagal",
-        description: res.error ?? "Terjadi kesalahan saat menghapus data",
-        variant: "danger",
-      });
-    }
-  };
-
   const columns: ColumnDef<PeriodListItem>[] = [
+    {
+      key: "select",
+      header: (
+        <div className="flex items-center justify-center">
+          <input
+            type="checkbox"
+            aria-label="Pilih semua baris pada tabel"
+            checked={data.length > 0 && data.every((row) => selectedPeriodIds.has(row.id))}
+            onChange={handleToggleSelectAll}
+            className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-[#003366]"
+          />
+        </div>
+      ),
+      width: 44,
+      align: "center",
+      render: (row) => (
+        <div className="flex items-center justify-center">
+          <input
+            type="checkbox"
+            aria-label={`Pilih periode ${row.tanggal}`}
+            checked={selectedPeriodIds.has(row.id)}
+            onChange={() => handleToggleSelectOne(row.id)}
+            className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-[#003366]"
+          />
+        </div>
+      ),
+    },
     {
       key: "tanggal",
       header: "Tanggal",
@@ -460,6 +512,15 @@ export function PeriodTable() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
+            onClick={() => setResetModalOpen(true)}
+            className="h-9 px-3 rounded-[8px] border border-red-200 dark:border-red-900/40 bg-red-50/60 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+            <span>Hapus Semua Data</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => {
               setSelectedShiftToEdit(shifts[0] ?? null);
               setShiftDialogOpen(true);
@@ -478,19 +539,37 @@ export function PeriodTable() {
             <Plus className="w-4 h-4" />
             <span>Tambah Jadwal</span>
           </button>
-
-          {/* Destructive action: wipe all transaction data for client handover */}
-          <button
-            type="button"
-            onClick={() => { setDeleteAllChecked(false); setDeleteAllOpen(true); }}
-            className="h-9 px-3 rounded-[8px] border border-danger/50 bg-danger-soft/30 hover:bg-danger-soft text-danger text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2"
-            title="Hapus seluruh data transaksi (untuk serah terima ke client)"
-          >
-            <DatabaseZap className="w-3.5 h-3.5" />
-            <span>Hapus Semua Data</span>
-          </button>
         </div>
       </div>
+
+      {/* Floating Selection Action Bar */}
+      {selectedPeriodIds.size > 0 && (
+        <div className="mb-2.5 px-4 py-2 rounded-[8px] bg-[#003366]/10 border border-[#003366]/20 flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150 select-none">
+          <div className="flex items-center gap-2 text-[#003366] dark:text-[#58A6FF] font-medium">
+            <CheckSquare className="w-4 h-4 shrink-0" />
+            <span>
+              <strong className="font-semibold">{selectedPeriodIds.size}</strong> jadwal periode terpilih
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedPeriodIds(new Set())}
+              className="text-text-muted hover:text-text underline text-[11px] ml-2 cursor-pointer flex items-center gap-1"
+            >
+              <X className="w-3 h-3" />
+              <span>Batal</span>
+            </button>
+          </div>
+          <button
+            type="button"
+            disabled={isBulkDeleting}
+            onClick={() => setDeleteSelectedConfirmOpen(true)}
+            className="h-7 px-3 rounded-[6px] bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Hapus Terpilih ({selectedPeriodIds.size})</span>
+          </button>
+        </div>
+      )}
 
       <DataTable
         columns={columns}
@@ -529,77 +608,31 @@ export function PeriodTable() {
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
         title="Hapus Jadwal Periode"
-        description={`Apakah Anda yakin ingin menghapus jadwal periode tanggal ${periodToDelete ? formatDate(periodToDelete.tanggal) : ""} (${periodToDelete?.shift_nama})?`}
+        description={`Apakah Anda yakin ingin menghapus jadwal periode tanggal ${periodToDelete ? formatDate(periodToDelete.tanggal) : ""} (${periodToDelete?.shift_nama}) beserta seluruh pesanan terkait?`}
         confirmLabel="Hapus"
         variant="danger"
         onConfirm={handleConfirmDelete}
       />
 
-      {/* Modal: Hapus Semua Data Transaksi */}
-      {deleteAllOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-all-title"
-        >
-          <div className="bg-surface border border-danger/30 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="shrink-0 w-10 h-10 rounded-full bg-danger-soft flex items-center justify-center">
-                <DatabaseZap className="w-5 h-5 text-danger" />
-              </div>
-              <div>
-                <h2 id="delete-all-title" className="text-base font-semibold text-text">
-                  Hapus Semua Data Transaksi
-                </h2>
-                <p className="text-xs text-text-muted mt-1">
-                  Tindakan ini akan menghapus <span className="font-semibold text-danger">seluruh periode, pesanan, item, revisi, dan log</span> secara permanen.
-                  Master data (shift, bagian, vendor, akun pengguna) <span className="font-semibold text-text">tidak akan terhapus</span>.
-                </p>
-              </div>
-            </div>
+      <ConfirmDialog
+        open={deleteSelectedConfirmOpen}
+        onOpenChange={setDeleteSelectedConfirmOpen}
+        title="Hapus Data Terpilih"
+        description={`Apakah Anda yakin ingin menghapus ${selectedPeriodIds.size} jadwal periode yang dipilih? Seluruh pesanan, kuota porsi, dan riwayat revisi terkait akan dihapus secara permanen.`}
+        confirmLabel={`Hapus ${selectedPeriodIds.size} Periode`}
+        variant="danger"
+        isProcessing={isBulkDeleting}
+        onConfirm={handleConfirmDeleteSelected}
+      />
 
-            <div className="bg-bg border border-border rounded-xl p-4 mb-5">
-              <label
-                htmlFor="confirm-delete-all"
-                className="flex items-start gap-3 cursor-pointer select-none"
-              >
-                <input
-                  id="confirm-delete-all"
-                  type="checkbox"
-                  checked={deleteAllChecked}
-                  onChange={(e) => setDeleteAllChecked(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded border-border accent-danger cursor-pointer"
-                />
-                <span className="text-xs text-text leading-relaxed">
-                  Saya memahami bahwa seluruh data catering akan dihapus permanen dan
-                  <span className="font-semibold"> tidak dapat dipulihkan</span>. Tindakan ini
-                  hanya untuk keperluan serah terima ke client.
-                </span>
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => { setDeleteAllOpen(false); setDeleteAllChecked(false); }}
-                disabled={deleteAllLoading}
-                className="h-9 px-4 rounded-[8px] border border-border bg-surface hover:bg-bg text-text text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteAll}
-                disabled={!deleteAllChecked || deleteAllLoading}
-                className="h-9 px-4 rounded-[8px] bg-danger hover:bg-danger/90 active:bg-danger/80 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2"
-              >
-                {deleteAllLoading ? "Menghapus..." : "Hapus Semua Data"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ResetOperationalModal
+        open={resetModalOpen}
+        onOpenChange={setResetModalOpen}
+        onSuccess={() => {
+          setSelectedPeriodIds(new Set());
+          loadData();
+        }}
+      />
     </div>
   );
 }
