@@ -64,6 +64,11 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
         icon: "periode",
       },
       {
+        title: "Impor Data",
+        href: "/admin/impor-data",
+        icon: "input",
+      },
+      {
         title: "Manajemen User",
         href: "/admin/manajemen-user",
         icon: "users",

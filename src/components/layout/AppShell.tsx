@@ -1,11 +1,16 @@
 "use client";
 
+// 100dvh root shell enforcing desktop zero-scroll architecture, live realtime notifications, and mobile drawer
 import React, { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { Profile } from "@/lib/types";
 import { getNavGroupsForRole } from "@/lib/nav";
 import { ToastProvider } from "@/components/ui/Toast";
+import {
+  RealtimeNotificationProvider,
+  useNotifications,
+} from "./RealtimeNotificationProvider";
 
 interface AppShellProps {
   profile: Profile | null;
@@ -13,18 +18,27 @@ interface AppShellProps {
   badges?: Record<string, number>;
 }
 
-// 100dvh root shell enforcing desktop zero-scroll architecture and mobile drawer
-export function AppShell({ profile, children, badges = {} }: AppShellProps) {
+function AppShellInner({
+  profile,
+  children,
+  initialBadges = {},
+}: {
+  profile: Profile | null;
+  children: React.ReactNode;
+  initialBadges?: Record<string, number>;
+}) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const role = profile?.role ?? "vendor";
   const navGroups = getNavGroupsForRole(role);
+  const { notificationCount, notificationItems, badges } = useNotifications();
+
+  const mergedBadges = { ...initialBadges, ...badges };
 
   return (
-    <ToastProvider>
-      <div className="h-dvh max-h-dvh w-full overflow-hidden flex bg-bg text-text">
+    <div className="h-dvh max-h-dvh w-full overflow-hidden flex bg-bg text-text">
       {/* Desktop Fixed Sidebar */}
       <div className="hidden lg:flex shrink-0 h-full">
-        <Sidebar groups={navGroups} badges={badges} />
+        <Sidebar groups={navGroups} badges={mergedBadges} />
       </div>
 
       {/* Mobile Drawer Overlay */}
@@ -41,7 +55,7 @@ export function AppShell({ profile, children, badges = {} }: AppShellProps) {
           <div className="relative z-10 w-[264px] h-full shadow-2xl animate-in slide-in-from-left duration-200">
             <Sidebar
               groups={navGroups}
-              badges={badges}
+              badges={mergedBadges}
               onItemClick={() => setDrawerOpen(false)}
             />
           </div>
@@ -53,13 +67,25 @@ export function AppShell({ profile, children, badges = {} }: AppShellProps) {
         <Topbar
           profile={profile}
           onMenuToggle={() => setDrawerOpen(true)}
-          notificationCount={badges.pendingCount ?? 0}
+          notificationCount={notificationCount}
+          notificationItems={notificationItems}
         />
         <main className="flex-1 min-h-0 flex flex-col overflow-y-auto lg:overflow-hidden p-4 sm:p-6">
           {children}
         </main>
       </div>
-      </div>
+    </div>
+  );
+}
+
+export function AppShell({ profile, children, badges = {} }: AppShellProps) {
+  return (
+    <ToastProvider>
+      <RealtimeNotificationProvider profile={profile} initialBadges={badges}>
+        <AppShellInner profile={profile} initialBadges={badges}>
+          {children}
+        </AppShellInner>
+      </RealtimeNotificationProvider>
     </ToastProvider>
   );
 }

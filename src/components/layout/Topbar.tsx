@@ -7,9 +7,12 @@ import { Profile } from "@/lib/types";
 import { signOutAction } from "@/lib/auth/sign-out";
 import { cn } from "@/lib/utils";
 
+import { NotificationItem } from "@/lib/realtime/notifications";
+
 interface TopbarProps {
   profile: Profile | null;
   notificationCount?: number;
+  notificationItems?: NotificationItem[];
   onMenuToggle?: () => void;
   className?: string;
 }
@@ -18,6 +21,7 @@ interface TopbarProps {
 export function Topbar({
   profile,
   notificationCount = 0,
+  notificationItems = [],
   onMenuToggle,
   className,
 }: TopbarProps) {
@@ -116,8 +120,28 @@ export function Topbar({
                   </span>
                 )}
               </div>
-              <div className="py-6 text-center text-xs text-text-muted">
-                Tidak ada notifikasi
+              <div className="max-h-72 overflow-y-auto divide-y divide-border -mx-1">
+                {notificationItems && notificationItems.length > 0 ? (
+                  notificationItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={item.tautan}
+                      onClick={() => setNotifOpen(false)}
+                      className="block p-2 hover:bg-bg rounded-[6px] transition-colors cursor-pointer"
+                    >
+                      <p className="text-xs font-semibold text-text leading-tight truncate">
+                        {item.judul}
+                      </p>
+                      <p className="text-[11px] text-text-muted mt-0.5 line-clamp-2 leading-snug">
+                        {item.pesan}
+                      </p>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="py-6 text-center text-xs text-text-muted">
+                    Tidak ada notifikasi baru
+                  </div>
+                )}
               </div>
             </div>
           )}

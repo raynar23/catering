@@ -43,9 +43,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toast = useCallback(
-    ({ title, description, variant = "default", duration = 3000 }: Omit<ToastItem, "id">) => {
+    ({ title, description, variant = "default", duration = 4000 }: Omit<ToastItem, "id">) => {
       const id = `${baseId}-${Date.now()}-${Math.random()}`;
-      setToasts((prev) => [...prev, { id, title, description, variant, duration }]);
+      // Enforce maximum 3 concurrent toasts to prevent notification clutter
+      setToasts((prev) => [...prev.slice(-2), { id, title, description, variant, duration }]);
 
       if (duration > 0) {
         setTimeout(() => {
