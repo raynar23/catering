@@ -1,0 +1,39 @@
+"use client";
+
+import React, { useEffect } from "react";
+import { AlertCircle, RefreshCw } from "lucide-react";
+
+interface VendorErrorProps {
+  error: Error & { digest?: string };
+  reset: () => void;
+}
+
+// Vendor error boundary rendered inside AppShell
+export default function VendorError({ error, reset }: VendorErrorProps) {
+  useEffect(() => {
+    // Log unexpected vendor segment error
+    console.error("Vendor workspace error:", error);
+  }, [error]);
+
+  return (
+    <div className="flex-1 min-h-0 flex items-center justify-center p-6">
+      <div className="w-full max-w-sm bg-surface border border-border rounded-[10px] p-5 shadow-xs text-center">
+        <div className="w-10 h-10 rounded-full bg-danger-soft text-danger flex items-center justify-center mx-auto mb-3">
+          <AlertCircle className="w-5 h-5" />
+        </div>
+        <h2 className="text-sm font-bold text-text mb-1">Gagal Memuat Portal Vendor</h2>
+        <p className="text-xs text-text-muted mb-4 leading-relaxed">
+          Terjadi kendala saat memuat data pesanan vendor. Silakan muat ulang komponen.
+        </p>
+        <button
+          type="button"
+          onClick={() => reset()}
+          className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span>Muat Ulang</span>
+        </button>
+      </div>
+    </div>
+  );
+}

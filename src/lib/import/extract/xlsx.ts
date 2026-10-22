@@ -1,5 +1,6 @@
 // ExcelJS extractor resolving merged cells, stored values, and 5,000 row limits
 import ExcelJS from "exceljs";
+import { Readable } from "stream";
 import { ExtractorInterface, RawTableData } from "../types";
 
 export const MAX_IMPORT_ROWS = 5000;
@@ -39,9 +40,7 @@ export class XlsxExtractor implements ExtractorInterface {
     const isCsv = filename.toLowerCase().endsWith(".csv");
 
     if (isCsv) {
-      const stream = require("stream");
-      const bufferStream = new stream.PassThrough();
-      bufferStream.end(buffer);
+      const bufferStream = Readable.from(buffer);
       await workbook.csv.read(bufferStream);
     } else {
       await workbook.xlsx.load(buffer as any);
