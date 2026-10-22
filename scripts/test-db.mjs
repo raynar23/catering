@@ -125,14 +125,35 @@ async function runTests() {
     "Test 4: Direct client insert into catering_orders is blocked"
   );
 
-  // TEST 5: Direct delete on order_logs must fail
+  // TEST 5: Direct delete on order_logs must fail (append-only audit)
+  const { data: tempLog } = await adminClient
+    .from("order_logs")
+    .insert({
+      action: "input_awal",
+      aktor_id: vendorAAuth.user.id,
+      catatan: "Security test log"
+    })
+    .select()
+    .single();
+
   const { error: delErr } = await vendorAClient
     .from("order_logs")
     .delete()
-    .neq("id", "00000000-0000-0000-0000-000000000000");
+    .eq("id", tempLog?.id || "00000000-0000-0000-0000-000000000000");
+
+  let stillExists = false;
+  if (tempLog) {
+    const { data: chkLog } = await adminClient
+      .from("order_logs")
+      .select("id")
+      .eq("id", tempLog.id)
+      .single();
+    stillExists = chkLog !== null;
+    await adminClient.from("order_logs").delete().eq("id", tempLog.id);
+  }
 
   assert(
-    delErr !== null,
+    delErr !== null || stillExists,
     "Test 5: Direct delete on order_logs is blocked (append-only audit)"
   );
 
