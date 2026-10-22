@@ -126,48 +126,48 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Summary Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div className="p-3 bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700 rounded-lg text-center">
-          <p className="text-xs text-neutral-500 uppercase font-medium">Total Baris</p>
-          <p className="text-xl font-bold text-neutral-900 dark:text-neutral-100">{summary.total}</p>
+        <div className="p-3 bg-bg border border-border rounded-[8px] text-center">
+          <p className="text-xs text-text-muted uppercase font-medium">Total Baris</p>
+          <p className="text-xl font-bold text-text tabular-nums">{summary.total}</p>
         </div>
 
-        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg text-center">
-          <p className="text-xs text-emerald-700 dark:text-emerald-400 uppercase font-medium">Cocok</p>
-          <p className="text-xl font-bold text-emerald-800 dark:text-emerald-300">{summary.cocok}</p>
+        <div className="p-3 bg-[#EBF7EE] border border-[#C8E9D0] rounded-[8px] text-center">
+          <p className="text-xs text-success uppercase font-medium">Cocok</p>
+          <p className="text-xl font-bold text-success tabular-nums">{summary.cocok}</p>
         </div>
 
-        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg text-center">
-          <p className="text-xs text-blue-700 dark:text-blue-400 uppercase font-medium">Baru</p>
-          <p className="text-xl font-bold text-blue-800 dark:text-blue-300">{summary.baru}</p>
+        <div className="p-3 bg-primary-50 border border-primary/20 rounded-[8px] text-center">
+          <p className="text-xs text-primary uppercase font-medium">Baru</p>
+          <p className="text-xl font-bold text-primary tabular-nums">{summary.baru}</p>
         </div>
 
-        <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-center">
-          <p className="text-xs text-amber-700 dark:text-amber-400 uppercase font-medium">Perlu Dicek</p>
-          <p className="text-xl font-bold text-amber-800 dark:text-amber-300">{summary.perlu_cek}</p>
+        <div className="p-3 bg-[#FFF8E6] border border-[#FFE2A4] rounded-[8px] text-center">
+          <p className="text-xs text-warning uppercase font-medium">Perlu Dicek</p>
+          <p className="text-xl font-bold text-warning tabular-nums">{summary.perlu_cek}</p>
         </div>
 
-        <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg text-center col-span-2 sm:col-span-1">
-          <p className="text-xs text-red-700 dark:text-red-400 uppercase font-medium">Error</p>
-          <p className="text-xl font-bold text-red-800 dark:text-red-300">{summary.error}</p>
+        <div className="p-3 bg-danger-soft border border-danger/20 rounded-[8px] text-center col-span-2 sm:col-span-1">
+          <p className="text-xs text-danger uppercase font-medium">Error</p>
+          <p className="text-xl font-bold text-danger tabular-nums">{summary.error}</p>
         </div>
       </div>
 
       {/* Comparison Panel */}
-      <div className="p-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg flex flex-wrap items-center justify-between gap-4">
+      <div className="p-4 bg-surface border border-border rounded-[8px] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-xs">
-          <span className="font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wider">
+          <span className="font-semibold text-text-muted uppercase tracking-wider">
             Perbandingan Basis Data:
           </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 font-medium">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-primary-50 text-primary font-medium border border-primary/20">
             Baru: <strong>{countBaru}</strong>
           </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-medium">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-[#FFF8E6] text-warning font-medium border border-[#FFE2A4]">
             Diubah: <strong>{countDiubah}</strong>
           </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-medium">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-bg text-text-muted font-medium border border-border">
             Sama: <strong>{countSama}</strong>
           </span>
         </div>
@@ -176,7 +176,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
           <button
             type="button"
             onClick={handleAddRow}
-            className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-xs font-medium rounded-md transition-colors"
+            className="px-3 py-1.5 border border-primary/30 bg-primary-50 hover:bg-primary/10 text-primary text-xs font-medium rounded-[6px] transition-colors"
           >
             + Tambah Baris
           </button>
@@ -184,7 +184,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
             <button
               type="button"
               onClick={handleDeleteSelected}
-              className="px-3 py-1.5 bg-red-100 hover:bg-red-200 dark:bg-red-900/40 text-red-800 dark:text-red-300 text-xs font-medium rounded-md transition-colors"
+              className="px-3 py-1.5 bg-danger-soft hover:bg-danger/10 text-danger border border-danger/20 text-xs font-medium rounded-[6px] transition-colors"
             >
               Hapus ({selectedIds.size})
             </button>
@@ -193,7 +193,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex border-b border-neutral-200 dark:border-neutral-800">
+      <div className="flex border-b border-border">
         {(["semua", "cocok", "baru", "perlu_cek", "error"] as const).map((st) => {
           const isActive = statusFilter === st;
           return (
@@ -201,10 +201,10 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
               key={st}
               type="button"
               onClick={() => setStatusFilter(st)}
-              className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
+              className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer ${
                 isActive
-                  ? "border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400"
-                  : "border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-text-muted hover:text-text"
               }`}
             >
               {st === "semua" ? "Semua Status" : st.replace("_", " ")}
@@ -214,9 +214,9 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
       </div>
 
       {/* Editable Table */}
-      <div className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-x-auto bg-white dark:bg-neutral-900">
+      <div className="border border-border rounded-[8px] overflow-x-auto bg-surface">
         <table className="w-full text-left text-sm">
-          <thead className="bg-neutral-50 dark:bg-neutral-800/60 text-xs font-semibold uppercase text-neutral-600 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+          <thead className="bg-bg text-xs font-semibold uppercase text-text-muted border-b border-border">
             <tr>
               <th className="p-3 w-10 text-center">
                 <input
@@ -342,15 +342,15 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
       </div>
 
       {/* Options checkboxes */}
-      <div className="p-4 bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-200 dark:border-neutral-700 rounded-lg space-y-3">
+      <div className="p-4 bg-bg border border-border rounded-[8px] space-y-3">
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={!!options.buat_vendor_baru}
             onChange={(e) => onOptionsChange({ ...options, buat_vendor_baru: e.target.checked })}
-            className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+            className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
           />
-          <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <span className="text-sm font-medium text-text">
             Buat vendor baru otomatis bila belum terdaftar di database
           </span>
         </label>
@@ -360,27 +360,27 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
             type="checkbox"
             checked={!!options.timpa_periode}
             onChange={(e) => onOptionsChange({ ...options, timpa_periode: e.target.checked })}
-            className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+            className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
           />
-          <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <span className="text-sm font-medium text-text">
             Timpa periode yang sudah terisi (termasuk pesanan yang bukan berstatus draft)
           </span>
         </label>
       </div>
 
       {/* Navigation Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-neutral-800">
+      <div className="flex items-center justify-between pt-4 border-t border-border">
         <button
           type="button"
           onClick={onReset}
-          className="px-4 py-2 border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-sm font-medium rounded-lg transition-colors"
+          className="px-4 py-2 border border-border hover:bg-bg text-text text-sm font-medium rounded-[8px] transition-colors"
         >
           Unggah Ulang
         </button>
 
         <div className="flex items-center gap-3">
           {hasErrors && (
-            <span className="text-xs text-red-600 dark:text-red-400 font-medium">
+            <span className="text-xs text-danger font-medium">
               Selesaikan atau hapus seluruh baris Error sebelum melanjutkan.
             </span>
           )}
@@ -389,7 +389,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
             type="button"
             onClick={onProceedToConfirmation}
             disabled={hasErrors || rows.length === 0}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors"
+            className="px-5 py-2 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-[8px] transition-colors"
           >
             Lanjut ke Konfirmasi
           </button>

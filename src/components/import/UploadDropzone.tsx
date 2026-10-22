@@ -78,7 +78,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
         setOcrProgress(100);
         setOcrStatus("Pemindaian OCR selesai, mengirim hasil...");
         await onAnalyze(selectedFile, forceType, text);
-      } catch (err: any) {
+      } catch (_err: unknown) {
         setOcrProgress(null);
         setOcrStatus("");
       }
@@ -99,17 +99,17 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-5">
       {/* File Dropzone */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+        className={`relative border-2 border-dashed rounded-[10px] p-8 text-center cursor-pointer transition-all ${
           isDragging
-            ? "border-blue-500 bg-blue-50/50 dark:bg-blue-950/20"
-            : "border-neutral-300 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-600 bg-white dark:bg-neutral-900"
+            ? "border-primary bg-primary-50"
+            : "border-border hover:border-primary/50 bg-surface"
         }`}
       >
         <input
@@ -121,21 +121,22 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
         />
 
         <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500 dark:text-neutral-400">
+          {/* Upload icon container using primary color */}
+          <div className="w-12 h-12 rounded-full bg-primary-50 flex items-center justify-center text-primary">
             <span className="text-xl font-bold">↑</span>
           </div>
 
           <div>
-            <p className="text-base font-semibold text-neutral-800 dark:text-neutral-200">
+            <p className="text-sm font-semibold text-text">
               {selectedFile ? selectedFile.name : "Tarik dan lepas berkas ke sini, atau klik untuk memilih"}
             </p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            <p className="text-xs text-text-muted mt-1">
               Mendukung XLSX, CSV, DOCX, PDF, dan Gambar Pindaian (Maksimal 10 MB)
             </p>
           </div>
 
           {selectedFile && (
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-md text-xs font-medium text-neutral-700 dark:text-neutral-300">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-50 border border-primary/20 rounded-md text-xs font-medium text-primary">
               <span>{formatFileSize(selectedFile.size)}</span>
               <span>•</span>
               <span>Mesin: {getEngineBadge() === "ocr" ? "OCR Browser" : "Aturan"}</span>
@@ -146,14 +147,14 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
 
       {/* OCR Progress Display */}
       {ocrProgress !== null && (
-        <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-lg space-y-2">
-          <div className="flex justify-between text-xs font-medium text-blue-900 dark:text-blue-300">
+        <div className="p-4 bg-primary-50 border border-primary/20 rounded-[8px] space-y-2">
+          <div className="flex justify-between text-xs font-medium text-primary">
             <span>{ocrStatus}</span>
             <span>{ocrProgress}%</span>
           </div>
-          <div className="w-full h-2 bg-blue-200 dark:bg-blue-900 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-primary/10 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-600 dark:bg-blue-500 transition-all duration-200"
+              className="h-full bg-primary transition-all duration-200"
               style={{ width: `${ocrProgress}%` }}
             />
           </div>
@@ -161,16 +162,16 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
       )}
 
       {/* Options Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
             Jenis Dokumen
           </label>
           <select
             value={forceType}
             onChange={(e) => setForceType(e.target.value as DocumentType)}
             disabled={isAnalyzing}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-3 pr-8 py-2 text-sm bg-surface border border-border rounded-[8px] text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
           >
             {DOCUMENT_TYPES.map((dt) => (
               <option key={dt.id} value={dt.id}>
@@ -180,15 +181,15 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
           </select>
         </div>
 
-        <div className="flex flex-col justify-end">
-          <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-1.5 opacity-0 sm:opacity-100">
+        <div>
+          <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1.5">
             Aksi
           </label>
           <button
             type="button"
             onClick={handleStartAnalysis}
             disabled={!selectedFile || isAnalyzing}
-            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 disabled:cursor-not-allowed text-white font-medium text-sm rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full h-9 px-4 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-[8px] transition-colors flex items-center justify-center gap-2"
           >
             {isAnalyzing ? (
               <>
@@ -204,15 +205,15 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
 
       {/* AI Fallback Action if available */}
       {showAiFallbackOption && (
-        <div className="p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 rounded-lg flex items-center justify-between">
-          <div className="text-xs text-amber-800 dark:text-amber-300">
-            <p className="font-semibold">Keyakinan parser aturan rendah pada berkas ini.</p>
-            <p>Anda dapat mencoba analisis dengan AI Fallback (Gemini).</p>
+        <div className="p-4 bg-primary-50 border border-primary/20 rounded-[8px] flex items-center justify-between gap-4">
+          <div className="text-xs text-text">
+            <p className="font-semibold text-text">Keyakinan parser aturan rendah pada berkas ini.</p>
+            <p className="text-text-muted">Anda dapat mencoba analisis dengan AI Fallback (Gemini).</p>
           </div>
           <button
             type="button"
             onClick={onAiFallbackRequested}
-            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-md transition-colors"
+            className="px-3 py-1.5 bg-primary hover:bg-[#0E63A1] text-white text-xs font-semibold rounded-[6px] transition-colors shrink-0"
           >
             Coba dengan AI
           </button>
@@ -221,7 +222,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-400 rounded-lg text-sm">
+        <div className="p-4 bg-danger-soft border border-danger/20 text-danger rounded-[8px] text-sm">
           {error}
         </div>
       )}
