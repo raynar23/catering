@@ -142,7 +142,7 @@ export function RekapHarianTable({
           <select
             value={data.page_size}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="h-7 text-xs rounded border border-border bg-surface px-1.5 text-text cursor-pointer"
+            className="h-7 text-xs rounded border border-border bg-surface pl-1.5 pr-6 text-text cursor-pointer"
           >
             <option value={15}>15</option>
             <option value={20}>20</option>

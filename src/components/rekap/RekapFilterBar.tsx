@@ -115,8 +115,8 @@ export function RekapFilterBar({
         </button>
       </div>
 
-      {/* Bottom Row: Date Presets, DateRangePicker, and Dropdowns */}
-      <div className="flex flex-wrap items-center gap-2.5">
+      {/* Bottom Row: Date Presets, DateRangePicker, and Dropdowns — fills full width so last filter aligns with Ekspor Dokumen */}
+      <div className="flex flex-wrap items-center gap-2.5 w-full">
         {/* Date Preset Segmented Control */}
         <div className="inline-flex items-center bg-[#F2F2F7] p-1 rounded-[8px] gap-1 shrink-0">
           {PRESET_OPTIONS.map((opt) => {
@@ -147,12 +147,15 @@ export function RekapFilterBar({
           className="shrink-0"
         />
 
+        {/* Spacer pushes the dropdowns to fill the rest of the row */}
+        <div className="flex-1 min-w-0" />
+
         {/* Filter: Vendor */}
         <select
           value={vendorId}
           onChange={(e) => onVendorChange(e.target.value)}
           disabled={isLoading}
-          className="h-9 text-xs rounded-[8px] border border-border bg-surface px-2.5 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-2.5 pr-8 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
           aria-label="Filter Vendor"
         >
           <option value="">Semua Vendor</option>
@@ -168,7 +171,7 @@ export function RekapFilterBar({
           value={bagianId}
           onChange={(e) => onBagianChange(e.target.value)}
           disabled={isLoading}
-          className="h-9 text-xs rounded-[8px] border border-border bg-surface px-2.5 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-2.5 pr-8 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
           aria-label="Filter Bagian"
         >
           <option value="">Semua Bagian</option>
@@ -184,7 +187,7 @@ export function RekapFilterBar({
           value={shiftId}
           onChange={(e) => onShiftChange(e.target.value)}
           disabled={isLoading}
-          className="h-9 text-xs rounded-[8px] border border-border bg-surface px-2.5 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-2.5 pr-8 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
           aria-label="Filter Shift"
         >
           <option value="">Semua Shift</option>

@@ -95,7 +95,7 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-[12px] px-2.5 py-1.5 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
+              className="text-[12px] pl-2.5 pr-8 py-1.5 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
             >
               <option value="all">Semua Respon</option>
               <option value="menunggu">Menunggu</option>
@@ -106,7 +106,7 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
             <select
               value={progresFilter}
               onChange={(e) => setProgresFilter(e.target.value)}
-              className="text-[12px] px-2.5 py-1.5 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
+              className="text-[12px] pl-2.5 pr-8 py-1.5 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
             >
               <option value="all">Semua Progres</option>
               <option value="menunggu">Menunggu</option>

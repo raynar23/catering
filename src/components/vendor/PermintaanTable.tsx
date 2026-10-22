@@ -82,7 +82,7 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-[13px] px-3 py-2 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
+              className="text-[13px] pl-3 pr-10 py-2 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
             >
               <option value="all">Semua Status Respon</option>
               <option value="menunggu">Menunggu Respon</option>
