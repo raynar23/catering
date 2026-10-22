@@ -1,6 +1,6 @@
 # Dokumen Handover & Ringkasan Pengerjaan Proyek Catering TPS
 ### Sistem Pengelolaan Data Catering Karyawan - PT Terminal Petikemas Surabaya
-*Pembaruan Terakhir: 22 Oktober 2026 (Tahap 12 - Impor Data Cerdas: Parser Aturan, OCR, AI Opsional)*
+*Pembaruan Terakhir: 22 Oktober 2026 (Tahap 13 - Realtime dan Notifikasi)*
 
 ---
 
@@ -179,7 +179,52 @@ Skrip membaca berkas dari `data-real/` (di-gitignore) atau fixture sintetis, men
 
 ---
 
-## 6. Struktur Rute Halaman Aplikasi
+## 6. Modul Realtime & Notifikasi (Tahap 13)
+
+### A. Konfigurasi Publikasi Supabase Realtime & Isolasi RLS
+1. **Publikasi Tabel**:
+   - Menambahkan tabel `periods`, `catering_orders`, `revisions`, dan `order_logs` ke publikasi bawaan `supabase_realtime` via migrasi [supabase/migrations/016_realtime_setup.sql](supabase/migrations/016_realtime_setup.sql).
+   - Mengatur `REPLICA IDENTITY FULL` pada seluruh tabel terkait agar event `UPDATE` menyertakan data rekaman lengkap (`old` dan `new`), mencegah payload null pada event update.
+2. **Isolasi RLS Teruji**:
+   - Supabase Realtime sepenuhnya mematuhi RLS PostgreSQL yang telah diperketat pada Tahap 08b (`is_admin()` dan `my_vendor_id()`).
+   - Vendor A hanya menerima broadcast WebSocket untuk pesanan dan revisi miliknya sendiri; Vendor A tidak pernah menerima event milik Vendor B.
+   - Telah dibuktikan dan diverifikasi via tes isolasi SQL di [supabase/tests/07_realtime_isolation.sql](supabase/tests/07_realtime_isolation.sql).
+
+### B. Hook `useRealtimeTable`
+- Disediakan hook reusable [useRealtimeTable.ts](src/lib/realtime/useRealtimeTable.ts) dengan fitur:
+  - Pembersihan (*cleanup*) otomatis channel WebSocket saat komponen unmount untuk mencegah kebocoran langganan saat navigasi antar-halaman.
+  - Penanganan koneksi putus dan sambung ulang (*reconnection handling*): memicu callback `onReconnect` untuk memuat ulang data segar dari server saat koneksi pulih dari gangguan jaringan.
+  - Mekanisme *debounce* (bawaan 300ms) untuk mencegah rendering berulang berlebih saat terjadi rentetan event database secara simultan.
+
+### C. Lonceng Notifikasi Topbar & Angka Sidebar
+1. **Lonceng Topbar & Dropdown**:
+   - Mengambil data melalui RPC `get_notifikasi()` yang telah ditingkatkan:
+     - Admin GA: menampilkan revisi menunggu verifikasi, pesanan yang ditolak mitra vendor, dan respons kesanggupan baru.
+     - Vendor: menampilkan permintaan pesanan baru dan revisi yang belum direspons.
+   - Badge angka kecil di sudut lonceng diperbarui secara real-time saat event tiba.
+   - Dropdown lonceng menampilkan hingga 10 item notifikasi terbaru dengan teks format informatif dan tautan langsung ke halaman kerja terkait (`/admin/verifikasi`, `/vendor/ketersediaan`, `/vendor/permintaan`).
+2. **Badge Sidebar Dinamis**:
+   - Menu **Verifikasi Data** pada sidebar Admin GA menampilkan badge merah berisi jumlah revisi pending secara langsung.
+   - Menu **Ketersediaan** pada sidebar Vendor menampilkan badge merah berisi jumlah pesanan/revisi yang belum direspons secara langsung.
+
+### D. Toast Ringkas & Tanpa Suara
+- Notifikasi toast otomatis muncul seketika saat event penting diterima:
+  - *"Permintaan Baru dari GA"* saat admin mengirim jadwal pesanan ke vendor.
+  - *"Vendor Menyanggupi Pesanan"* atau *"Vendor Berhalangan"* saat mitra merespons.
+  - *"Revisi Porsi Baru"* saat revisi diajukan atau diverifikasi.
+- Toast bersifat senyap (tanpa audio yang mengganggu), ringkas, dan dibatasi maksimal 3 toast bersamaan (`prev.slice(-2)`) untuk menghindari penumpukan visual.
+
+### E. Pembaruan Baris Tabel Secara Langsung (In-Place Updates)
+- Tabel operasional utama memperbarui baris terkait secara *in-place* saat event database diterima tanpa mereset paginasi, filter pencarian, maupun posisi scroll pengguna:
+  1. **Periode Catering** (`/admin/periode` -> [PeriodTable.tsx](src/components/admin/PeriodTable.tsx)): Memperbarui status pesanan, respons vendor, progres vendor, dan vendor penanggung jawab seketika.
+  2. **Verifikasi Data** (`/admin/verifikasi` -> [VerifikasiView.tsx](src/components/verifikasi/VerifikasiView.tsx)): Memperbarui status persetujuan revisi dan antrean penolakan vendor seketika.
+  3. **Ketersediaan** (`/vendor/ketersediaan` -> [KetersediaanQueue.tsx](src/components/vendor/KetersediaanQueue.tsx)): Menghapus pesanan/revisi yang telah direspons dan memuat permintaan baru tanpa mengubah tab aktif.
+  4. **Progres Pengiriman** (`/vendor/progres` -> [ProgresWorkflowCard.tsx](src/components/vendor/ProgresWorkflowCard.tsx)): Memajukan tahapan pengiriman pesanan secara live.
+  5. **Panel Dashboard Vendor** (`/vendor/dashboard` -> [PesananHariIniPanel.tsx](src/components/vendor/PesananHariIniPanel.tsx)): Memperbarui status respon dan progres 3-shift hari ini secara live.
+
+---
+
+## 7. Struktur Rute Halaman Aplikasi
 
 | Rute URL | Pengguna | Fungsi & Fitur Utama |
 | :--- | :--- | :--- |
@@ -189,17 +234,17 @@ Skrip membaca berkas dari `data-real/` (di-gitignore) atau fixture sintetis, men
 | `/admin/laporan` | Admin GA | Rute alias resmi yang otomatis mengarahkan ke modul rekapitulasi dan ekspor terpadu. |
 | `/admin/impor-data` | Admin GA | Wizard impor cerdas 3-tahap (Unggah, Periksa, Konfirmasi) dengan editor tabel dan OCR browser. |
 | `/admin/input-catering` | Admin GA | Grid harian 3 shift berdampingan (Shift 3, 1, 2), pelacakan sel kotor, tombol kirim ke vendor. |
-| `/admin/periode` | Admin GA | Manajemen jadwal periode, filter multi-dimensi, tombol ganti vendor terjadwal/darurat via RPC. |
-| `/admin/verifikasi` | Admin GA | Verifikasi perubahan kuota (revisi) dan pemantauan respons kesanggupan vendor. |
+| `/admin/periode` | Admin GA | Manajemen jadwal periode, filter multi-dimensi, tombol ganti vendor, dan pembaruan baris realtime. |
+| `/admin/verifikasi` | Admin GA | Verifikasi perubahan kuota (revisi) dan respons penolakan vendor dengan badge dinamis & pembaruan realtime. |
 | `/admin/riwayat/[periodId]` | Admin GA | Kronologi audit timeline lengkap per periode katering dari log append-only. |
 | `/admin/data-bagian` | Admin GA | Master data bagian operasional, kelompok, lokasi antar fisik, dan catatan antar. |
 | `/admin/data-vendor` | Admin GA | Master data mitra katering (V001 - V005), kontak WhatsApp, dan PIC vendor. |
 | `/admin/manajemen-user` | Admin GA | Pengelolaan akun pengguna, strip metrik, dialog tambah/ubah, reset password, nonaktifkan akun. |
 | `/admin/pengaturan` | Admin GA | Pengaturan profil pribadi Admin GA, ganti kata sandi, dan footer versi sistem dari package manifest. |
-| `/vendor/dashboard` | Vendor | 4 Kartu KPI, panel pesanan 3 shift hari ini, dan aksi cepat konfirmasi pesanan. |
+| `/vendor/dashboard` | Vendor | 4 Kartu KPI, panel pesanan 3 shift hari ini, dan aksi cepat konfirmasi pesanan dengan pembaruan realtime. |
 | `/vendor/permintaan` | Vendor | Tabel pesanan final milik vendor dan drawer inspektor detail alokasi per bagian & lokasi antar. |
-| `/vendor/ketersediaan` | Vendor | Antrean pesanan dan revisi yang belum direspons, aksi menyanggupi / tidak menyanggupi (catatan wajib). |
-| `/vendor/progres` | Vendor | Pelaporan progres pengiriman 5 tahap satu arah (Menunggu -> Dipersiapkan -> Dikirim -> Sampai -> Selesai). |
+| `/vendor/ketersediaan` | Vendor | Antrean pesanan dan revisi yang belum direspons dengan badge counter sidebar live dan pembaruan realtime. |
+| `/vendor/progres` | Vendor | Pelaporan progres pengiriman 5 tahap satu arah dengan pembaruan stepper timeline realtime. |
 | `/vendor/riwayat` | Vendor | Arsip riwayat pesanan katering vendor dengan filter status dan rentang tanggal. |
 | `/vendor/pengaturan` | Vendor | Pengaturan profil perwakilan vendor, ganti kata sandi, dan footer versi sistem. |
 | `/api/impor/analisis` | Admin GA | Route handler server pemrosesan berkas impor in-memory, validasi magic bytes, batas 10 MB, dan rate limit. |
@@ -209,18 +254,18 @@ Skrip membaca berkas dari `data-real/` (di-gitignore) atau fixture sintetis, men
 
 ---
 
-## 7. Ringkasan Pengujian, Kualitas, & Status Git
+## 8. Ringkasan Pengujian, Kualitas, & Status Git
 
 1. **Pengujian Unit (Vitest)**:
-   - 31 berkas pengujian: `31 passed`.
-   - 157 pengujian fungsional: `157 passed`.
-   - Menguji: extractor xlsx (sel gabungan & formula tersimpan), docx (tabel & paragraf), pdf (lapisan teks & OCR fallback), ocr runner, validasi magic number, normalisasi string & pencocokan fuzzy vendor/shift/bagian, validasi domain jadwal & rotasi, deteksi otomatis jenis dokumen, parser jadwal, vendor, bagian, dan rekap-harian, matematika rekap, model sel Excel, konsistensi metrik dashboard, rotasi vendor, route guard, user guard, reducer sel kotor, progres vendor, dan skema form Zod.
+   - 32 berkas pengujian: `32 passed`.
+   - 163 pengujian fungsional: `163 passed`.
+   - Menguji: pemetaan pesan realtime notification dengan pengujian isolasi role & vendor ([notification-mapper.test.ts](src/lib/realtime/notification-mapper.test.ts)), extractor xlsx (sel gabungan & formula tersimpan), docx (tabel & paragraf), pdf (lapisan teks & OCR fallback), ocr runner, validasi magic number, normalisasi string & pencocokan fuzzy vendor/shift/bagian, validasi domain jadwal & rotasi, deteksi otomatis jenis dokumen, parser jadwal, vendor, bagian, dan rekap-harian, matematika rekap, model sel Excel, konsistensi metrik dashboard, rotasi vendor, route guard, user guard, reducer sel kotor, progres vendor, dan skema form Zod.
 2. **Kompilasi TypeScript**:
    - `npx tsc --noEmit` lulus dengan 0 kesalahan.
 3. **Build Produksi Next.js**:
    - `next build` berhasil mengompilasi 34 rute (termasuk modul impor data cerdas dan API route pendukung) tanpa kendala.
    - Seluruh variabel lingkungan sensitif terjaga aman di sisi server.
 4. **Repositori Git**:
-   - Seluruh tahapan telah di-commit secara terstruktur mengikuti Conventional Commits pada cabang `feat/12-impor-data` dan siap digabungkan ke cabang utama `main`.
+   - Seluruh tahapan telah di-commit secara terstruktur mengikuti Conventional Commits pada cabang `feat/13-realtime-notifikasi` dan siap digabungkan ke cabang utama `main`.
    - Identitas commit terkonfigurasi pada: `Muhammad Raynar Hammam <raynarham23@gmail.com>`.
 
