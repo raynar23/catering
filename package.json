@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:db": "node scripts/test-db.mjs",
-    "db:build": "node scripts/build-database-sql.mjs"
+    "db:build": "node scripts/build-database-sql.mjs",
+    "import:check": "npx tsx scripts/import-check.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",
