@@ -11,6 +11,7 @@ import { detectDocumentType } from "@/lib/import/detect";
 import { parseJadwal } from "@/lib/import/parsers/jadwal";
 import { parseVendor } from "@/lib/import/parsers/vendor";
 import { parseBagian } from "@/lib/import/parsers/bagian";
+import { parseRekapHarian } from "@/lib/import/parsers/rekap-harian";
 import { calculateImportSummary } from "@/lib/import/validate";
 import { AnalysisResult, DocumentType, ImportEngine, ParsedRow, RawTableData } from "@/lib/import/types";
 
@@ -207,6 +208,8 @@ export async function POST(req: NextRequest) {
       parsedRows = parseVendor(tables, { knownVendors });
     } else if (detected.jenis === "bagian") {
       parsedRows = parseBagian(tables, { knownBagian });
+    } else if (detected.jenis === "rekap_harian") {
+      parsedRows = parseRekapHarian(tables, { knownVendors, knownShifts, knownBagian });
     } else {
       // Default to jadwal parser
       parsedRows = parseJadwal(tables, { knownVendors, knownShifts });
