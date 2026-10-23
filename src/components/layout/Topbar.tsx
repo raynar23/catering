@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useTransition } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Bell, Menu, LogOut, Settings } from "lucide-react";
 import { Profile } from "@/lib/types";
@@ -69,7 +70,7 @@ export function Topbar({
   return (
     <header
       className={cn(
-        "h-14 bg-surface border-b border-border px-4 lg:px-6 flex items-center justify-between shrink-0 select-none",
+        "h-16 bg-surface border-b border-border px-4 lg:px-6 flex items-center justify-between shrink-0 select-none",
         className
       )}
     >
@@ -198,6 +199,21 @@ export function Topbar({
               </button>
             </div>
           )}
+        </div>
+
+        {/* Vertical divider */}
+        <div className="h-6 sm:h-7 w-px bg-border shrink-0 mx-1 sm:mx-2" aria-hidden="true" />
+
+        {/* Danantara Logo */}
+        <div className="flex items-center shrink-0">
+          <Image
+            src="/images/logo-danantara.webp"
+            alt="Logo Danantara Indonesia"
+            width={130}
+            height={34}
+            className="h-7 sm:h-8 w-auto object-contain select-none"
+            priority
+          />
         </div>
       </div>
     </header>
