@@ -95,6 +95,21 @@ export function Topbar({
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        {/* Danantara Logo */}
+        <div className="flex items-center shrink-0">
+          <Image
+            src="/images/logo-danantara.webp"
+            alt="Logo Danantara Indonesia"
+            width={130}
+            height={34}
+            className="h-7 sm:h-8 w-auto object-contain select-none"
+            priority
+          />
+        </div>
+
+        {/* Vertical divider */}
+        <div className="h-6 sm:h-7 w-px bg-border shrink-0 mx-1 sm:mx-2" aria-hidden="true" />
+
         {/* Notification Bell Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
@@ -199,21 +214,6 @@ export function Topbar({
               </button>
             </div>
           )}
-        </div>
-
-        {/* Vertical divider */}
-        <div className="h-6 sm:h-7 w-px bg-border shrink-0 mx-1 sm:mx-2" aria-hidden="true" />
-
-        {/* Danantara Logo */}
-        <div className="flex items-center shrink-0">
-          <Image
-            src="/images/logo-danantara.webp"
-            alt="Logo Danantara Indonesia"
-            width={130}
-            height={34}
-            className="h-7 sm:h-8 w-auto object-contain select-none"
-            priority
-          />
         </div>
       </div>
     </header>
