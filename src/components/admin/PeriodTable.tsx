@@ -513,9 +513,9 @@ export function PeriodTable() {
           <button
             type="button"
             onClick={() => setResetModalOpen(true)}
-            className="h-9 px-3 rounded-[8px] border border-red-200 dark:border-red-900/40 bg-red-50/60 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="h-9 px-3.5 rounded-[8px] bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           >
-            <Trash2 className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+            <Trash2 className="w-3.5 h-3.5 text-white" />
             <span>Hapus Semua Data</span>
           </button>
 
