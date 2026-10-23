@@ -55,17 +55,17 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
   return (
     <aside
       className={cn(
-        "w-[264px] bg-[#0B3D6B] flex flex-col h-full select-none shrink-0 border-r border-[#082B4D]",
+        "w-[264px] bg-[#0C568C] flex flex-col h-full select-none shrink-0 border-r border-[#094672]",
         className
       )}
     >
-      <div className="h-16 px-5 flex items-center shrink-0 border-b border-white/10">
+      <div className="h-[88px] px-7 flex items-center shrink-0 border-b border-white/10">
         <Image
           src="/images/logo-tps-monokrom.png"
           alt="Logo Pelindo Terminal Petikemas Surabaya"
           width={180}
           height={40}
-          className="h-9 w-auto object-contain"
+          className="h-8 w-auto max-w-[190px] object-contain"
           priority
         />
       </div>

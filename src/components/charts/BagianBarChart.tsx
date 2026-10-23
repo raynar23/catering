@@ -74,7 +74,7 @@ export function BagianBarChart({ series, isLoading = false }: BagianBarChartProp
                   <div className="w-full max-w-[36px] bg-[#F2F2F7] rounded-t-[6px] flex-1 min-h-[45px] max-h-24 relative flex items-end overflow-hidden">
                     <div
                       className={`w-full rounded-t-[6px] transition-all duration-300 ${
-                        isHovered ? "bg-primary" : "bg-[#1175BB]"
+                        isHovered ? "bg-primary-600" : "bg-primary"
                       }`}
                       style={{ height: `${heightPct}%` }}
                     />

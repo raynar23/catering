@@ -137,7 +137,7 @@ export function DailyTrendChart({
             <path
               d={points.current}
               fill="none"
-              stroke="#1175BB"
+              stroke="#0082C9"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"

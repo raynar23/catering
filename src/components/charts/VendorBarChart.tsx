@@ -85,7 +85,7 @@ export function VendorBarChart({
                 <div className="w-full bg-[#F2F2F7] rounded-full h-2.5 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
-                      isHovered ? "bg-[#0E63A1]" : "bg-[#1175BB]"
+                      isHovered ? "bg-primary-600" : "bg-primary"
                     }`}
                     style={{ width: `${widthPct}%` }}
                   />
