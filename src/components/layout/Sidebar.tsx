@@ -55,7 +55,7 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
   return (
     <aside
       className={cn(
-        "w-[264px] bg-[#0C568C] flex flex-col h-full select-none shrink-0 border-r border-[#094672]",
+        "w-[264px] bg-[#006CA2] flex flex-col h-full select-none shrink-0 border-r border-[#005E8D]",
         className
       )}
     >

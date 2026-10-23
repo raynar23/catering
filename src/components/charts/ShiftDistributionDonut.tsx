@@ -12,7 +12,7 @@ interface ShiftDistributionDonutProps {
 
 // Fixed color mapping matching DESIGN.md specification
 const SHIFT_COLORS: Record<number, string> = {
-  1: "#0082C9", // Shift 1: Primary Pelindo blue
+  1: "#008FD5", // Shift 1: Primary Pelindo blue
   2: "#9CC9EA", // Shift 2: Soft sky blue
   3: "#E08F26", // Shift 3: Accent amber
   0: "#E08F26", // Shift 3 alternative index
