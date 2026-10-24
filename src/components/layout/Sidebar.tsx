@@ -61,7 +61,7 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
     >
       <div className="h-20 sm:h-[84px] px-6 flex items-center shrink-0 border-b border-white/10">
         <Image
-          src="/images/logo-tps-monokrom.png"
+          src="/images/logo-pelindo-tps.png"
           alt="Logo Pelindo Terminal Petikemas Surabaya"
           width={200}
           height={66}
