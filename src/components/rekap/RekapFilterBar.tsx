@@ -155,7 +155,7 @@ export function RekapFilterBar({
           value={vendorId}
           onChange={(e) => onVendorChange(e.target.value)}
           disabled={isLoading}
-          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-2.5 pr-8 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-3.5 pr-10 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
           aria-label="Filter Vendor"
         >
           <option value="">Semua Vendor</option>
@@ -171,7 +171,7 @@ export function RekapFilterBar({
           value={bagianId}
           onChange={(e) => onBagianChange(e.target.value)}
           disabled={isLoading}
-          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-2.5 pr-8 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-3.5 pr-10 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
           aria-label="Filter Bagian"
         >
           <option value="">Semua Bagian</option>
@@ -187,7 +187,7 @@ export function RekapFilterBar({
           value={shiftId}
           onChange={(e) => onShiftChange(e.target.value)}
           disabled={isLoading}
-          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-2.5 pr-8 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+          className="h-9 text-xs rounded-[8px] border border-border bg-surface pl-3.5 pr-10 text-text focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
           aria-label="Filter Shift"
         >
           <option value="">Semua Shift</option>

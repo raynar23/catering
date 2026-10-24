@@ -171,7 +171,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
             value={forceType}
             onChange={(e) => setForceType(e.target.value as DocumentType)}
             disabled={isAnalyzing}
-            className="w-full pl-3 pr-8 py-2 text-sm bg-surface border border-border rounded-[8px] text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+            className="w-full pl-3.5 pr-10 py-2 text-sm bg-surface border border-border rounded-[8px] text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary cursor-pointer"
           >
             {DOCUMENT_TYPES.map((dt) => (
               <option key={dt.id} value={dt.id}>

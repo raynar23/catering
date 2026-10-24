@@ -104,7 +104,7 @@ function PeriodFormInner({
           <select
             value={shiftId}
             onChange={(e) => setShiftId(e.target.value)}
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer"
           >
             {shifts.map((s) => (
               <option key={s.id} value={s.id}>
@@ -118,7 +118,7 @@ function PeriodFormInner({
           <select
             value={vendorId}
             onChange={(e) => setVendorId(e.target.value)}
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer"
           >
             {vendors.map((v) => (
               <option key={v.id} value={v.id}>

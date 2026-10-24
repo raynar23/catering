@@ -446,7 +446,7 @@ export function PeriodTable() {
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
-            className="h-9 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             {MONTH_OPTIONS.map((m) => (
               <option key={m.value} value={m.value}>
@@ -459,7 +459,7 @@ export function PeriodTable() {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
-            className="h-9 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
           >
             <option value={2025}>2025</option>
             <option value={2026}>2026</option>
@@ -470,7 +470,7 @@ export function PeriodTable() {
           <select
             value={selectedShift}
             onChange={(e) => setSelectedShift(e.target.value)}
-            className="h-9 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <option value="all">Semua Shift</option>
             {shifts.map((s) => (
@@ -484,7 +484,7 @@ export function PeriodTable() {
           <select
             value={selectedVendor}
             onChange={(e) => setSelectedVendor(e.target.value)}
-            className="h-9 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <option value="all">Semua Vendor</option>
             {vendors.map((v) => (
@@ -498,7 +498,7 @@ export function PeriodTable() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="h-9 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <option value="all">Semua Status</option>
             <option value="belum_input">Belum Input</option>

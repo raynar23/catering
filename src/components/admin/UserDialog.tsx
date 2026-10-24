@@ -315,7 +315,7 @@ export function UserDialog({
             <select
               value={vendorId}
               onChange={(e) => setVendorId(e.target.value)}
-              className="w-full h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
             >
               <option value="">-- Pilih Vendor Mitra --</option>
               {vendors.map((v) => (
