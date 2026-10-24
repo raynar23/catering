@@ -59,13 +59,13 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
         className
       )}
     >
-      <div className="h-24 sm:h-[104px] px-6 sm:px-7 flex items-center shrink-0 border-b border-white/10">
+      <div className="h-20 sm:h-[84px] px-6 flex items-center shrink-0 border-b border-white/10">
         <Image
           src="/images/logo-tps-monokrom.png"
-          alt="Logo Terminal Petikemas Surabaya"
-          width={220}
-          height={115}
-          className="h-14 sm:h-16 w-auto max-w-[210px] object-contain select-none"
+          alt="Logo Pelindo Terminal Petikemas Surabaya"
+          width={200}
+          height={66}
+          className="h-8.5 sm:h-10 w-auto max-w-[185px] object-contain select-none"
           priority
         />
       </div>
