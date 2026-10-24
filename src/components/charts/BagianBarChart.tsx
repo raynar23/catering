@@ -71,10 +71,12 @@ export function BagianBarChart({ series, isLoading = false }: BagianBarChartProp
                   </span>
 
                   {/* Vertical Bar */}
-                  <div className="w-full max-w-[36px] bg-[#F2F2F7] rounded-t-[6px] flex-1 min-h-[45px] max-h-24 relative flex items-end overflow-hidden">
+                  <div className="w-full max-w-[36px] bg-slate-100/90 rounded-t-[6px] flex-1 min-h-[45px] max-h-24 relative flex items-end overflow-hidden">
                     <div
                       className={`w-full rounded-t-[6px] transition-all duration-300 ${
-                        isHovered ? "bg-primary-600" : "bg-primary"
+                        isHovered
+                          ? "bg-gradient-to-t from-primary-700 to-primary-500 shadow-xs"
+                          : "bg-gradient-to-t from-primary-600 to-primary-400"
                       }`}
                       style={{ height: `${heightPct}%` }}
                     />

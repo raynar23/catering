@@ -82,10 +82,12 @@ export function VendorBarChart({
                 </div>
 
                 {/* Horizontal Progress Bar */}
-                <div className="w-full bg-[#F2F2F7] rounded-full h-2.5 overflow-hidden">
+                <div className="w-full bg-slate-100/90 rounded-full h-2.5 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
-                      isHovered ? "bg-primary-600" : "bg-primary"
+                      isHovered
+                        ? "bg-gradient-to-r from-primary-700 to-primary-500"
+                        : "bg-gradient-to-r from-primary-600 to-primary-400"
                     }`}
                     style={{ width: `${widthPct}%` }}
                   />

@@ -55,8 +55,11 @@ export function DailyTrendChart({
 
     const currentPath = coords.map((c, i) => `${i === 0 ? "M" : "L"} ${c.x} ${c.yCur}`).join(" ");
     const prevPath = coords.map((c, i) => `${i === 0 ? "M" : "L"} ${c.x} ${c.yPrev}`).join(" ");
+    const areaPath = coords.length > 0
+      ? `${currentPath} L ${coords[coords.length - 1].x} ${padTop + chartH} L ${coords[0].x} ${padTop + chartH} Z`
+      : "";
 
-    return { current: currentPath, previous: prevPath, coords };
+    return { current: currentPath, previous: prevPath, area: areaPath, coords };
   }, [data, chartW, chartH, maxVal, padLeft, padTop]);
 
   if (isLoading) {
@@ -95,6 +98,13 @@ export function DailyTrendChart({
       ) : (
         <div className="relative flex-1 min-h-[140px] w-full">
           <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+            <defs>
+              <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#008FD5" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#008FD5" stopOpacity="0.0" />
+              </linearGradient>
+            </defs>
+
             {/* Horizontal Grid lines */}
             {[0, 0.33, 0.66, 1].map((pct, idx) => {
               const y = padTop + chartH * (1 - pct);
@@ -121,6 +131,14 @@ export function DailyTrendChart({
                 </g>
               );
             })}
+
+            {/* Area Gradient Glow */}
+            {points.area && (
+              <path
+                d={points.area}
+                fill="url(#trendGradient)"
+              />
+            )}
 
             {/* Previous Period Line (Dashed) */}
             <path

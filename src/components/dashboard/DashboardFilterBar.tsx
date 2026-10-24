@@ -67,7 +67,7 @@ export function DashboardFilterBar({
     <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-2.5 py-1.5 select-none shrink-0">
       {/* Quick Presets Segmented Control */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1 xl:pb-0 scrollbar-none">
-        <div className="inline-flex items-center bg-[#F2F2F7] p-1 rounded-[8px] gap-1 shrink-0">
+        <div className="inline-flex items-center bg-slate-100/90 p-1 rounded-[10px] border border-border/50 gap-1 shrink-0">
           {PRESET_OPTIONS.map((opt) => {
             const isSelected = preset === opt.value;
             return (
@@ -76,10 +76,10 @@ export function DashboardFilterBar({
                 type="button"
                 disabled={isLoading}
                 onClick={() => handleSelectPreset(opt.value)}
-                className={`h-7 px-2.5 rounded-[6px] text-xs font-medium transition-colors cursor-pointer ${
+                className={`h-7 px-3 rounded-[7px] text-xs font-medium transition-all duration-150 cursor-pointer ${
                   isSelected
-                    ? "bg-surface text-primary shadow-xs font-semibold"
-                    : "text-text-muted hover:text-text"
+                    ? "bg-surface text-primary shadow-[0_1px_2px_rgba(0,0,0,0.06)] font-semibold border border-border/40"
+                    : "text-text-muted hover:text-text hover:bg-surface/50"
                 }`}
               >
                 {opt.label}
@@ -96,7 +96,7 @@ export function DashboardFilterBar({
             type="button"
             disabled={isLoading}
             onClick={() => handleShift("prev")}
-            className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-border bg-surface hover:bg-bg text-text-muted hover:text-text transition-colors cursor-pointer disabled:opacity-50"
+            className="h-8.5 w-8.5 flex items-center justify-center rounded-[8px] border border-border/80 bg-surface hover:bg-bg text-text-muted hover:text-text transition-colors cursor-pointer disabled:opacity-50 shadow-2xs"
             title="Mundur satu rentang"
             aria-label="Mundur satu rentang"
           >
@@ -106,7 +106,7 @@ export function DashboardFilterBar({
             type="button"
             disabled={isLoading}
             onClick={() => handleShift("next")}
-            className="h-9 w-9 flex items-center justify-center rounded-[8px] border border-border bg-surface hover:bg-bg text-text-muted hover:text-text transition-colors cursor-pointer disabled:opacity-50"
+            className="h-8.5 w-8.5 flex items-center justify-center rounded-[8px] border border-border/80 bg-surface hover:bg-bg text-text-muted hover:text-text transition-colors cursor-pointer disabled:opacity-50 shadow-2xs"
             title="Maju satu rentang"
             aria-label="Maju satu rentang"
           >
