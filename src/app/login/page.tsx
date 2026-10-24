@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { LoginBackground } from "@/components/auth/LoginBackground";
 import { LoginCard } from "@/components/auth/LoginCard";
+import logoTpsMonokrom from "../../../public/images/logo-tps-monokrom.png";
 
 export default function LoginPage() {
   return (
@@ -10,10 +11,8 @@ export default function LoginPage() {
       {/* Top Header with White Monochrome Logo */}
       <header className="w-full flex justify-start lg:absolute lg:top-8 lg:left-8 lg:w-auto z-10">
         <Image
-          src="/images/logo-tps-monokrom.png"
+          src={logoTpsMonokrom}
           alt="PT Terminal Petikemas Surabaya"
-          width={360}
-          height={120}
           priority
           className="h-[46px] sm:h-[56px] lg:h-[68px] w-auto object-contain select-none drop-shadow-[0_2px_5px_rgba(0,0,0,0.35)]"
         />
