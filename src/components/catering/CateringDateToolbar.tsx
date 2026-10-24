@@ -41,12 +41,12 @@ export function CateringDateToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 bg-surface border border-border rounded-[10px] shadow-2xs select-none">
       {/* Date navigation group */}
       <div className="flex items-center gap-3">
-        <div className="inline-flex items-center rounded-lg border border-border bg-white shadow-2xs overflow-hidden">
+        <div className="inline-flex items-center rounded-lg border border-border/80 bg-surface shadow-2xs overflow-hidden">
           <button
             type="button"
             onClick={handlePrevDay}
             disabled={isLoading}
-            className="h-8 px-2.5 hover:bg-slate-50 text-text-muted hover:text-text border-r border-border transition-colors cursor-pointer disabled:opacity-40"
+            className="h-8 px-2.5 hover:bg-slate-50 text-text-muted hover:text-text border-r border-border/80 transition-colors cursor-pointer disabled:opacity-40"
             title="Hari Sebelumnya"
             aria-label="Hari Sebelumnya"
           >
@@ -65,7 +65,7 @@ export function CateringDateToolbar({
             type="button"
             onClick={handleNextDay}
             disabled={isLoading}
-            className="h-8 px-2.5 hover:bg-slate-50 text-text-muted hover:text-text border-l border-border transition-colors cursor-pointer disabled:opacity-40"
+            className="h-8 px-2.5 hover:bg-slate-50 text-text-muted hover:text-text border-l border-border/80 transition-colors cursor-pointer disabled:opacity-40"
             title="Hari Berikutnya"
             aria-label="Hari Berikutnya"
           >

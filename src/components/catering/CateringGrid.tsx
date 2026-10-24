@@ -139,10 +139,10 @@ export function CateringGrid({
             {bagianList.map((bagian) => (
               <tr
                 key={bagian.id}
-                className="hover:bg-slate-50/70 transition-colors group"
+                className="hover:bg-primary-50/40 transition-colors group"
               >
                 {/* Bagian sticky left column */}
-                <td className="sticky left-0 z-10 bg-surface group-hover:bg-slate-50/90 px-3 py-2 border-r border-border transition-colors">
+                <td className="sticky left-0 z-10 bg-surface group-hover:bg-[#F8FBFE] px-3 py-2 border-r border-border transition-colors">
                   <div className="flex flex-col">
                     <span className="font-semibold text-text text-sm">
                       {bagian.nama}
