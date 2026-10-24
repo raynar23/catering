@@ -74,7 +74,7 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
         {groups.map((group, groupIdx) => (
           <div key={group.title ?? `group-${groupIdx}`} className="space-y-1">
             {group.title && (
-              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-white/50">
+              <p className="px-3 pb-1 text-[10.5px] font-bold uppercase tracking-widest text-white/45 select-none">
                 {group.title}
               </p>
             )}
@@ -96,16 +96,21 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
                     href={item.href}
                     onClick={onItemClick}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] font-medium transition-colors cursor-pointer",
+                      "relative flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] font-medium transition-all duration-150 cursor-pointer select-none",
                       isActive
-                        ? "bg-primary text-white shadow-xs"
+                        ? "bg-white/15 text-white font-semibold shadow-xs before:absolute before:left-0 before:top-2 before:bottom-2 before:w-1 before:rounded-r-full before:bg-white"
                         : "text-white/80 hover:bg-white/10 hover:text-white"
                     )}
                   >
-                    <IconComponent className="w-4 h-4 shrink-0 text-white/70" />
+                    <IconComponent
+                      className={cn(
+                        "w-4 h-4 shrink-0 transition-colors",
+                        isActive ? "text-white" : "text-white/70"
+                      )}
+                    />
                     <span className="truncate">{item.title}</span>
                     {badgeCount !== undefined && badgeCount > 0 && (
-                      <span className="ml-auto text-xs font-semibold tabular-nums text-white/90">
+                      <span className="ml-auto text-[11px] font-bold tabular-nums px-1.5 py-0.5 rounded-full bg-white/20 text-white">
                         {badgeCount}
                       </span>
                     )}
@@ -122,7 +127,7 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
           type="button"
           onClick={handleSignOut}
           disabled={isPending}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] font-medium text-white/80 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50 cursor-pointer"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-[8px] text-[13px] font-medium text-white/80 hover:bg-red-500/15 hover:text-red-200 transition-colors disabled:opacity-50 cursor-pointer"
         >
           <LogOut className="w-4 h-4 shrink-0 text-white/70" />
           <span>{isPending ? "Keluar..." : "Keluar"}</span>

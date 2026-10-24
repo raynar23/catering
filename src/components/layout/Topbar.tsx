@@ -85,50 +85,55 @@ export function Topbar({
         </button>
 
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-text truncate">
+          <div className="text-sm font-bold text-text tracking-tight truncate">
             Pengelolaan Data Catering Karyawan
           </div>
           <div className="text-xs text-text-muted truncate hidden sm:block">
             PT Terminal Petikemas Surabaya
           </div>
         </div>
+
+        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-700 tracking-wide select-none ml-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Sistem Aktif</span>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
         {/* Notification Bell Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
             type="button"
             onClick={() => setNotifOpen((v) => !v)}
-            className="relative p-2 rounded-[6px] text-text-muted hover:text-text hover:bg-bg transition-colors cursor-pointer"
+            className="relative p-2 rounded-[8px] text-text-muted hover:text-text hover:bg-bg border border-transparent hover:border-border/60 transition-colors cursor-pointer"
             aria-label="Notifikasi"
           >
             <Bell className="w-4 h-4" />
             {notificationCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-danger text-[10px] font-bold text-white flex items-center justify-center tabular-nums leading-none">
+              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-danger text-[10px] font-bold text-white flex items-center justify-center tabular-nums leading-none shadow-xs">
                 {notificationCount}
               </span>
             )}
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-1.5 w-72 bg-surface border border-border rounded-[10px] shadow-xl p-3 z-40 animate-in fade-in zoom-in-95">
-              <div className="flex items-center justify-between pb-2 border-b border-border mb-2">
-                <span className="text-xs font-semibold text-text">Notifikasi</span>
+            <div className="absolute right-0 mt-2 w-76 bg-surface/98 backdrop-blur-md border border-border/90 rounded-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.08)] p-3 z-40 animate-in fade-in zoom-in-95">
+              <div className="flex items-center justify-between pb-2 border-b border-border/80 mb-2">
+                <span className="text-xs font-bold text-text">Notifikasi</span>
                 {notificationCount > 0 && (
-                  <span className="text-[11px] text-text-muted tabular-nums">
+                  <span className="text-[10.5px] font-semibold text-primary bg-primary-50 px-2 py-0.5 rounded-full tabular-nums">
                     {notificationCount} baru
                   </span>
                 )}
               </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-border -mx-1">
+              <div className="max-h-72 overflow-y-auto divide-y divide-border/60 -mx-1">
                 {notificationItems && notificationItems.length > 0 ? (
                   notificationItems.map((item) => (
                     <Link
                       key={item.id}
                       href={item.tautan}
                       onClick={() => setNotifOpen(false)}
-                      className="block p-2 hover:bg-bg rounded-[6px] transition-colors cursor-pointer"
+                      className="block p-2 hover:bg-primary-50/50 rounded-[6px] transition-colors cursor-pointer"
                     >
                       <p className="text-xs font-semibold text-text leading-tight truncate">
                         {item.judul}
@@ -155,7 +160,7 @@ export function Topbar({
             onClick={() => setProfileOpen((v) => !v)}
             className="flex items-center gap-2.5 p-1 rounded-[8px] hover:bg-bg transition-colors cursor-pointer text-left"
           >
-            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-xs flex items-center justify-center shrink-0 border border-primary/20">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-50 to-primary-100 text-primary-700 font-bold text-xs flex items-center justify-center shrink-0 border border-primary/25 shadow-xs ring-2 ring-primary/10">
               {initials}
             </div>
             <div className="hidden sm:block text-left min-w-0">
@@ -169,9 +174,9 @@ export function Topbar({
           </button>
 
           {profileOpen && (
-            <div className="absolute right-0 mt-1.5 w-56 bg-surface border border-border rounded-[10px] shadow-xl p-2 z-40 animate-in fade-in zoom-in-95">
-              <div className="px-2 py-1.5 border-b border-border mb-1">
-                <p className="text-xs font-semibold text-text truncate">
+            <div className="absolute right-0 mt-2 w-56 bg-surface/98 backdrop-blur-md border border-border/90 rounded-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.08)] p-2 z-40 animate-in fade-in zoom-in-95">
+              <div className="px-2 py-1.5 border-b border-border/80 mb-1">
+                <p className="text-xs font-bold text-text truncate">
                   {profile?.nama ?? "Pengguna"}
                 </p>
                 <p className="text-[11px] text-text-muted truncate">
@@ -182,7 +187,7 @@ export function Topbar({
               <Link
                 href={profile?.role === "admin_ga" ? "/admin/pengaturan" : "/vendor/pengaturan"}
                 onClick={() => setProfileOpen(false)}
-                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-text hover:bg-bg rounded-[6px] transition-colors cursor-pointer mb-0.5"
+                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-text hover:bg-primary-50/60 rounded-[6px] transition-colors cursor-pointer mb-0.5"
               >
                 <Settings className="w-3.5 h-3.5 text-text-muted" />
                 <span>Pengaturan Akun</span>
@@ -192,7 +197,7 @@ export function Topbar({
                 type="button"
                 onClick={handleSignOut}
                 disabled={isPending}
-                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-danger hover:bg-danger-soft/60 rounded-[6px] transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-danger hover:bg-danger-soft/70 rounded-[6px] transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>{isPending ? "Keluar..." : "Keluar"}</span>
