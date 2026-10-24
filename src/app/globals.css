@@ -54,6 +54,27 @@
     background-size: 14px 14px;
     padding-right: 38px !important;
   }
+
+  ::selection {
+    background-color: #CCEBF9;
+    color: #005580;
+  }
+
+  /* Sleek corporate scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D5D5DC;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #B0B0B8;
+  }
 }
 
 .tabular-nums {

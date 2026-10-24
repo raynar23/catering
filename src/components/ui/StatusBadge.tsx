@@ -146,7 +146,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-// Text-only badge without dots or icons, strictly following DESIGN.md
+// Clean modern status badge with inline status indicator dot
 export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const normalizedKey = status.toLowerCase();
   const config = STATUS_CONFIG[normalizedKey] ?? {
@@ -159,14 +159,15 @@ export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-[6px] border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap tabular-nums",
+        "inline-flex items-center justify-center rounded-[6px] border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide whitespace-nowrap tabular-nums shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-colors",
         config.textClass,
         config.bgClass,
         config.borderClass,
         className
       )}
     >
-      {label ?? config.label}
+      <span className="w-1.5 h-1.5 rounded-full mr-1.5 shrink-0 bg-current opacity-80" aria-hidden="true" />
+      <span>{label ?? config.label}</span>
     </span>
   );
 }

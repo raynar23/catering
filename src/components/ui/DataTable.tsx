@@ -104,14 +104,14 @@ export function DataTable<T>({
     >
       <div className="flex-1 min-h-0 overflow-auto">
         <table className="w-full text-left border-collapse text-xs">
-          <thead className="sticky top-0 z-10 bg-bg border-b border-border">
+          <thead className="sticky top-0 z-10 bg-[#F8FAFC] border-b border-border/80 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
             <tr className="h-10">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
-                    "px-4 text-[12px] font-semibold text-text-muted select-none",
+                    "px-4 text-[11px] font-semibold uppercase tracking-wider text-text-muted/90 select-none",
                     col.align === "right" && "text-right",
                     col.align === "center" && "text-center",
                     col.className
@@ -150,7 +150,7 @@ export function DataTable<T>({
                 return (
                   <tr
                     key={key}
-                    className="h-10 hover:bg-[#E8F2FA] transition-colors duration-100"
+                    className="h-10 hover:bg-primary-50/50 transition-colors duration-150"
                   >
                     {columns.map((col) => {
                       const value = (row as Record<string, unknown>)[col.key];
@@ -178,8 +178,8 @@ export function DataTable<T>({
         </table>
       </div>
 
-      <div className="h-12 border-t border-border px-4 flex items-center justify-between text-xs text-text-muted shrink-0 bg-surface select-none">
-        <span className="tabular-nums">
+      <div className="h-12 border-t border-border/80 px-4 flex items-center justify-between text-xs text-text-muted shrink-0 bg-[#FBFBFC] select-none">
+        <span className="tabular-nums font-medium">
           {summaryText}
         </span>
 
@@ -188,18 +188,18 @@ export function DataTable<T>({
             type="button"
             disabled={validPage <= 1 || isLoading}
             onClick={() => handlePageChange(validPage - 1)}
-            className="h-7 px-3 rounded-[6px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+            className="h-7 px-3 rounded-[6px] border border-border bg-surface text-xs font-medium text-text hover:bg-bg hover:border-primary/40 hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
           >
             Sebelumnya
           </button>
-          <span className="px-2 text-text font-medium tabular-nums">
+          <span className="px-2 text-text font-semibold tabular-nums text-[11px] bg-bg/80 py-1 rounded-[4px] border border-border/50">
             {pageText}
           </span>
           <button
             type="button"
             disabled={validPage >= totalPages || isLoading}
             onClick={() => handlePageChange(validPage + 1)}
-            className="h-7 px-3 rounded-[6px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer"
+            className="h-7 px-3 rounded-[6px] border border-border bg-surface text-xs font-medium text-text hover:bg-bg hover:border-primary/40 hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
           >
             Berikutnya
           </button>
