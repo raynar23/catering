@@ -513,7 +513,7 @@ export function PeriodTable() {
           <button
             type="button"
             onClick={() => setResetModalOpen(true)}
-            className="h-9 px-3.5 rounded-[8px] bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            className="h-9 px-3.5 rounded-[8px] bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
           >
             <Trash2 className="w-3.5 h-3.5 text-white" />
             <span>Hapus Semua Data</span>
@@ -563,7 +563,7 @@ export function PeriodTable() {
             type="button"
             disabled={isBulkDeleting}
             onClick={() => setDeleteSelectedConfirmOpen(true)}
-            className="h-7 px-3 rounded-[6px] bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+            className="h-7 px-3 rounded-[6px] bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Hapus Terpilih ({selectedPeriodIds.size})</span>

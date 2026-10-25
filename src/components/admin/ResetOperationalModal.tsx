@@ -108,7 +108,7 @@ export function ResetOperationalModal({
             type="button"
             disabled={!isConfirmed || isSubmitting}
             onClick={handleReset}
-            className="h-9 px-4 rounded-[8px] bg-red-600 hover:bg-red-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
+            className="h-9 px-4 rounded-[8px] bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>{isSubmitting ? "Membersihkan Data..." : "Hapus Semua Data Operasional"}</span>
