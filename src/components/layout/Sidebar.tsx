@@ -17,6 +17,8 @@ import {
   CheckSquare,
   LogOut,
   Settings,
+  PanelLeftClose,
+  X,
 } from "lucide-react";
 import { NavGroup, NavItem } from "@/lib/nav";
 import { Profile } from "@/lib/types";
@@ -27,6 +29,8 @@ interface SidebarProps {
   groups: NavGroup[];
   badges?: Record<string, number>;
   profile?: Profile | null;
+  isMobile?: boolean;
+  onToggleCollapse?: () => void;
   onItemClick?: () => void;
   className?: string;
 }
@@ -49,6 +53,8 @@ export function Sidebar({
   groups,
   badges = {},
   profile,
+  isMobile = false,
+  onToggleCollapse,
   onItemClick,
   className,
 }: SidebarProps) {
@@ -86,15 +92,30 @@ export function Sidebar({
         className
       )}
     >
-      <div className="h-20 sm:h-[84px] px-6 flex items-center shrink-0 border-b border-white/10">
+      <div className="h-20 sm:h-[84px] px-5 sm:px-6 flex items-center justify-between shrink-0 border-b border-white/10">
         <Image
           src="/images/logo-pelindo-tps.png"
           alt="Logo Pelindo Terminal Petikemas Surabaya"
           width={200}
           height={66}
-          className="h-8.5 sm:h-10 w-auto max-w-[185px] object-contain select-none"
+          className="h-8.5 sm:h-10 w-auto max-w-[175px] object-contain select-none"
           priority
         />
+        {onToggleCollapse && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="p-1.5 rounded-[6px] text-white/70 hover:text-white hover:bg-white/10 active:bg-white/15 transition-colors cursor-pointer"
+            title={isMobile ? "Tutup Menu" : "Tutup Sidebar"}
+            aria-label={isMobile ? "Tutup Menu" : "Tutup Sidebar"}
+          >
+            {isMobile ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <PanelLeftClose className="w-5 h-5" />
+            )}
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-4 space-y-6">

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, Menu } from "lucide-react";
+import { Bell, PanelLeft } from "lucide-react";
 import { Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ interface TopbarProps {
   profile?: Profile | null;
   notificationCount?: number;
   notificationItems?: NotificationItem[];
+  isSidebarOpen?: boolean;
   onMenuToggle?: () => void;
   className?: string;
 }
@@ -21,6 +22,7 @@ interface TopbarProps {
 export function Topbar({
   notificationCount = 0,
   notificationItems = [],
+  isSidebarOpen = true,
   onMenuToggle,
   className,
 }: TopbarProps) {
@@ -40,22 +42,23 @@ export function Topbar({
   return (
     <header
       className={cn(
-        "h-16 bg-white/85 backdrop-blur-xl border-b border-[#E5E5EA] px-4 lg:px-6 flex items-center justify-between shrink-0 select-none",
+        "h-16 bg-white/85 backdrop-blur-xl border-b border-[#E5E5EA] px-3 sm:px-4 lg:px-6 flex items-center justify-between shrink-0 select-none",
         className
       )}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <button
           type="button"
           onClick={onMenuToggle}
-          className="lg:hidden p-1.5 -ml-1 text-text-muted hover:text-text rounded-[6px] hover:bg-black/[0.04] cursor-pointer"
-          aria-label="Buka Menu"
+          className="p-1.5 -ml-1 text-text-muted hover:text-text rounded-[6px] hover:bg-black/[0.04] active:bg-black/[0.08] transition-colors cursor-pointer shrink-0"
+          title={isSidebarOpen ? "Sembunyikan Sidebar" : "Tampilkan Sidebar"}
+          aria-label={isSidebarOpen ? "Sembunyikan Sidebar" : "Tampilkan Sidebar"}
         >
-          <Menu className="w-5 h-5" />
+          <PanelLeft className="w-5 h-5" />
         </button>
 
         <div className="min-w-0">
-          <div className="text-[13px] font-semibold text-text tracking-tight truncate">
+          <div className="text-[12.5px] sm:text-[13px] font-semibold text-text tracking-tight truncate">
             Pengelolaan Data Catering Karyawan
           </div>
           <div className="text-[11px] text-[#86868B] truncate hidden sm:block">
@@ -63,7 +66,7 @@ export function Topbar({
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-[5px] bg-[#34C759]/10 border border-[#34C759]/20 text-[11px] font-medium text-[#1B7F39] select-none ml-2">
+        <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-[5px] bg-[#34C759]/10 border border-[#34C759]/20 text-[11px] font-medium text-[#1B7F39] select-none ml-1 sm:ml-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#34C759]" />
           <span>Sistem Aktif</span>
         </div>
@@ -133,7 +136,7 @@ export function Topbar({
             alt="Logo Danantara Indonesia"
             width={130}
             height={34}
-            className="h-7 sm:h-8 w-auto object-contain select-none"
+            className="h-6 sm:h-7.5 w-auto max-w-[95px] sm:max-w-[130px] object-contain select-none"
             priority
           />
         </div>

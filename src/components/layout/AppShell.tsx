@@ -1,7 +1,7 @@
 "use client";
 
-// 100dvh root shell enforcing desktop zero-scroll architecture, live realtime notifications, and mobile drawer
-import React, { useState } from "react";
+// 100dvh root shell enforcing desktop collapsible sidebar, live realtime notifications, and responsive mobile/tablet drawer
+import React, { useState, useEffect } from "react";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { Profile } from "@/lib/types";
@@ -11,6 +11,7 @@ import {
   RealtimeNotificationProvider,
   useNotifications,
 } from "./RealtimeNotificationProvider";
+import { cn } from "@/lib/utils";
 
 interface AppShellProps {
   profile: Profile | null;
@@ -28,6 +29,40 @@ function AppShellInner({
   initialBadges?: Record<string, number>;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+
+  // Restore desktop sidebar preference from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("tps_sidebar_open");
+      if (stored !== null) {
+        setDesktopSidebarOpen(stored === "true");
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleToggleDesktopSidebar = () => {
+    setDesktopSidebarOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("tps_sidebar_open", String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const handleMenuToggle = () => {
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      handleToggleDesktopSidebar();
+    } else {
+      setDrawerOpen((prev) => !prev);
+    }
+  };
+
   const role = profile?.role ?? "vendor";
   const navGroups = getNavGroupsForRole(role);
   const { notificationCount, notificationItems, badges } = useNotifications();
@@ -36,12 +71,24 @@ function AppShellInner({
 
   return (
     <div className="h-dvh max-h-dvh w-full overflow-hidden flex bg-bg text-text">
-      {/* Desktop Fixed Sidebar */}
-      <div className="hidden lg:flex shrink-0 h-full">
-        <Sidebar groups={navGroups} badges={mergedBadges} profile={profile} />
+      {/* Desktop Collapsible Sidebar */}
+      <div
+        className={cn(
+          "hidden lg:flex shrink-0 h-full transition-[width] duration-300 ease-in-out overflow-hidden border-r border-[#005E8D]",
+          desktopSidebarOpen ? "w-[264px]" : "w-0 border-r-0"
+        )}
+      >
+        <div className="w-[264px] h-full shrink-0">
+          <Sidebar
+            groups={navGroups}
+            badges={mergedBadges}
+            profile={profile}
+            onToggleCollapse={() => handleToggleDesktopSidebar()}
+          />
+        </div>
       </div>
 
-      {/* Mobile Drawer Overlay */}
+      {/* Mobile / Tablet Drawer Overlay */}
       {drawerOpen && (
         <div
           role="dialog"
@@ -49,7 +96,7 @@ function AppShellInner({
           className="fixed inset-0 z-50 lg:hidden flex"
         >
           <div
-            className="fixed inset-0 bg-black/40 transition-opacity"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
             onClick={() => setDrawerOpen(false)}
           />
           <div className="relative z-10 w-[264px] h-full shadow-2xl animate-in slide-in-from-left duration-200">
@@ -57,6 +104,8 @@ function AppShellInner({
               groups={navGroups}
               badges={mergedBadges}
               profile={profile}
+              isMobile
+              onToggleCollapse={() => setDrawerOpen(false)}
               onItemClick={() => setDrawerOpen(false)}
             />
           </div>
@@ -67,11 +116,12 @@ function AppShellInner({
       <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
         <Topbar
           profile={profile}
-          onMenuToggle={() => setDrawerOpen(true)}
+          isSidebarOpen={desktopSidebarOpen}
+          onMenuToggle={handleMenuToggle}
           notificationCount={notificationCount}
           notificationItems={notificationItems}
         />
-        <main className="flex-1 min-h-0 flex flex-col overflow-y-auto lg:overflow-hidden p-4 sm:p-6">
+        <main className="flex-1 min-h-0 flex flex-col overflow-y-auto p-3 sm:p-4 lg:p-6">
           {children}
         </main>
       </div>

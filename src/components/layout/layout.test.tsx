@@ -120,4 +120,29 @@ describe("Sidebar Layout Component", () => {
     expect(html).toContain("CB"); // Initials
     expect(html).toContain("/vendor/pengaturan");
   });
+
+  it("renders collapse button when onToggleCollapse handler is provided", () => {
+    const html = renderToString(
+      <Sidebar
+        groups={MOCK_GROUPS}
+        profile={MOCK_PROFILE_GA}
+        onToggleCollapse={() => {}}
+      />
+    );
+
+    expect(html).toContain("Tutup Sidebar");
+  });
+
+  it("renders mobile close button when isMobile is set", () => {
+    const html = renderToString(
+      <Sidebar
+        groups={MOCK_GROUPS}
+        profile={MOCK_PROFILE_GA}
+        isMobile
+        onToggleCollapse={() => {}}
+      />
+    );
+
+    expect(html).toContain("Tutup Menu");
+  });
 });
