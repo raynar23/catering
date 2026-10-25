@@ -99,7 +99,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="w-full space-y-5">
       {/* File Dropzone */}
       <div
         onDragOver={handleDragOver}

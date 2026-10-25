@@ -10,6 +10,7 @@ import { EditablePreviewTable } from "@/components/import/EditablePreviewTable";
 import { ConfirmationPanel } from "@/components/import/ConfirmationPanel";
 import { AiConsentDialog } from "@/components/import/AiConsentDialog";
 import { AnalysisResult, DocumentType, KonfirmasiOpsi, ParsedRow } from "@/lib/import/types";
+import { cn } from "@/lib/utils";
 
 export default function AdminImporDataPage() {
   const [currentStep, setCurrentStep] = useState<ImportStep>("unggah");
@@ -126,25 +127,53 @@ export default function AdminImporDataPage() {
         subtitle="Ekstraksi jadwal catering, daftar vendor, dan rekap porsi dari berkas Excel, CSV, Word, PDF, atau pindaian OCR"
       />
 
-      <div className="mt-6">
-        <ImportStepper
-          currentStep={currentStep}
-          onStepClick={(step) => setCurrentStep(step)}
-          canNavigateToPeriksa={!!analysisResult}
-          canNavigateToKonfirmasi={!!analysisResult && editableRows.every((r) => r.status !== "error")}
-        />
-
-        {/* Step 1: Unggah */}
-        {currentStep === "unggah" && (
-          <UploadDropzone
-            onAnalyze={handleAnalyze}
-            isAnalyzing={isAnalyzing}
-            analyzingText={analyzingText}
-            error={analysisError}
-            showAiFallbackOption={!!analysisResult && analysisResult.keyakinan < 0.6}
-            onAiFallbackRequested={() => setShowAiModal(true)}
+      <div className="mt-6 flex-1 min-h-0 flex flex-col">
+        {/* Responsive wrapper: On step 'unggah' and 'konfirmasi', container is constrained to max-w-2xl mx-auto so the stepper is perfectly aligned with the dropzone/confirmation box below it across all devices.
+            On step 'periksa', preview table needs full container width so stepper expands to full width as well. */}
+        <div
+          className={cn(
+            "w-full transition-all duration-200",
+            currentStep === "periksa" ? "w-full" : "max-w-2xl mx-auto"
+          )}
+        >
+          <ImportStepper
+            currentStep={currentStep}
+            onStepClick={(step) => setCurrentStep(step)}
+            canNavigateToPeriksa={!!analysisResult}
+            canNavigateToKonfirmasi={
+              !!analysisResult && editableRows.every((r) => r.status !== "error")
+            }
           />
-        )}
+
+          {/* Step 1: Unggah */}
+          {currentStep === "unggah" && (
+            <UploadDropzone
+              onAnalyze={handleAnalyze}
+              isAnalyzing={isAnalyzing}
+              analyzingText={analyzingText}
+              error={analysisError}
+              showAiFallbackOption={
+                !!analysisResult && analysisResult.keyakinan < 0.6
+              }
+              onAiFallbackRequested={() => setShowAiModal(true)}
+            />
+          )}
+
+          {/* Step 3: Konfirmasi */}
+          {currentStep === "konfirmasi" && analysisResult && (
+            <ConfirmationPanel
+              analysis={analysisResult}
+              rows={editableRows}
+              options={options}
+              onBackToPeriksa={() => setCurrentStep("periksa")}
+              onConfirm={handleConfirm}
+              isConfirming={isConfirming}
+              isSuccess={isSuccess}
+              error={confirmError}
+              onReset={handleReset}
+            />
+          )}
+        </div>
 
         {/* Step 2: Periksa */}
         {currentStep === "periksa" && analysisResult && (
@@ -155,21 +184,6 @@ export default function AdminImporDataPage() {
             options={options}
             onOptionsChange={setOptions}
             onProceedToConfirmation={() => setCurrentStep("konfirmasi")}
-            onReset={handleReset}
-          />
-        )}
-
-        {/* Step 3: Konfirmasi */}
-        {currentStep === "konfirmasi" && analysisResult && (
-          <ConfirmationPanel
-            analysis={analysisResult}
-            rows={editableRows}
-            options={options}
-            onBackToPeriksa={() => setCurrentStep("periksa")}
-            onConfirm={handleConfirm}
-            isConfirming={isConfirming}
-            isSuccess={isSuccess}
-            error={confirmError}
             onReset={handleReset}
           />
         )}

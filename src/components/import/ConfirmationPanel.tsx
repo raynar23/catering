@@ -32,7 +32,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
 
   if (isSuccess) {
     return (
-      <div className="max-w-xl mx-auto p-8 bg-surface border border-border rounded-[10px] text-center space-y-6">
+      <div className="w-full p-8 bg-surface border border-border rounded-[10px] text-center space-y-6">
         {/* Success indicator using primary blue */}
         <div className="w-16 h-16 bg-primary-50 text-primary rounded-full flex items-center justify-center mx-auto text-2xl font-bold border border-primary/20">
           ✓
@@ -89,7 +89,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="w-full space-y-5">
       <div className="p-6 bg-surface border border-border rounded-[10px] space-y-5">
         <div>
           <h2 className="text-base font-semibold text-text">
