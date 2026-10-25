@@ -1,71 +1,41 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useTransition } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, Menu, LogOut, Settings } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { Profile } from "@/lib/types";
-import { signOutAction } from "@/lib/auth/sign-out";
 import { cn } from "@/lib/utils";
 
 import { NotificationItem } from "@/lib/realtime/notifications";
 
 interface TopbarProps {
-  profile: Profile | null;
+  profile?: Profile | null;
   notificationCount?: number;
   notificationItems?: NotificationItem[];
   onMenuToggle?: () => void;
   className?: string;
 }
 
-// Fixed 56px topbar displaying system identity, notification trigger, and profile menu
+// Fixed 56px topbar displaying system identity, notification trigger, and Danantara logo
 export function Topbar({
-  profile,
   notificationCount = 0,
   notificationItems = [],
   onMenuToggle,
   className,
 }: TopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-
   const notifRef = useRef<HTMLDivElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setNotifOpen(false);
       }
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
-        setProfileOpen(false);
-      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleSignOut = () => {
-    startTransition(async () => {
-      await signOutAction();
-    });
-  };
-
-  const initials = profile?.nama
-    ? profile.nama
-        .split(" ")
-        .slice(0, 2)
-        .map((w) => w[0]?.toUpperCase())
-        .join("")
-    : "US";
-
-  const roleLabel =
-    profile?.role === "admin_ga"
-      ? "Admin GA"
-      : profile?.role === "vendor"
-      ? "Vendor Catering"
-      : "Pengguna";
 
   return (
     <header
@@ -153,61 +123,8 @@ export function Topbar({
           )}
         </div>
 
-        {/* Profile Avatar and Menu */}
-        <div className="relative" ref={profileRef}>
-          <button
-            type="button"
-            onClick={() => setProfileOpen((v) => !v)}
-            className="flex items-center gap-2.5 p-1 rounded-[8px] hover:bg-black/[0.04] transition-colors cursor-pointer text-left"
-          >
-            <div className="w-8 h-8 rounded-full bg-[#E5E5EA] text-[#1D1D1F] font-semibold text-xs flex items-center justify-center shrink-0 border border-black/[0.08] shadow-xs">
-              {initials}
-            </div>
-            <div className="hidden sm:block text-left min-w-0">
-              <div className="text-xs font-semibold text-text truncate max-w-[140px]">
-                {profile?.nama ?? "Pengguna"}
-              </div>
-              <div className="text-[11px] text-text-muted truncate">
-                {roleLabel}
-              </div>
-            </div>
-          </button>
-
-          {profileOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-2xl border border-black/[0.08] rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.04)] p-1.5 z-40 animate-in fade-in zoom-in-95">
-              <div className="px-2.5 py-2 border-b border-[#E5E5EA] mb-1">
-                <p className="text-xs font-semibold text-text truncate">
-                  {profile?.nama ?? "Pengguna"}
-                </p>
-                <p className="text-[11px] text-[#86868B] truncate">
-                  {profile?.username ? `@${profile.username}` : ""}
-                </p>
-              </div>
-
-              <Link
-                href={profile?.role === "admin_ga" ? "/admin/pengaturan" : "/vendor/pengaturan"}
-                onClick={() => setProfileOpen(false)}
-                className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-text hover:bg-primary-50/60 rounded-[6px] transition-colors cursor-pointer mb-0.5"
-              >
-                <Settings className="w-3.5 h-3.5 text-text-muted" />
-                <span>Pengaturan Akun</span>
-              </Link>
-
-              <button
-                type="button"
-                onClick={handleSignOut}
-                disabled={isPending}
-                className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger-soft/70 rounded-[6px] transition-colors cursor-pointer"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>{isPending ? "Keluar..." : "Keluar"}</span>
-              </button>
-            </div>
-          )}
-        </div>
-
         {/* Vertical divider */}
-        <div className="h-6 sm:h-7 w-px bg-border shrink-0 mx-1 sm:mx-2" aria-hidden="true" />
+        <div className="h-6 sm:h-7 w-px bg-border shrink-0 mx-1 sm:mx-1.5" aria-hidden="true" />
 
         {/* Danantara Logo at Far Right */}
         <div className="flex items-center shrink-0">
