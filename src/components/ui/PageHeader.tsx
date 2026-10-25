@@ -13,16 +13,16 @@ export function PageHeader({ title, subtitle, actions, className }: PageHeaderPr
   return (
     <header
       className={cn(
-        "h-14 shrink-0 flex items-center justify-between gap-4 border-b border-border/80 py-2",
+        "h-14 shrink-0 flex items-center justify-between gap-4 border-b border-[#E5E5EA] py-2",
         className
       )}
     >
       <div className="min-w-0 flex-1">
-        <h1 className="text-xl font-bold tracking-tight text-text truncate">
+        <h1 className="text-[20px] font-bold tracking-tight text-text truncate">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs text-text-muted font-normal truncate mt-0.5 tracking-normal">
+          <p className="text-xs text-[#86868B] font-normal truncate mt-0.5 tracking-normal">
             {subtitle}
           </p>
         )}

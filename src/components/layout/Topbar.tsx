@@ -70,7 +70,7 @@ export function Topbar({
   return (
     <header
       className={cn(
-        "h-16 bg-surface border-b border-border px-4 lg:px-6 flex items-center justify-between shrink-0 select-none",
+        "h-16 bg-white/85 backdrop-blur-xl border-b border-[#E5E5EA] px-4 lg:px-6 flex items-center justify-between shrink-0 select-none",
         className
       )}
     >
@@ -78,23 +78,23 @@ export function Topbar({
         <button
           type="button"
           onClick={onMenuToggle}
-          className="lg:hidden p-1.5 -ml-1 text-text-muted hover:text-text rounded-[6px] hover:bg-bg cursor-pointer"
+          className="lg:hidden p-1.5 -ml-1 text-text-muted hover:text-text rounded-[6px] hover:bg-black/[0.04] cursor-pointer"
           aria-label="Buka Menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
         <div className="min-w-0">
-          <div className="text-sm font-bold text-text tracking-tight truncate">
+          <div className="text-[13px] font-semibold text-text tracking-tight truncate">
             Pengelolaan Data Catering Karyawan
           </div>
-          <div className="text-xs text-text-muted truncate hidden sm:block">
+          <div className="text-[11px] text-[#86868B] truncate hidden sm:block">
             PT Terminal Petikemas Surabaya
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-700 tracking-wide select-none ml-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#34C759]/10 border border-[#34C759]/20 text-[11px] font-medium text-[#1E8E3E] select-none ml-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#34C759]" />
           <span>Sistem Aktif</span>
         </div>
       </div>
@@ -105,28 +105,28 @@ export function Topbar({
           <button
             type="button"
             onClick={() => setNotifOpen((v) => !v)}
-            className="relative p-2 rounded-[8px] text-text-muted hover:text-text hover:bg-bg border border-transparent hover:border-border/60 transition-colors cursor-pointer"
+            className="relative p-2 rounded-[8px] text-text-muted hover:text-text hover:bg-black/[0.04] transition-colors cursor-pointer"
             aria-label="Notifikasi"
           >
             <Bell className="w-4 h-4" />
             {notificationCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-danger text-[10px] font-bold text-white flex items-center justify-center tabular-nums leading-none shadow-xs">
+              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-[#D70015] text-[10px] font-bold text-white flex items-center justify-center tabular-nums leading-none shadow-xs">
                 {notificationCount}
               </span>
             )}
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-2 w-76 bg-surface/98 backdrop-blur-md border border-border/90 rounded-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.08)] p-3 z-40 animate-in fade-in zoom-in-95">
-              <div className="flex items-center justify-between pb-2 border-b border-border/80 mb-2">
-                <span className="text-xs font-bold text-text">Notifikasi</span>
+            <div className="absolute right-0 mt-2 w-76 bg-white/95 backdrop-blur-2xl border border-black/[0.08] rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.04)] p-3 z-40 animate-in fade-in zoom-in-95">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E5E5EA] mb-2">
+                <span className="text-xs font-semibold text-text">Notifikasi</span>
                 {notificationCount > 0 && (
                   <span className="text-[10.5px] font-semibold text-primary bg-primary-50 px-2 py-0.5 rounded-full tabular-nums">
                     {notificationCount} baru
                   </span>
                 )}
               </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-border/60 -mx-1">
+              <div className="max-h-72 overflow-y-auto divide-y divide-[#F2F2F7] -mx-1">
                 {notificationItems && notificationItems.length > 0 ? (
                   notificationItems.map((item) => (
                     <Link
@@ -158,9 +158,9 @@ export function Topbar({
           <button
             type="button"
             onClick={() => setProfileOpen((v) => !v)}
-            className="flex items-center gap-2.5 p-1 rounded-[8px] hover:bg-bg transition-colors cursor-pointer text-left"
+            className="flex items-center gap-2.5 p-1 rounded-[8px] hover:bg-black/[0.04] transition-colors cursor-pointer text-left"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-50 to-primary-100 text-primary-700 font-bold text-xs flex items-center justify-center shrink-0 border border-primary/25 shadow-xs ring-2 ring-primary/10">
+            <div className="w-8 h-8 rounded-full bg-[#E5E5EA] text-[#1D1D1F] font-semibold text-xs flex items-center justify-center shrink-0 border border-black/[0.08] shadow-xs">
               {initials}
             </div>
             <div className="hidden sm:block text-left min-w-0">
@@ -174,12 +174,12 @@ export function Topbar({
           </button>
 
           {profileOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-surface/98 backdrop-blur-md border border-border/90 rounded-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.08)] p-2 z-40 animate-in fade-in zoom-in-95">
-              <div className="px-2 py-1.5 border-b border-border/80 mb-1">
-                <p className="text-xs font-bold text-text truncate">
+            <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-2xl border border-black/[0.08] rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.04)] p-1.5 z-40 animate-in fade-in zoom-in-95">
+              <div className="px-2.5 py-2 border-b border-[#E5E5EA] mb-1">
+                <p className="text-xs font-semibold text-text truncate">
                   {profile?.nama ?? "Pengguna"}
                 </p>
-                <p className="text-[11px] text-text-muted truncate">
+                <p className="text-[11px] text-[#86868B] truncate">
                   {profile?.username ? `@${profile.username}` : ""}
                 </p>
               </div>
@@ -187,7 +187,7 @@ export function Topbar({
               <Link
                 href={profile?.role === "admin_ga" ? "/admin/pengaturan" : "/vendor/pengaturan"}
                 onClick={() => setProfileOpen(false)}
-                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-text hover:bg-primary-50/60 rounded-[6px] transition-colors cursor-pointer mb-0.5"
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-text hover:bg-primary-50/60 rounded-[6px] transition-colors cursor-pointer mb-0.5"
               >
                 <Settings className="w-3.5 h-3.5 text-text-muted" />
                 <span>Pengaturan Akun</span>
@@ -197,7 +197,7 @@ export function Topbar({
                 type="button"
                 onClick={handleSignOut}
                 disabled={isPending}
-                className="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-medium text-danger hover:bg-danger-soft/70 rounded-[6px] transition-colors cursor-pointer"
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger-soft/70 rounded-[6px] transition-colors cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>{isPending ? "Keluar..." : "Keluar"}</span>
