@@ -10,7 +10,7 @@ Dokumen ini memuat panduan operasional langkah-demi-langkah bagi staf General Af
 1. Buka tautan aplikasi pada peramban web (misalnya `http://localhost:3000` atau URL deployment produksi).
 2. Pada form login yang tampil di atas latar dermaga peti kemas resmi TPS:
    - Masukkan **Username**: `admin` (atau email `admin@tps.co.id`).
-   - Masukkan **Password**: `gatps2026`.
+   - Masukkan **Password**: Masukkan kata sandi akun Admin GA yang diberikan administrator sistem.
 3. Klik tombol **Masuk**. Sistem akan memverifikasi kredensial dan mengarahkan Anda ke Dashboard Operasional Admin GA.
 
 ---
