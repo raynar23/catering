@@ -165,10 +165,10 @@ export function DailyTrendChart({
             {points.coords.map((c, i) => {
               const isHovered = hoveredIdx === i;
               const showLabel =
-                points.coords.length <= 12 ||
+                points.coords.length <= 6 ||
                 i === 0 ||
                 i === points.coords.length - 1 ||
-                i % Math.ceil(points.coords.length / 8) === 0;
+                i % Math.ceil(points.coords.length / 5) === 0;
 
               return (
                 <g key={i}>
