@@ -65,11 +65,6 @@ export function Topbar({
             PT Terminal Petikemas Surabaya
           </div>
         </div>
-
-        <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-[5px] bg-[#34C759]/10 border border-[#34C759]/20 text-[11px] font-medium text-[#1B7F39] select-none ml-1 sm:ml-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#34C759]" />
-          <span>Sistem Aktif</span>
-        </div>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
