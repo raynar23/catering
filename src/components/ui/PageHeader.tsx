@@ -13,12 +13,12 @@ export function PageHeader({ title, subtitle, actions, className }: PageHeaderPr
   return (
     <header
       className={cn(
-        "h-14 shrink-0 flex items-center justify-between gap-4 border-b border-[#E5E5EA] py-2",
+        "min-h-[56px] shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 border-b border-[#E5E5EA] py-2.5 sm:py-2",
         className
       )}
     >
       <div className="min-w-0 flex-1">
-        <h1 className="text-[20px] font-bold tracking-tight text-text truncate">
+        <h1 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-text truncate">
           {title}
         </h1>
         {subtitle && (
@@ -29,7 +29,7 @@ export function PageHeader({ title, subtitle, actions, className }: PageHeaderPr
       </div>
 
       {actions && (
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
           {actions}
         </div>
       )}

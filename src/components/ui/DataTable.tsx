@@ -178,8 +178,8 @@ export function DataTable<T>({
         </table>
       </div>
 
-      <div className="h-11 border-t border-[#E5E5EA] px-4 flex items-center justify-between text-xs text-[#86868B] shrink-0 bg-[#FAFAFC] select-none">
-        <span className="tabular-nums font-medium">
+      <div className="min-h-[44px] py-1.5 border-t border-[#E5E5EA] px-3 sm:px-4 flex flex-wrap items-center justify-between gap-2 text-xs text-[#86868B] shrink-0 bg-[#FAFAFC] select-none">
+        <span className="tabular-nums font-medium truncate max-w-[140px] sm:max-w-none text-[11px] sm:text-xs">
           {summaryText}
         </span>
 

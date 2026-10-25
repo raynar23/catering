@@ -36,25 +36,27 @@ export function MasterToolbar({
   return (
     <div
       className={cn(
-        "flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 py-3 select-none",
+        "flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 py-3 select-none",
         className
       )}
     >
-      <div className="flex flex-1 items-center gap-3">
+      <div className="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-2 sm:gap-3 min-w-0">
         <input
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
-          className="h-8.5 px-3 w-full max-w-xs rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-[#8A8A90] shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
+          className="h-8.5 px-3 w-full sm:max-w-xs rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-[#8A8A90] shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
         />
 
         {onStatusFilterChange && (
-          <SegmentedControl
-            options={statusOptions}
-            value={statusFilter}
-            onChange={onStatusFilterChange}
-          />
+          <div className="overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none">
+            <SegmentedControl
+              options={statusOptions}
+              value={statusFilter}
+              onChange={onStatusFilterChange}
+            />
+          </div>
         )}
       </div>
 
