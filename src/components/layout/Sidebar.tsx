@@ -16,14 +16,17 @@ import {
   Users,
   CheckSquare,
   LogOut,
+  Settings,
 } from "lucide-react";
 import { NavGroup, NavItem } from "@/lib/nav";
+import { Profile } from "@/lib/types";
 import { signOutAction } from "@/lib/auth/sign-out";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   groups: NavGroup[];
   badges?: Record<string, number>;
+  profile?: Profile | null;
   onItemClick?: () => void;
   className?: string;
 }
@@ -41,8 +44,14 @@ const ICON_MAP = {
   checkSquare: CheckSquare,
 };
 
-// Fixed 264px navy sidebar displaying role navigation and sign out action
-export function Sidebar({ groups, badges = {}, onItemClick, className }: SidebarProps) {
+// Fixed 264px navy sidebar displaying role navigation, user profile, and sign out action
+export function Sidebar({
+  groups,
+  badges = {},
+  profile,
+  onItemClick,
+  className,
+}: SidebarProps) {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
@@ -51,6 +60,24 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
       await signOutAction();
     });
   };
+
+  const initials = profile?.nama
+    ? profile.nama
+        .split(" ")
+        .slice(0, 2)
+        .map((w) => w[0]?.toUpperCase())
+        .join("")
+    : "AG";
+
+  const roleLabel =
+    profile?.role === "admin_ga"
+      ? "Admin GA"
+      : profile?.role === "vendor"
+      ? "Vendor Catering"
+      : "Pengguna";
+
+  const settingsHref =
+    profile?.role === "admin_ga" ? "/admin/pengaturan" : "/vendor/pengaturan";
 
   return (
     <aside
@@ -122,7 +149,32 @@ export function Sidebar({ groups, badges = {}, onItemClick, className }: Sidebar
         ))}
       </nav>
 
-      <div className="p-3 border-t border-white/10 shrink-0">
+      <div className="p-3 border-t border-white/10 shrink-0 space-y-2">
+        {/* User Profile Card */}
+        <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-[10px] bg-white/[0.08] border border-white/10">
+          <div className="w-8 h-8 rounded-full bg-white/20 border border-white/20 text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs select-none">
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[12.5px] font-semibold text-white truncate leading-tight">
+              {profile?.nama ?? "Administrator GA"}
+            </div>
+            <div className="text-[11px] text-white/65 truncate leading-tight mt-0.5">
+              {roleLabel}
+            </div>
+          </div>
+          <Link
+            href={settingsHref}
+            onClick={onItemClick}
+            className="p-1.5 text-white/60 hover:text-white hover:bg-white/15 rounded-[6px] transition-colors shrink-0 cursor-pointer"
+            title="Pengaturan Akun"
+            aria-label="Pengaturan Akun"
+          >
+            <Settings className="w-4 h-4" />
+          </Link>
+        </div>
+
+        {/* Sign Out Button */}
         <button
           type="button"
           onClick={handleSignOut}
