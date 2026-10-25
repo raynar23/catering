@@ -74,18 +74,18 @@ function AppShellInner({
       {/* Desktop Collapsible Sidebar */}
       <div
         className={cn(
-          "hidden lg:flex shrink-0 h-full transition-[width] duration-300 ease-in-out overflow-hidden border-r border-[#005E8D]",
-          desktopSidebarOpen ? "w-[264px]" : "w-0 border-r-0"
+          "hidden lg:flex shrink-0 h-full transition-[width] duration-200 ease-in-out border-r border-[#005E8D]",
+          desktopSidebarOpen ? "w-[264px]" : "w-[68px]"
         )}
       >
-        <div className="w-[264px] h-full shrink-0">
-          <Sidebar
-            groups={navGroups}
-            badges={mergedBadges}
-            profile={profile}
-            onToggleCollapse={() => handleToggleDesktopSidebar()}
-          />
-        </div>
+        <Sidebar
+          groups={navGroups}
+          badges={mergedBadges}
+          profile={profile}
+          collapsed={!desktopSidebarOpen}
+          onToggleCollapse={() => handleToggleDesktopSidebar()}
+          className="w-full border-r-0"
+        />
       </div>
 
       {/* Mobile / Tablet Drawer Overlay */}

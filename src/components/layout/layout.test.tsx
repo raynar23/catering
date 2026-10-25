@@ -146,4 +146,27 @@ describe("Sidebar Layout Component", () => {
 
     expect(html).toContain("Tutup Menu");
   });
+
+  it("renders icon-only rail with TPS symbol and accessible tooltips when collapsed", () => {
+    const html = renderToString(
+      <Sidebar
+        groups={MOCK_GROUPS}
+        badges={{ pendingOrders: 5 }}
+        profile={MOCK_PROFILE_GA}
+        collapsed
+      />
+    );
+
+    // TPS symbol should be rendered instead of full logo
+    expect(html).toContain("Logo TPS");
+    expect(html).toContain("w-[68px]");
+    // Nav items rendered with tooltips/aria-labels
+    expect(html).toContain('title="Dashboard"');
+    expect(html).toContain('title="Input Pesanan"');
+    expect(html).toContain("5"); // Badge count still visible
+    // Avatar initials rendered with tooltip
+    expect(html).toContain("AG");
+    expect(html).toContain('title="Pengaturan Akun: Administrator General Affair (Admin GA)"');
+    expect(html).toContain('title="Keluar"');
+  });
 });

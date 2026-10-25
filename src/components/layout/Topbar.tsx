@@ -51,8 +51,8 @@ export function Topbar({
           type="button"
           onClick={onMenuToggle}
           className="p-1.5 -ml-1 text-text-muted hover:text-text rounded-[6px] hover:bg-black/[0.04] active:bg-black/[0.08] transition-colors cursor-pointer shrink-0"
-          title={isSidebarOpen ? "Sembunyikan Sidebar" : "Tampilkan Sidebar"}
-          aria-label={isSidebarOpen ? "Sembunyikan Sidebar" : "Tampilkan Sidebar"}
+          title={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
+          aria-label={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
         >
           <PanelLeft className="w-5 h-5" />
         </button>
