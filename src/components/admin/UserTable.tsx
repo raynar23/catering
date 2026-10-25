@@ -117,14 +117,14 @@ export function UserTable({ currentUserId }: UserTableProps) {
 
         return (
           <div className="flex items-center gap-2.5 min-w-0 py-0.5">
-            <div className="w-7 h-7 rounded-full bg-primary/10 text-primary font-semibold text-[11px] flex items-center justify-center shrink-0 border border-primary/20">
+            <div className="w-7 h-7 rounded-full bg-[#E5E5EA] text-[#1D1D1F] font-semibold text-[11px] flex items-center justify-center shrink-0 border border-black/[0.06] shadow-xs">
               {initials || "US"}
             </div>
             <div className="min-w-0">
               <div className="font-medium text-text truncate flex items-center gap-1.5">
                 <span>{row.nama}</span>
                 {isSelf && (
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-primary/10 text-primary font-semibold">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-[4px] bg-black/[0.05] text-[#1D1D1F] font-medium leading-none">
                     Anda
                   </span>
                 )}

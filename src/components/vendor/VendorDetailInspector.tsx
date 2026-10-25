@@ -53,7 +53,7 @@ export function VendorDetailInspector({
               <h2 className="text-base sm:text-lg font-bold text-text">
                 Rincian Permintaan Catering
               </h2>
-              <span className="text-[12px] font-semibold px-2 py-0.5 rounded-[6px] bg-[#E8F2FA] text-[#0B5A94]">
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-[5px] bg-[#007AFF]/10 text-[#0066CC] border border-[#007AFF]/25">
                 {orderInfo.shiftNama} ({orderInfo.shiftLabel})
               </span>
             </div>

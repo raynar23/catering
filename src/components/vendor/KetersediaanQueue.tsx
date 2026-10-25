@@ -320,7 +320,7 @@ export function KetersediaanQueue({
                     <span className="font-bold text-base text-text">
                       {rev.bagianNama}
                     </span>
-                    <span className="text-[12px] font-semibold px-2 py-0.5 rounded-[4px] bg-[#E8F2FA] text-[#0B5A94]">
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-[5px] bg-[#007AFF]/10 text-[#0066CC] border border-[#007AFF]/25">
                       {rev.shiftNama} ({rev.shiftLabel})
                     </span>
                   </div>

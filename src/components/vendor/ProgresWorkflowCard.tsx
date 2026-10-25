@@ -176,7 +176,7 @@ export function ProgresWorkflowCard({ orders: initialOrders }: ProgresWorkflowCa
                     Tanggal: <strong className="text-text">{order.tanggal}</strong>
                   </span>
                   {isFinished && (
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-[4px] bg-[#EBF7EE] text-[#1E8E3E]">
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-[5px] bg-[#34C759]/10 text-[#1B7F39] border border-[#34C759]/25">
                       Selesai
                     </span>
                   )}
