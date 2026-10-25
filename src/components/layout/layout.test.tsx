@@ -104,6 +104,7 @@ describe("Sidebar Layout Component", () => {
     expect(html).toContain("Admin GA");
     expect(html).toContain("AG"); // Initials
     expect(html).toContain("/admin/pengaturan");
+    expect(html).toContain("Buka Pengaturan Akun");
     expect(html).toContain("Keluar");
   });
 
