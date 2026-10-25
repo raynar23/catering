@@ -75,18 +75,18 @@ export function CateringGrid({
   };
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col bg-surface border border-border rounded-[10px] overflow-hidden shadow-2xs">
+    <div className="flex-1 min-h-0 flex flex-col bg-white border border-black/[0.08] rounded-[12px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
       {/* Scrollable table container */}
       <div className="flex-1 min-h-0 overflow-auto">
         <table className="w-full text-left border-collapse min-w-[980px]">
           {/* Header */}
-          <thead className="sticky top-0 z-20 bg-surface shadow-2xs">
+          <thead className="sticky top-0 z-20 bg-white shadow-2xs">
             {/* Top Header Row: Bagian Title & 3 Shift Headers */}
-            <tr className="border-b border-border">
-              <th className="sticky left-0 z-30 bg-surface w-[240px] min-w-[240px] p-3 text-xs font-semibold text-text align-bottom border-r border-border">
+            <tr className="border-b border-black/[0.08]">
+              <th className="sticky left-0 z-30 bg-[#F9F9FB] w-[240px] min-w-[240px] p-3 text-xs font-semibold text-text align-bottom border-r border-black/[0.08]">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-bold text-text">Data Bagian</span>
-                  <span className="text-[11px] font-normal text-text-muted">
+                  <span className="text-sm font-bold text-text tracking-tight">Data Bagian</span>
+                  <span className="text-[11px] font-normal text-[#86868B]">
                     Unit kerja & lokasi antar
                   </span>
                 </div>
@@ -101,7 +101,7 @@ export function CateringGrid({
                   <th
                     key={shiftId}
                     colSpan={2}
-                    className="p-0 border-r border-border last:border-r-0 bg-surface align-top"
+                    className="p-0 border-r border-black/[0.08] last:border-r-0 bg-white align-top"
                   >
                     <ShiftGroupHeader
                       shift={shift}
@@ -116,17 +116,17 @@ export function CateringGrid({
             </tr>
 
             {/* Sub-Header Row: Sub-columns Karyawan & Porsi */}
-            <tr className="bg-slate-50 border-b border-border text-[11px] font-semibold text-text-muted uppercase tracking-wider">
-              <th className="sticky left-0 z-30 bg-slate-50 px-3 py-2 border-r border-border">
+            <tr className="bg-[#F9F9FB] border-b border-black/[0.08] text-[11px] font-semibold text-[#86868B] uppercase tracking-wider">
+              <th className="sticky left-0 z-30 bg-[#F9F9FB] px-3 py-2 border-r border-black/[0.08]">
                 Nama Bagian
               </th>
 
               {shiftOrder.map((shiftId) => (
                 <React.Fragment key={shiftId}>
-                  <th className="px-3 py-2 text-right w-[110px] min-w-[110px] border-r border-border/40">
+                  <th className="px-3 py-2 text-right w-[110px] min-w-[110px] border-r border-black/[0.06]">
                     Karyawan
                   </th>
-                  <th className="px-3 py-2 text-right w-[110px] min-w-[110px] border-r border-border last:border-r-0">
+                  <th className="px-3 py-2 text-right w-[110px] min-w-[110px] border-r border-black/[0.08] last:border-r-0">
                     Porsi
                   </th>
                 </React.Fragment>
@@ -283,10 +283,10 @@ export function CateringGrid({
           </tbody>
 
           {/* Sticky Footer: Total Row */}
-          <tfoot className="sticky bottom-0 z-20 bg-slate-100 border-t-2 border-border shadow-xs">
+          <tfoot className="sticky bottom-0 z-20 bg-[#F9F9FB] border-t border-black/[0.08] shadow-xs">
             <tr className="text-xs font-bold text-text">
-              <td className="sticky left-0 z-30 bg-slate-100 px-3 py-2.5 border-r border-border">
-                <span>Total Porsi</span>
+              <td className="sticky left-0 z-30 bg-[#F9F9FB] px-3 py-2.5 border-r border-black/[0.08]">
+                <span className="font-bold tracking-tight">Total Porsi</span>
               </td>
 
               {shiftOrder.map((shiftId) => {
@@ -296,10 +296,10 @@ export function CateringGrid({
 
                 return (
                   <React.Fragment key={shiftId}>
-                    <td className="px-3 py-2.5 text-right font-mono text-text-muted border-r border-border/40">
+                    <td className="px-3 py-2.5 text-right font-mono text-[#86868B] border-r border-black/[0.06]">
                       {totals.totalKaryawan}
                     </td>
-                    <td className="px-3 py-2.5 text-right font-mono text-[#003366] font-extrabold border-r border-border last:border-r-0">
+                    <td className="px-3 py-2.5 text-right font-mono text-primary font-bold border-r border-black/[0.08] last:border-r-0">
                       {totals.totalPorsi}
                     </td>
                   </React.Fragment>
@@ -330,21 +330,21 @@ export function CateringGrid({
                 })
               }
               placeholder="Contoh: 2 porsi vegetarian / tambahan lembur kapal..."
-              className="w-full px-3 py-2 text-xs rounded-[8px] border border-border bg-white text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+              className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#D1D1D6] bg-white text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all resize-none"
             />
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-border">
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5E5EA]">
               <button
                 type="button"
                 onClick={() => setActiveNoteCell(null)}
-                className="px-3 py-1.5 text-xs rounded-md border border-border text-text hover:bg-slate-50 transition-colors cursor-pointer"
+                className="h-8.5 px-4 text-xs font-semibold rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] text-[#1D1D1F] transition-all cursor-pointer"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleSaveNote}
-                className="px-3 py-1.5 text-xs font-semibold rounded-md bg-[#003366] text-white hover:bg-[#002850] transition-colors cursor-pointer"
+                className="h-8.5 px-4 text-xs font-semibold rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20"
               >
                 Simpan Catatan
               </button>

@@ -120,88 +120,88 @@ export function PesananHariIniPanel({
   };
 
   return (
-    <div className="bg-surface border border-border rounded-[10px] p-4 sm:p-5 flex flex-col flex-1 min-h-0">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-2 shrink-0">
+    <div className="bg-white border border-black/[0.08] rounded-[12px] p-4 sm:p-5 flex flex-col flex-1 min-h-0 shadow-[0_1px_3px_rgba(0,0,0,0.03)] select-none">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-[#E5E5EA] gap-2 shrink-0">
         <div>
-          <h2 className="text-base font-bold text-text">
+          <h2 className="text-base font-bold text-text tracking-tight">
             Pesanan Hari Ini
           </h2>
-          <p className="text-[13px] text-text-muted mt-0.5">
-            Pelaksanaan jadwal 3 shift tanggal <span className="font-medium text-text">{todayFormatted}</span>
+          <p className="text-xs text-[#86868B] mt-0.5">
+            Pelaksanaan jadwal 3 shift tanggal <span className="font-semibold text-text">{todayFormatted}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href="/vendor/permintaan"
-            className="text-[13px] font-medium text-primary hover:underline flex items-center gap-1 min-h-[44px] px-2"
+            className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 min-h-[36px] px-2"
           >
             Lihat Seluruh Permintaan
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 flex-1 min-h-0 overflow-y-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-4 flex-1 min-h-0 overflow-y-auto">
         {shifts.map((shift) => {
           return (
             <div
               key={shift.shiftId}
-              className={`rounded-[10px] border p-4 flex flex-col justify-between transition-all ${
+              className={`rounded-[12px] border p-4 flex flex-col justify-between transition-all ${
                 shift.hasOrder
-                  ? "bg-surface border-border hover:border-primary/40 shadow-xs"
-                  : "bg-[#F8FAFC] border-dashed border-border/80"
+                  ? "bg-white border-black/[0.08] hover:border-primary/40 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
+                  : "bg-[#F9F9FB] border-dashed border-[#D1D1D6]"
               }`}
             >
               <div>
                 {/* Header */}
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-base text-text">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-sm text-text tracking-tight">
                         {shift.shiftNama}
                       </span>
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-[4px] bg-[#E8F2FA] text-[#0B5A94]">
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-[5px] bg-[#E5E5EA]/70 text-[#1D1D1F]">
                         {shift.shiftLabel}
                       </span>
                     </div>
-                    <span className="text-[12px] text-text-muted flex items-center gap-1 mt-1">
-                      <Clock className="w-3.5 h-3.5 text-text-muted shrink-0" />
-                      {shift.shiftJam} (Batas tiba: {shift.batasTiba})
+                    <span className="text-xs text-[#86868B] flex items-center gap-1 mt-1 font-mono">
+                      <Clock className="w-3.5 h-3.5 text-[#86868B] shrink-0" />
+                      {shift.shiftJam} (Batas: {shift.batasTiba})
                     </span>
                   </div>
 
                   {shift.hasOrder && (
                     <div className="text-right">
-                      <span className="text-[11px] text-text-muted block">Total</span>
-                      <span className="text-base font-bold text-primary">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-[#86868B] block">Total</span>
+                      <span className="text-base font-bold text-primary tabular-nums">
                         {formatNumber(shift.totalPorsi)}
                       </span>
-                      <span className="text-[11px] text-text-muted ml-0.5">porsi</span>
+                      <span className="text-[11px] text-[#86868B] ml-0.5">porsi</span>
                     </div>
                   )}
                 </div>
 
                 {/* Status Badges or Empty */}
                 {shift.hasOrder ? (
-                  <div className="mt-4 pt-3 border-t border-border space-y-2">
-                    <div className="flex items-center justify-between text-[12px]">
-                      <span className="text-text-muted">Respon:</span>
+                  <div className="mt-3.5 pt-3 border-t border-[#E5E5EA] space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#86868B]">Respon:</span>
                       <StatusBadge status={shift.responVendor || "menunggu"} />
                     </div>
 
-                    <div className="flex items-center justify-between text-[12px]">
-                      <span className="text-text-muted">Progres:</span>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#86868B]">Progres:</span>
                       <StatusBadge status={shift.progresVendor || "menunggu"} />
                     </div>
 
                     {shift.catatanGa && (
-                      <p className="text-[11px] text-text-muted line-clamp-2 bg-[#F8FAFC] p-2 rounded-[6px] border border-border/60">
+                      <p className="text-[11px] text-[#86868B] line-clamp-2 bg-[#F9F9FB] p-2 rounded-[6px] border border-black/[0.06]">
                         {shift.catatanGa}
                       </p>
                     )}
                   </div>
                 ) : (
-                  <div className="py-8 text-center text-[12px] text-text-muted">
+                  <div className="py-8 text-center text-xs text-[#86868B]">
                     Tidak ada jadwal pesanan untuk shift ini.
                   </div>
                 )}
@@ -209,21 +209,21 @@ export function PesananHariIniPanel({
 
               {/* Action Buttons */}
               {shift.hasOrder && (
-                <div className="mt-4 pt-3 border-t border-border flex flex-col gap-2">
+                <div className="mt-4 pt-3 border-t border-[#E5E5EA] flex flex-col gap-2">
                   {shift.responVendor === "menunggu" && (
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
                         onClick={() => handleOpenResponseDialog(shift, true)}
-                        className="w-full min-h-[44px] px-3 py-2 bg-[#1E8E3E] hover:bg-[#167031] text-white rounded-[8px] text-[12px] font-medium flex items-center justify-center gap-1 cursor-pointer transition-colors"
+                        className="w-full h-8.5 px-3 bg-[#34C759] hover:bg-[#2EB84F] text-white rounded-[8px] text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer transition-all shadow-[0_1px_2px_rgba(0,0,0,0.08)]"
                       >
-                        <CheckCircle2 className="w-4 h-4" />
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                         Sanggupi
                       </button>
                       <button
                         type="button"
                         onClick={() => handleOpenResponseDialog(shift, false)}
-                        className="w-full min-h-[44px] px-3 py-2 bg-surface hover:bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF] rounded-[8px] text-[12px] font-medium flex items-center justify-center cursor-pointer transition-colors"
+                        className="w-full h-8.5 px-3 bg-white hover:bg-[#FF3B30]/10 text-[#FF3B30] border border-[#FF3B30]/30 rounded-[8px] text-xs font-semibold flex items-center justify-center cursor-pointer transition-all"
                       >
                         Tidak Sanggup
                       </button>
@@ -234,18 +234,18 @@ export function PesananHariIniPanel({
                     <button
                       type="button"
                       onClick={() => handleOpenInspector(shift)}
-                      className="flex-1 min-h-[44px] px-3 py-2 bg-surface hover:bg-black/5 text-text border border-border rounded-[8px] text-[12px] font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                      className="flex-1 h-8 px-3 rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] text-[#1D1D1F] text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                     >
-                      <Eye className="w-4 h-4 text-text-muted" />
+                      <Eye className="w-3.5 h-3.5 text-[#86868B]" />
                       Rincian
                     </button>
 
                     {shift.responVendor === "disanggupi" && (
                       <Link
                         href="/vendor/progres"
-                        className="flex-1 min-h-[44px] px-3 py-2 bg-[#0B5A94] hover:bg-[#084572] text-white rounded-[8px] text-[12px] font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                        className="flex-1 h-8 px-3 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-all"
                       >
-                        <Truck className="w-4 h-4" />
+                        <Truck className="w-3.5 h-3.5" />
                         Progres
                       </Link>
                     )}
