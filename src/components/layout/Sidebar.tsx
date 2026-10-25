@@ -52,7 +52,7 @@ export function Sidebar({
   onItemClick,
   className,
 }: SidebarProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const [isPending, startTransition] = useTransition();
 
   const handleSignOut = () => {
