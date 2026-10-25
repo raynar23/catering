@@ -29,7 +29,7 @@ export function SegmentedControl({
       role="radiogroup"
       aria-label={ariaLabel}
       className={cn(
-        "inline-flex items-center rounded-lg bg-[#EAEAEF] p-1 border border-border/50",
+        "inline-flex items-center rounded-[8px] bg-[#E5E5EA]/70 p-[2.5px] border border-black/[0.04] select-none",
         className
       )}
     >
@@ -43,10 +43,10 @@ export function SegmentedControl({
             aria-checked={isSelected}
             onClick={() => onChange(option.value)}
             className={cn(
-              "px-3 py-1 text-xs font-medium rounded-md transition-all duration-150 cursor-pointer select-none",
+              "px-3 py-1 text-xs transition-all duration-150 cursor-pointer select-none",
               isSelected
-                ? "bg-surface text-text shadow-xs"
-                : "text-text-muted hover:text-text"
+                ? "bg-white text-text font-semibold rounded-[6px] shadow-[0_1px_2.5px_rgba(0,0,0,0.12),0_0.5px_1px_rgba(0,0,0,0.06)]"
+                : "text-text-muted hover:text-text font-medium rounded-[6px]"
             )}
           >
             {option.label}

@@ -21,13 +21,14 @@
   --color-border: #E5E5EA;
   --color-text: #1D1D1F;
   --color-text-muted: #6E6E73;
+  --color-text-tertiary: #86868B;
   --color-placeholder: #8A8A90;
   --color-danger: #D70015;
   --color-danger-soft: #FDECEE;
   --color-success: #1E8E3E;
   --color-warning: #9A5B00;
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Inter", -system-ui, sans-serif;
 }
 
 @layer base {
@@ -39,16 +40,21 @@
     background-color: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
+    letter-spacing: -0.011em;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.022em;
   }
 
   select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%236E6E73'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%2386868B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 14px center;
     background-size: 14px 14px;
@@ -60,7 +66,7 @@
     color: #005580;
   }
 
-  /* Sleek corporate scrollbars */
+  /* macOS sleek scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -69,11 +75,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #D5D5DC;
+    background: #D1D1D6;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #B0B0B8;
+    background: #A1A1A6;
   }
 }
 

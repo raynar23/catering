@@ -98,20 +98,20 @@ export function DataTable<T>({
     <div
       ref={containerRef}
       className={cn(
-        "flex-1 min-h-0 flex flex-col bg-surface border border-border rounded-[10px] overflow-hidden shadow-xs",
+        "flex-1 min-h-0 flex flex-col bg-surface border border-black/[0.08] rounded-[12px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]",
         className
       )}
     >
       <div className="flex-1 min-h-0 overflow-auto">
         <table className="w-full text-left border-collapse text-xs">
-          <thead className="sticky top-0 z-10 bg-[#F8FAFC] border-b border-border/80 shadow-[0_1px_0_rgba(0,0,0,0.02)]">
+          <thead className="sticky top-0 z-10 bg-[#F9F9FB]/95 backdrop-blur-sm border-b border-[#E5E5EA]">
             <tr className="h-10">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
-                    "px-4 text-[11px] font-semibold uppercase tracking-wider text-text-muted/90 select-none",
+                    "px-4 text-[11px] font-semibold uppercase tracking-wider text-[#86868B] select-none",
                     col.align === "right" && "text-right",
                     col.align === "center" && "text-center",
                     col.className
@@ -123,7 +123,7 @@ export function DataTable<T>({
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-border/60">
+          <tbody className="divide-y divide-[#F2F2F7]">
             {isLoading ? (
               Array.from({ length: pageSize }).map((_, i) => (
                 <tr key={`skeleton-${i}`} className="h-10">
@@ -150,7 +150,7 @@ export function DataTable<T>({
                 return (
                   <tr
                     key={key}
-                    className="h-10 hover:bg-primary-50/50 transition-colors duration-150"
+                    className="h-10 hover:bg-primary-50/40 transition-colors duration-150"
                   >
                     {columns.map((col) => {
                       const value = (row as Record<string, unknown>)[col.key];
@@ -178,7 +178,7 @@ export function DataTable<T>({
         </table>
       </div>
 
-      <div className="h-12 border-t border-border/80 px-4 flex items-center justify-between text-xs text-text-muted shrink-0 bg-[#FBFBFC] select-none">
+      <div className="h-11 border-t border-[#E5E5EA] px-4 flex items-center justify-between text-xs text-[#86868B] shrink-0 bg-[#FAFAFC] select-none">
         <span className="tabular-nums font-medium">
           {summaryText}
         </span>
@@ -188,18 +188,18 @@ export function DataTable<T>({
             type="button"
             disabled={validPage <= 1 || isLoading}
             onClick={() => handlePageChange(validPage - 1)}
-            className="h-7 px-3 rounded-[6px] border border-border bg-surface text-xs font-medium text-text hover:bg-bg hover:border-primary/40 hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
+            className="h-7 px-3 rounded-[6px] border border-[#D1D1D6] bg-white text-xs font-medium text-text hover:bg-black/[0.03] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
           >
             Sebelumnya
           </button>
-          <span className="px-2 text-text font-semibold tabular-nums text-[11px] bg-bg/80 py-1 rounded-[4px] border border-border/50">
+          <span className="px-2.5 py-0.5 text-text font-semibold tabular-nums text-[11px] bg-[#E5E5EA]/70 rounded-[5px]">
             {pageText}
           </span>
           <button
             type="button"
             disabled={validPage >= totalPages || isLoading}
             onClick={() => handlePageChange(validPage + 1)}
-            className="h-7 px-3 rounded-[6px] border border-border bg-surface text-xs font-medium text-text hover:bg-bg hover:border-primary/40 hover:text-primary disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
+            className="h-7 px-3 rounded-[6px] border border-[#D1D1D6] bg-white text-xs font-medium text-text hover:bg-black/[0.03] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
           >
             Berikutnya
           </button>

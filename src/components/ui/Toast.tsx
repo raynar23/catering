@@ -69,16 +69,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={t.id}
             role="status"
             className={cn(
-              "pointer-events-auto w-full bg-surface border rounded-[8px] p-3 shadow-lg flex items-start justify-between gap-3 transition-all duration-150 animate-in fade-in slide-in-from-bottom-2",
+              "pointer-events-auto w-full bg-white/95 backdrop-blur-xl border border-black/[0.08] rounded-[12px] p-3.5 shadow-[0_12px_28px_rgba(0,0,0,0.12),0_2px_4px_rgba(0,0,0,0.04)] flex items-start justify-between gap-3 transition-all duration-150 animate-in fade-in slide-in-from-bottom-2",
               VARIANT_BORDER_MAP[t.variant ?? "default"]
             )}
           >
             <div className="min-w-0 flex-1">
-              <h4 className={cn("text-xs font-semibold leading-tight", VARIANT_TITLE_MAP[t.variant ?? "default"])}>
+              <h4 className={cn("text-xs font-semibold leading-tight tracking-tight", VARIANT_TITLE_MAP[t.variant ?? "default"])}>
                 {t.title}
               </h4>
               {t.description && (
-                <p className="text-xs text-text-muted mt-1 leading-normal">
+                <p className="text-xs text-text-muted mt-1 leading-normal font-normal">
                   {t.description}
                 </p>
               )}
@@ -86,7 +86,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              className="text-text-muted hover:text-text p-0.5 rounded cursor-pointer"
+              className="w-5.5 h-5.5 rounded-full bg-[#E5E5EA]/70 hover:bg-[#D1D1D6] text-text-muted hover:text-text flex items-center justify-center transition-colors cursor-pointer shrink-0"
               aria-label="Tutup"
             >
               <X className="w-3.5 h-3.5" />
