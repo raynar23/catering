@@ -18,24 +18,22 @@ import { AnalysisResult, DocumentType, ImportEngine, ParsedRow, RawTableData } f
 // Maximum 10 MB file size
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
-// Simple in-memory rate limiter per user (max 10 requests/minute)
-const userRateLimits = new Map<string, { count: number; resetAt: number }>();
+// Database-backed rate limiter per user (max 10 batches/minute in import_batches)
+async function checkDatabaseRateLimit(userId: string): Promise<boolean> {
+  try {
+    const adminClient = createAdminClient();
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+    const { count, error } = await adminClient
+      .from("import_batches")
+      .select("id", { count: "exact", head: true })
+      .eq("diimpor_oleh", userId)
+      .gte("created_at", oneMinuteAgo);
 
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now();
-  const entry = userRateLimits.get(userId);
-
-  if (!entry || now > entry.resetAt) {
-    userRateLimits.set(userId, { count: 1, resetAt: now + 60 * 1000 });
+    if (error) return true;
+    return (count ?? 0) < 10;
+  } catch {
     return true;
   }
-
-  if (entry.count >= 10) {
-    return false;
-  }
-
-  entry.count += 1;
-  return true;
 }
 
 // Verify caller is an active Admin GA
@@ -92,11 +90,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
 
-    if (!checkRateLimit(auth.caller.id)) {
+    const isAllowed = await checkDatabaseRateLimit(auth.caller.id);
+    if (!isAllowed) {
       return NextResponse.json(
         {
           success: false,
-          error: "Terlalu banyak permintaan analisis berkas. Harap tunggu 1 menit sebelum mencoba kembali.",
+          error: "Terlalu banyak permintaan analisis berkas. Batas 10 berkas per menit telah tercapai.",
         },
         { status: 429 }
       );
