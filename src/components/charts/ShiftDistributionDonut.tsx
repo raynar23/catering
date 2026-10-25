@@ -68,10 +68,10 @@ export function ShiftDistributionDonut({
   const isEmpty = totalPorsi === 0 || series.every((s) => s.total_porsi === 0);
 
   return (
-    <div className="bg-surface border border-border rounded-[10px] p-4 flex flex-col h-full select-none">
+    <div className="bg-white border border-black/[0.08] rounded-[12px] p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
       <div className="mb-2">
-        <h3 className="text-xs font-semibold text-text">Distribusi per Shift</h3>
-        <p className="text-[11px] text-text-muted">Proporsi kebutuhan katering menurut jadwal kerja</p>
+        <h3 className="text-xs font-semibold text-text tracking-tight">Distribusi per Shift</h3>
+        <p className="text-[11px] text-[#86868B]">Proporsi kebutuhan katering menurut jadwal kerja</p>
       </div>
 
       {isEmpty ? (

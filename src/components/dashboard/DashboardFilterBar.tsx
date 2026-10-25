@@ -67,7 +67,7 @@ export function DashboardFilterBar({
     <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-2.5 py-1.5 select-none shrink-0">
       {/* Quick Presets Segmented Control */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1 xl:pb-0 scrollbar-none">
-        <div className="inline-flex items-center bg-slate-100/90 p-1 rounded-[10px] border border-border/50 gap-1 shrink-0">
+        <div className="inline-flex items-center bg-[#E5E5EA]/70 p-[2.5px] rounded-[8px] border border-black/[0.04] shrink-0">
           {PRESET_OPTIONS.map((opt) => {
             const isSelected = preset === opt.value;
             return (
@@ -76,10 +76,10 @@ export function DashboardFilterBar({
                 type="button"
                 disabled={isLoading}
                 onClick={() => handleSelectPreset(opt.value)}
-                className={`h-7 px-3 rounded-[7px] text-xs font-medium transition-all duration-150 cursor-pointer ${
+                className={`h-6.5 px-3 rounded-[6px] text-xs transition-all duration-150 cursor-pointer select-none ${
                   isSelected
-                    ? "bg-surface text-primary shadow-[0_1px_2px_rgba(0,0,0,0.06)] font-semibold border border-border/40"
-                    : "text-text-muted hover:text-text hover:bg-surface/50"
+                    ? "bg-white text-text font-semibold shadow-[0_1px_2.5px_rgba(0,0,0,0.12),0_0.5px_1px_rgba(0,0,0,0.06)]"
+                    : "text-[#6E6E73] hover:text-text font-medium"
                 }`}
               >
                 {opt.label}
@@ -96,7 +96,7 @@ export function DashboardFilterBar({
             type="button"
             disabled={isLoading}
             onClick={() => handleShift("prev")}
-            className="h-8.5 w-8.5 flex items-center justify-center rounded-[8px] border border-border/80 bg-surface hover:bg-bg text-text-muted hover:text-text transition-colors cursor-pointer disabled:opacity-50 shadow-2xs"
+            className="h-7.5 w-7.5 flex items-center justify-center rounded-[7px] border border-[#D1D1D6] bg-white hover:bg-black/[0.03] text-text-muted hover:text-text transition-colors cursor-pointer disabled:opacity-40 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
             title="Mundur satu rentang"
             aria-label="Mundur satu rentang"
           >
@@ -106,7 +106,7 @@ export function DashboardFilterBar({
             type="button"
             disabled={isLoading}
             onClick={() => handleShift("next")}
-            className="h-8.5 w-8.5 flex items-center justify-center rounded-[8px] border border-border/80 bg-surface hover:bg-bg text-text-muted hover:text-text transition-colors cursor-pointer disabled:opacity-50 shadow-2xs"
+            className="h-7.5 w-7.5 flex items-center justify-center rounded-[7px] border border-[#D1D1D6] bg-white hover:bg-black/[0.03] text-text-muted hover:text-text transition-colors cursor-pointer disabled:opacity-40 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
             title="Maju satu rentang"
             aria-label="Maju satu rentang"
           >

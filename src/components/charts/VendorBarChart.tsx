@@ -36,10 +36,10 @@ export function VendorBarChart({
   const maxVal = Math.max(...series.map((v) => v.total_porsi), 1);
 
   return (
-    <div className="bg-surface border border-border rounded-[10px] p-4 flex flex-col h-full select-none">
+    <div className="bg-white border border-black/[0.08] rounded-[12px] p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
       <div className="mb-2">
-        <h3 className="text-xs font-semibold text-text">Porsi per Vendor</h3>
-        <p className="text-[11px] text-text-muted">Distribusi pemenuhan katering oleh 5 vendor mitra</p>
+        <h3 className="text-xs font-semibold text-text tracking-tight">Porsi per Vendor</h3>
+        <p className="text-[11px] text-[#86868B]">Distribusi pemenuhan katering oleh 5 vendor mitra</p>
       </div>
 
       {isEmpty ? (
