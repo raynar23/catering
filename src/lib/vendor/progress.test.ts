@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   getNextProgressStep,
   isProgressAdvanceAllowed,
-  PROGRESS_STEPS,
 } from "./progress";
 
 describe("vendor progress transitions", () => {

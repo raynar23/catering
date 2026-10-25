@@ -176,7 +176,7 @@ export function parseRekapHarian(
       }
     }
 
-    for (const [key, col] of periodMap.entries()) {
+    for (const col of periodMap.values()) {
       const items: Record<string, number> = {};
       let totalPorsi = 0;
 

@@ -3,7 +3,6 @@
 import React from "react";
 import { RekapHarianData } from "@/lib/actions/rekap";
 import { formatNumber, formatDate } from "@/lib/format";
-import { Skeleton } from "@/components/ui/Skeleton";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface RekapHarianTableProps {

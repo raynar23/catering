@@ -2,9 +2,6 @@
 import { z } from "zod";
 import {
   JadwalParsedRow,
-  VendorParsedRow,
-  BagianParsedRow,
-  RekapHarianParsedRow,
   ParsedRow,
   ImportBatchSummary,
 } from "./types";

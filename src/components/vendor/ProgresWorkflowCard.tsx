@@ -204,7 +204,6 @@ export function ProgresWorkflowCard({ orders: initialOrders }: ProgresWorkflowCa
                 {PROGRESS_STEPS.map((step, idx) => {
                   const isDone = idx < currentStepIndex;
                   const isCurrent = idx === currentStepIndex;
-                  const isUpcoming = idx > currentStepIndex;
 
                   let stepBg = "bg-[#F1F3F4] text-text-muted border-border";
                   if (isDone) {
