@@ -33,140 +33,139 @@ const STATUS_CONFIG: Record<
 > = {
   final: {
     label: "Final",
-    textClass: "text-[#1E8E3E]",
-    bgClass: "bg-[#EBF7EE]",
-    borderClass: "border-[#C8E9D0]",
+    textClass: "text-[#1B7F39]",
+    bgClass: "bg-[#34C759]/10",
+    borderClass: "border-[#34C759]/25",
   },
   disetujui: {
     label: "Disetujui",
-    textClass: "text-[#1E8E3E]",
-    bgClass: "bg-[#EBF7EE]",
-    borderClass: "border-[#C8E9D0]",
+    textClass: "text-[#1B7F39]",
+    bgClass: "bg-[#34C759]/10",
+    borderClass: "border-[#34C759]/25",
   },
   aktif: {
     label: "Aktif",
-    textClass: "text-[#1E8E3E]",
-    bgClass: "bg-[#EBF7EE]",
-    borderClass: "border-[#C8E9D0]",
+    textClass: "text-[#1B7F39]",
+    bgClass: "bg-[#34C759]/10",
+    borderClass: "border-[#34C759]/25",
   },
   disanggupi: {
     label: "Disanggupi",
-    textClass: "text-[#1E8E3E]",
-    bgClass: "bg-[#EBF7EE]",
-    borderClass: "border-[#C8E9D0]",
+    textClass: "text-[#1B7F39]",
+    bgClass: "bg-[#34C759]/10",
+    borderClass: "border-[#34C759]/25",
   },
   selesai: {
     label: "Selesai",
-    textClass: "text-[#1E8E3E]",
-    bgClass: "bg-[#EBF7EE]",
-    borderClass: "border-[#C8E9D0]",
+    textClass: "text-[#1B7F39]",
+    bgClass: "bg-[#34C759]/10",
+    borderClass: "border-[#34C759]/25",
   },
 
   diajukan: {
     label: "Diajukan",
-    textClass: "text-[#0B5A94]",
-    bgClass: "bg-[#E8F2FA]",
-    borderClass: "border-[#BBD9EE]",
+    textClass: "text-[#0066CC]",
+    bgClass: "bg-[#007AFF]/10",
+    borderClass: "border-[#007AFF]/25",
   },
   dipersiapkan: {
     label: "Dipersiapkan",
-    textClass: "text-[#0B5A94]",
-    bgClass: "bg-[#E8F2FA]",
-    borderClass: "border-[#BBD9EE]",
+    textClass: "text-[#0066CC]",
+    bgClass: "bg-[#007AFF]/10",
+    borderClass: "border-[#007AFF]/25",
   },
   dikirim: {
     label: "Dikirim",
-    textClass: "text-[#0B5A94]",
-    bgClass: "bg-[#E8F2FA]",
-    borderClass: "border-[#BBD9EE]",
+    textClass: "text-[#0066CC]",
+    bgClass: "bg-[#007AFF]/10",
+    borderClass: "border-[#007AFF]/25",
   },
 
   draft: {
     label: "Draft",
-    textClass: "text-[#6E6E73]",
-    bgClass: "bg-[#F2F2F7]",
-    borderClass: "border-[#E5E5EA]",
+    textClass: "text-[#636366]",
+    bgClass: "bg-[#8E8E93]/10",
+    borderClass: "border-black/[0.06]",
   },
   nonaktif: {
     label: "Nonaktif",
-    textClass: "text-[#6E6E73]",
-    bgClass: "bg-[#F2F2F7]",
-    borderClass: "border-[#E5E5EA]",
+    textClass: "text-[#636366]",
+    bgClass: "bg-[#8E8E93]/10",
+    borderClass: "border-black/[0.06]",
   },
 
   revisi: {
     label: "Revisi",
-    textClass: "text-[#9A5B00]",
-    bgClass: "bg-[#FFF8E6]",
-    borderClass: "border-[#FFE2A4]",
+    textClass: "text-[#B25E00]",
+    bgClass: "bg-[#FF9500]/10",
+    borderClass: "border-[#FF9500]/25",
   },
   menunggu: {
     label: "Menunggu Verifikasi",
-    textClass: "text-[#9A5B00]",
-    bgClass: "bg-[#FFF8E6]",
-    borderClass: "border-[#FFE2A4]",
+    textClass: "text-[#B25E00]",
+    bgClass: "bg-[#FF9500]/10",
+    borderClass: "border-[#FF9500]/25",
   },
   sampai: {
     label: "Sampai di Lokasi",
-    textClass: "text-[#9A5B00]",
-    bgClass: "bg-[#FFF8E6]",
-    borderClass: "border-[#FFE2A4]",
+    textClass: "text-[#B25E00]",
+    bgClass: "bg-[#FF9500]/10",
+    borderClass: "border-[#FF9500]/25",
   },
 
   belum_input: {
     label: "Belum Input",
     textClass: "text-[#D70015]",
-    bgClass: "bg-[#FDECEE]",
-    borderClass: "border-[#F7CCD0]",
+    bgClass: "bg-[#FF3B30]/10",
+    borderClass: "border-[#FF3B30]/25",
   },
   ditolak: {
     label: "Ditolak",
     textClass: "text-[#D70015]",
-    bgClass: "bg-[#FDECEE]",
-    borderClass: "border-[#F7CCD0]",
+    bgClass: "bg-[#FF3B30]/10",
+    borderClass: "border-[#FF3B30]/25",
   },
   tidak_sanggup: {
     label: "Tidak Sanggup",
     textClass: "text-[#D70015]",
-    bgClass: "bg-[#FDECEE]",
-    borderClass: "border-[#F7CCD0]",
+    bgClass: "bg-[#FF3B30]/10",
+    borderClass: "border-[#FF3B30]/25",
   },
 
   admin_ga: {
     label: "Admin GA",
-    textClass: "text-[#0B5A94]",
-    bgClass: "bg-[#E8F2FA]",
-    borderClass: "border-[#BBD9EE]",
+    textClass: "text-[#1D1D1F]",
+    bgClass: "bg-black/[0.05]",
+    borderClass: "border-black/[0.08]",
   },
   vendor: {
     label: "Vendor",
-    textClass: "text-[#0E7490]",
-    bgClass: "bg-[#ECFEFF]",
-    borderClass: "border-[#CFFAFE]",
+    textClass: "text-[#006CA2]",
+    bgClass: "bg-[#006CA2]/10",
+    borderClass: "border-[#006CA2]/20",
   },
 };
 
-// Clean modern status badge with inline status indicator dot
+// Clean, Apple-grade status tag with crisp typography and subtle translucent tints
 export function StatusBadge({ status, label, className }: StatusBadgeProps) {
   const normalizedKey = status.toLowerCase();
   const config = STATUS_CONFIG[normalizedKey] ?? {
     label: status,
-    textClass: "text-text-muted",
-    bgClass: "bg-bg",
-    borderClass: "border-border",
+    textClass: "text-[#636366]",
+    bgClass: "bg-black/[0.04]",
+    borderClass: "border-black/[0.06]",
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-[6px] border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide whitespace-nowrap tabular-nums shadow-[0_1px_2px_rgba(0,0,0,0.02)] transition-colors",
+        "inline-flex items-center justify-center rounded-[5px] border px-2 py-0.5 text-[11px] font-medium tracking-tight whitespace-nowrap tabular-nums select-none transition-colors",
         config.textClass,
         config.bgClass,
         config.borderClass,
         className
       )}
     >
-      <span className="w-1.5 h-1.5 rounded-full mr-1.5 shrink-0 bg-current opacity-80" aria-hidden="true" />
       <span>{label ?? config.label}</span>
     </span>
   );
