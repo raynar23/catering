@@ -102,7 +102,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
             value={nama}
             onChange={(e) => setNama(e.target.value)}
             placeholder="Contoh: Shift 1"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
           />
         </FormField>
 
@@ -112,7 +112,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="Contoh: Siang / Pagi"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
           />
         </FormField>
 
@@ -122,7 +122,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
             value={alias}
             onChange={(e) => setAlias(e.target.value)}
             placeholder="Contoh: Siang"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
           />
         </FormField>
       </div>
@@ -134,7 +134,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
             value={jamMulai}
             onChange={(e) => setJamMulai(e.target.value)}
             placeholder="08:00"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </FormField>
 
@@ -144,7 +144,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
             value={jamSelesai}
             onChange={(e) => setJamSelesai(e.target.value)}
             placeholder="16:00"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </FormField>
 
@@ -154,7 +154,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
             value={batasTiba}
             onChange={(e) => setBatasTiba(e.target.value)}
             placeholder="10:00"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </FormField>
       </div>
@@ -166,7 +166,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
             min={0}
             value={urutan}
             onChange={(e) => setUrutan(parseInt(e.target.value, 10) || 0)}
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </FormField>
 
@@ -176,7 +176,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
             min={1}
             value={urutanLaporan}
             onChange={(e) => setUrutanLaporan(parseInt(e.target.value, 10) || 1)}
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </FormField>
 
@@ -186,7 +186,7 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
               type="checkbox"
               checked={aktif}
               onChange={(e) => setAktif(e.target.checked)}
-              className="w-4 h-4 rounded text-primary border-border focus:ring-primary"
+              className="w-4 h-4 rounded-[4px] text-primary border-[#D1D1D6] focus:ring-primary/20 cursor-pointer"
             />
             <span className="text-xs font-medium text-text">Shift Aktif</span>
           </label>
@@ -199,23 +199,23 @@ function ShiftFormInner({ shiftToEdit, onClose, onSuccess }: FormInnerProps) {
           value={keterangan}
           onChange={(e) => setKeterangan(e.target.value)}
           placeholder="Keterangan shift kerja..."
-          className="p-2.5 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 resize-none"
+          className="p-2.5 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all resize-none"
         />
       </FormField>
 
-      <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+      <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5EA]">
         <button
           type="button"
           disabled={loading}
           onClick={onClose}
-          className="h-9 px-4 rounded-[8px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-50 transition-colors cursor-pointer"
+          className="h-8.5 px-4 rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] active:bg-[#D1D1D6] text-xs font-semibold text-[#1D1D1F] disabled:opacity-50 transition-all cursor-pointer"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="h-9 px-4 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium disabled:opacity-50 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          className="h-8.5 px-4 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.08)] disabled:opacity-50 transition-all cursor-pointer focus:outline-none focus:ring-3 focus:ring-primary/20"
         >
           {loading ? "Menyimpan..." : "Simpan Shift"}
         </button>

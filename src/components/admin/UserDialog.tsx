@@ -214,23 +214,23 @@ export function UserDialog({
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Nama Lengkap */}
         <div>
-          <label className="block text-xs font-semibold text-text mb-1">
-            Nama Lengkap <span className="text-danger">*</span>
+          <label className="block text-[12px] font-semibold text-[#1D1D1F] tracking-tight mb-1">
+            Nama Lengkap <span className="text-[#FF3B30] font-bold">*</span>
           </label>
           <input
             type="text"
             value={nama}
             onChange={(e) => setNama(e.target.value)}
             placeholder="Contoh: Muhammad Raynar"
-            className="w-full h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
           />
-          {errors.nama && <p className="text-[11px] text-danger mt-1">{errors.nama}</p>}
+          {errors.nama && <p className="text-[11px] font-medium text-[#FF3B30] mt-1">{errors.nama}</p>}
         </div>
 
         {/* Username */}
         <div>
-          <label className="block text-xs font-semibold text-text mb-1">
-            Username {!isEdit && <span className="text-danger">*</span>}
+          <label className="block text-[12px] font-semibold text-[#1D1D1F] tracking-tight mb-1">
+            Username {!isEdit && <span className="text-[#FF3B30] font-bold">*</span>}
           </label>
           <div className="relative">
             <input
@@ -239,38 +239,38 @@ export function UserDialog({
               disabled={isEdit}
               onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s+/g, ""))}
               placeholder="Contoh: pic.lapangan"
-              className="w-full h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder disabled:bg-bg disabled:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder disabled:bg-[#F2F2F7] disabled:text-[#86868B] shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
             />
           </div>
-          <p className="text-[11px] text-text-muted mt-1">
+          <p className="text-[11px] text-[#86868B] mt-1">
             Email login: {username.trim() ? `${username.trim().toLowerCase()}@tps.co.id` : "username@tps.co.id"}
           </p>
-          {errors.username && <p className="text-[11px] text-danger mt-1">{errors.username}</p>}
+          {errors.username && <p className="text-[11px] font-medium text-[#FF3B30] mt-1">{errors.username}</p>}
         </div>
 
         {/* Initial Password (only when creating) */}
         {!isEdit && (
           <div>
-            <label className="block text-xs font-semibold text-text mb-1">
-              Password Awal <span className="text-danger">*</span>
+            <label className="block text-[12px] font-semibold text-[#1D1D1F] tracking-tight mb-1">
+              Password Awal <span className="text-[#FF3B30] font-bold">*</span>
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Minimal 8 karakter"
-              className="w-full h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
             />
-            {errors.password && <p className="text-[11px] text-danger mt-1">{errors.password}</p>}
+            {errors.password && <p className="text-[11px] font-medium text-[#FF3B30] mt-1">{errors.password}</p>}
           </div>
         )}
 
-        {/* Role Selection */}
+        {/* Role Selection (Apple Segmented Control) */}
         <div>
-          <label className="block text-xs font-semibold text-text mb-1">
-            Role Otorisasi <span className="text-danger">*</span>
+          <label className="block text-[12px] font-semibold text-[#1D1D1F] tracking-tight mb-1">
+            Role Otorisasi <span className="text-[#FF3B30] font-bold">*</span>
           </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="bg-[#E5E5EA]/70 p-[2.5px] rounded-[8px] flex items-center">
             <button
               type="button"
               disabled={isSelf}
@@ -278,10 +278,10 @@ export function UserDialog({
                 setRole("admin_ga");
                 setVendorId("");
               }}
-              className={`h-9 px-3 rounded-[8px] text-xs font-medium border transition-colors cursor-pointer ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-[6px] transition-all cursor-pointer ${
                 role === "admin_ga"
-                  ? "bg-primary text-white border-primary"
-                  : "bg-surface text-text border-border hover:bg-bg"
+                  ? "bg-white text-[#1D1D1F] shadow-[0_1px_2.5px_rgba(0,0,0,0.12),0_0.5px_1px_rgba(0,0,0,0.06)]"
+                  : "text-[#6E6E73] hover:text-[#1D1D1F]"
               } ${isSelf ? "opacity-60 cursor-not-allowed" : ""}`}
             >
               Admin GA
@@ -290,17 +290,17 @@ export function UserDialog({
               type="button"
               disabled={isSelf || (isEdit && !roleChangeAllowed)}
               onClick={() => setRole("vendor")}
-              className={`h-9 px-3 rounded-[8px] text-xs font-medium border transition-colors cursor-pointer ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-[6px] transition-all cursor-pointer ${
                 role === "vendor"
-                  ? "bg-primary text-white border-primary"
-                  : "bg-surface text-text border-border hover:bg-bg"
+                  ? "bg-white text-[#1D1D1F] shadow-[0_1px_2.5px_rgba(0,0,0,0.12),0_0.5px_1px_rgba(0,0,0,0.06)]"
+                  : "text-[#6E6E73] hover:text-[#1D1D1F]"
               } ${isSelf || (isEdit && !roleChangeAllowed) ? "opacity-60 cursor-not-allowed" : ""}`}
             >
               Vendor Catering
             </button>
           </div>
           {isSelf && (
-            <p className="text-[11px] text-text-muted mt-1">
+            <p className="text-[11px] text-[#86868B] mt-1">
               Role akun Anda sendiri tidak dapat diubah demi keamanan akses.
             </p>
           )}
@@ -309,13 +309,13 @@ export function UserDialog({
         {/* Vendor Selection (if role === 'vendor') */}
         {role === "vendor" && (
           <div>
-            <label className="block text-xs font-semibold text-text mb-1">
-              Pilih Vendor Mitra <span className="text-danger">*</span>
+            <label className="block text-[12px] font-semibold text-[#1D1D1F] tracking-tight mb-1">
+              Pilih Vendor Mitra <span className="text-[#FF3B30] font-bold">*</span>
             </label>
             <select
               value={vendorId}
               onChange={(e) => setVendorId(e.target.value)}
-              className="w-full h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+              className="w-full h-8.5 pl-3 pr-8 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all cursor-pointer"
             >
               <option value="">-- Pilih Vendor Mitra --</option>
               {vendors.map((v) => (
@@ -324,13 +324,13 @@ export function UserDialog({
                 </option>
               ))}
             </select>
-            {errors.vendor_id && <p className="text-[11px] text-danger mt-1">{errors.vendor_id}</p>}
+            {errors.vendor_id && <p className="text-[11px] font-medium text-[#FF3B30] mt-1">{errors.vendor_id}</p>}
           </div>
         )}
 
         {/* No. Handphone / WhatsApp */}
         <div>
-          <label className="block text-xs font-semibold text-text mb-1">
+          <label className="block text-[12px] font-semibold text-[#1D1D1F] tracking-tight mb-1">
             Nomor HP / WhatsApp (Opsional)
           </label>
           <input
@@ -338,17 +338,17 @@ export function UserDialog({
             value={noHp}
             onChange={(e) => setNoHp(e.target.value)}
             placeholder="Contoh: 081234567890"
-            className="w-full h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </div>
 
         {/* Status Aktif (only when editing) */}
         {isEdit && (
-          <div className="pt-2 border-t border-border">
+          <div className="pt-2 border-t border-[#E5E5EA]">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold text-text">Status Akun</p>
-                <p className="text-[11px] text-text-muted">
+                <p className="text-[11px] text-[#86868B]">
                   {aktif ? "Akun aktif dan dapat login" : "Akun dinonaktifkan (login diblokir)"}
                 </p>
               </div>
@@ -360,16 +360,16 @@ export function UserDialog({
                   onChange={(e) => setAktif(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-10 h-5 bg-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-success"></div>
+                <div className="w-10 h-5.5 bg-[#E5E5EA] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[18px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2.5px] after:left-[2.5px] after:bg-white after:rounded-full after:h-4.5 after:w-4.5 after:transition-all after:shadow-sm peer-checked:bg-[#34C759]"></div>
               </label>
             </div>
             {isSelf && (
-              <p className="text-[11px] text-text-muted mt-1">
+              <p className="text-[11px] text-[#86868B] mt-1">
                 Anda tidak dapat menonaktifkan akun sendiri.
               </p>
             )}
             {!isSelf && !deactivationAllowed && aktif && (
-              <p className="text-[11px] text-danger mt-1">
+              <p className="text-[11px] font-medium text-[#FF3B30] mt-1">
                 Tidak dapat menonaktifkan akun: minimal satu Admin GA aktif harus tersisa.
               </p>
             )}
@@ -377,19 +377,19 @@ export function UserDialog({
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
+        <div className="flex items-center justify-end gap-2 pt-4 border-t border-[#E5E5EA]">
           <button
             type="button"
             disabled={loading}
             onClick={() => onOpenChange(false)}
-            className="h-9 px-4 rounded-[8px] border border-border bg-surface hover:bg-bg text-xs font-medium text-text transition-colors cursor-pointer"
+            className="h-8.5 px-4 rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] active:bg-[#D1D1D6] text-xs font-semibold text-[#1D1D1F] transition-all cursor-pointer"
           >
             Batal
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="h-9 px-4 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-xs font-medium text-white transition-colors cursor-pointer flex items-center gap-1.5"
+            className="h-8.5 px-4 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-xs font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-all cursor-pointer flex items-center gap-1.5 focus:outline-none focus:ring-3 focus:ring-primary/20"
           >
             {loading ? "Menyimpan..." : isEdit ? "Simpan Perubahan" : "Buat Akun"}
           </button>

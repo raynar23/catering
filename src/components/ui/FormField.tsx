@@ -26,22 +26,23 @@ export function FormField({
       {label && (
         <label
           htmlFor={htmlFor}
-          className="text-xs font-medium text-text flex items-center gap-1 select-none"
+          className="text-[12px] font-semibold text-[#1D1D1F] tracking-tight flex items-center gap-1 select-none"
         >
           {label}
-          {required && <span className="text-[#D70015]">*</span>}
+          {required && <span className="text-[#FF3B30] font-bold">*</span>}
         </label>
       )}
 
       {children}
 
       {error ? (
-        <p className="text-[11px] text-[#D70015] leading-none" role="alert">
+        <p className="text-[11px] font-medium text-[#FF3B30] leading-none tracking-tight" role="alert">
           {error}
         </p>
       ) : hint ? (
-        <p className="text-[11px] text-text-muted leading-none">{hint}</p>
+        <p className="text-[11px] text-[#86868B] leading-none">{hint}</p>
       ) : null}
     </div>
   );
 }
+

@@ -100,34 +100,34 @@ export function ExportDialog({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-black/35 backdrop-blur-[2px] transition-opacity"
         onClick={!isExporting ? onClose : undefined}
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-md bg-surface border border-border rounded-[12px] shadow-2xl p-5 z-10 animate-in fade-in zoom-in-95">
-        <h2 className="text-sm font-semibold text-text">Ekspor Rekapitulasi & Laporan</h2>
-        <p className="text-xs text-text-muted mt-0.5">
-          Rentang: <strong className="text-text">{dari}</strong> s/d{" "}
-          <strong className="text-text">{sampai}</strong>
+      <div className="relative w-full max-w-md bg-white border border-black/[0.08] rounded-[14px] shadow-[0_24px_48px_rgba(0,0,0,0.18),0_4px_12px_rgba(0,0,0,0.06)] p-5 z-10 animate-in fade-in zoom-in-95">
+        <h2 className="text-sm font-bold text-[#1D1D1F] tracking-tight">Ekspor Rekapitulasi & Laporan</h2>
+        <p className="text-xs text-[#86868B] mt-0.5">
+          Rentang: <strong className="text-text font-semibold">{dari}</strong> s/d{" "}
+          <strong className="text-text font-semibold">{sampai}</strong>
         </p>
 
         {/* Format Selection Cards */}
         <div className="mt-4 space-y-2">
-          <label className="text-xs font-medium text-text">Pilih Format Berkas</label>
+          <label className="text-[12px] font-semibold text-[#1D1D1F] tracking-tight">Pilih Format Berkas</label>
           <div className="grid grid-cols-2 gap-2.5">
             <button
               type="button"
               disabled={isExporting}
               onClick={() => setFormatType("excel")}
-              className={`p-3 rounded-[8px] border text-left transition-colors cursor-pointer ${
+              className={`p-3 rounded-[10px] border text-left transition-all cursor-pointer ${
                 formatType === "excel"
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-surface text-text hover:bg-bg"
+                  ? "border-primary bg-primary/5 text-primary shadow-xs ring-1 ring-primary/20"
+                  : "border-[#E5E5EA] bg-[#F5F5F7]/60 text-text hover:bg-[#E5E5EA]/40"
               }`}
             >
               <p className="text-xs font-semibold">Microsoft Excel (.xlsx)</p>
-              <p className="text-[11px] text-text-muted mt-1 leading-snug">
+              <p className="text-[11px] text-[#86868B] mt-1 leading-snug">
                 Format matriks split 1-15 & 16-akhir, multi-sheet, dan rumus SUM dinamis.
               </p>
             </button>
@@ -136,14 +136,14 @@ export function ExportDialog({
               type="button"
               disabled={isExporting}
               onClick={() => setFormatType("pdf")}
-              className={`p-3 rounded-[8px] border text-left transition-colors cursor-pointer ${
+              className={`p-3 rounded-[10px] border text-left transition-all cursor-pointer ${
                 formatType === "pdf"
-                  ? "border-primary bg-primary/5 text-primary"
-                  : "border-border bg-surface text-text hover:bg-bg"
+                  ? "border-primary bg-primary/5 text-primary shadow-xs ring-1 ring-primary/20"
+                  : "border-[#E5E5EA] bg-[#F5F5F7]/60 text-text hover:bg-[#E5E5EA]/40"
               }`}
             >
               <p className="text-xs font-semibold">Dokumen PDF (.pdf)</p>
-              <p className="text-[11px] text-text-muted mt-1 leading-snug">
+              <p className="text-[11px] text-[#86868B] mt-1 leading-snug">
                 A4 Landscape ber-kop resmi, rincian per bagian, dan tabel ringkasan shift & vendor.
               </p>
             </button>
@@ -152,7 +152,7 @@ export function ExportDialog({
 
         {/* Optional Notes Input for Document Footer */}
         <div className="mt-4 space-y-1.5">
-          <label htmlFor="catatan-ekspor" className="text-xs font-medium text-text">
+          <label htmlFor="catatan-ekspor" className="text-[12px] font-semibold text-[#1D1D1F] tracking-tight">
             Catatan Tambahan (Opsional)
           </label>
           <textarea
@@ -162,17 +162,17 @@ export function ExportDialog({
             value={catatan}
             onChange={(e) => setCatatan(e.target.value)}
             placeholder="Tuliskan catatan atau keterangan khusus yang akan dicetak pada footer dokumen..."
-            className="w-full text-xs rounded-[8px] border border-border bg-surface p-2.5 text-text focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-text-muted/60"
+            className="w-full text-xs rounded-[8px] border border-[#D1D1D6] bg-white p-2.5 text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all placeholder:text-[#86868B] resize-none"
           />
         </div>
 
         {/* Actions */}
-        <div className="mt-5 flex items-center justify-end gap-2.5">
+        <div className="mt-5 flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5EA]">
           <button
             type="button"
             disabled={isExporting}
             onClick={onClose}
-            className="h-8 px-3 rounded-[6px] border border-border text-xs text-text hover:bg-bg transition-colors cursor-pointer disabled:opacity-50"
+            className="h-8.5 px-4 rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] text-xs font-semibold text-[#1D1D1F] transition-all cursor-pointer disabled:opacity-50"
           >
             Batal
           </button>
@@ -180,7 +180,7 @@ export function ExportDialog({
             type="button"
             disabled={isExporting}
             onClick={handleDownload}
-            className="h-8 px-4 rounded-[6px] bg-primary text-white text-xs font-semibold hover:bg-primary/95 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+            className="h-8.5 px-4 rounded-[8px] bg-primary text-white text-xs font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:bg-[#0E63A1] active:bg-[#0B5A94] transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5 focus:outline-none focus:ring-3 focus:ring-primary/20"
           >
             {isExporting ? "Sedang Menyiapkan..." : "Unduh Dokumen"}
           </button>

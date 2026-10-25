@@ -57,26 +57,26 @@ export function KirimVendorDialog({
       <div className="space-y-4">
         {hasMissing ? (
           <div className="space-y-3">
-            <div className="flex items-start gap-3 p-3.5 rounded-[8px] bg-rose-50 border border-rose-200 text-rose-900 text-sm">
-              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-3.5 rounded-[10px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#D70015] text-sm">
+              <AlertCircle className="w-5 h-5 text-[#FF3B30] shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="font-semibold text-rose-950">
+                <p className="font-bold text-[#D70015] tracking-tight">
                   Terdapat {missingBagian.length} bagian yang belum diisi porsinya:
                 </p>
-                <p className="text-xs text-rose-800">
+                <p className="text-xs text-[#86868B]">
                   Pastikan semua bagian telah memiliki nilai porsi (isi angka 0 jika shift ini tidak ada jatah catering untuk bagian tersebut).
                 </p>
               </div>
             </div>
 
-            <div className="max-h-48 overflow-y-auto rounded-[8px] border border-border p-2 bg-slate-50 space-y-1">
+            <div className="max-h-48 overflow-y-auto rounded-[10px] border border-black/[0.08] p-2 bg-[#F5F5F7]/60 space-y-1">
               {missingBagian.map((nama) => (
                 <div
                   key={nama}
-                  className="px-2.5 py-1.5 rounded-[6px] bg-white border border-border/80 text-xs text-text flex items-center justify-between"
+                  className="px-2.5 py-1.5 rounded-[6px] bg-white border border-black/[0.06] text-xs text-text flex items-center justify-between shadow-xs"
                 >
-                  <span className="font-medium">{nama}</span>
-                  <span className="text-[11px] text-rose-600 font-medium">
+                  <span className="font-semibold text-[#1D1D1F]">{nama}</span>
+                  <span className="text-[11px] text-[#FF3B30] font-semibold">
                     Belum diisi
                   </span>
                 </div>
@@ -87,7 +87,7 @@ export function KirimVendorDialog({
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm font-medium rounded-[8px] bg-primary text-white hover:bg-[#0E63A1]"
+                className="h-8.5 px-4 text-xs font-semibold rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-all cursor-pointer focus:outline-none focus:ring-3 focus:ring-primary/20"
               >
                 Tutup & Lengkapi Data
               </button>
@@ -96,27 +96,27 @@ export function KirimVendorDialog({
         ) : (
           <div className="space-y-4">
             {/* Shift & Vendor summary */}
-            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-[8px] bg-slate-50 border border-border text-xs">
+            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-[10px] bg-[#F5F5F7]/70 border border-black/[0.06] text-xs">
               <div>
-                <span className="text-muted block">Shift Operasional</span>
-                <span className="font-semibold text-text text-sm">
+                <span className="text-[#86868B] block text-[11px]">Shift Operasional</span>
+                <span className="font-bold text-text text-sm tracking-tight">
                   {shift.shiftNama} ({shift.shiftLabel})
                 </span>
               </div>
               <div>
-                <span className="text-muted block">Mitra Vendor</span>
-                <span className="font-semibold text-text text-sm">
+                <span className="text-[#86868B] block text-[11px]">Mitra Vendor</span>
+                <span className="font-bold text-text text-sm tracking-tight">
                   {shift.vendorNama || "-"}
                 </span>
               </div>
-              <div className="pt-2 border-t border-border/60">
-                <span className="text-muted block">Total Karyawan</span>
-                <span className="font-mono font-semibold text-text text-sm">
+              <div className="pt-2 border-t border-black/[0.06]">
+                <span className="text-[#86868B] block text-[11px]">Total Karyawan</span>
+                <span className="font-mono font-bold text-text text-sm">
                   {totals.totalKaryawan} orang
                 </span>
               </div>
-              <div className="pt-2 border-t border-border/60">
-                <span className="text-muted block">Total Porsi</span>
+              <div className="pt-2 border-t border-black/[0.06]">
+                <span className="text-[#86868B] block text-[11px]">Total Porsi</span>
                 <span className="font-mono font-bold text-primary text-sm">
                   {totals.totalPorsi} porsi
                 </span>
@@ -127,7 +127,7 @@ export function KirimVendorDialog({
             <div className="space-y-1.5">
               <label
                 htmlFor="kirim-catatan"
-                className="text-xs font-medium text-text block"
+                className="text-[12px] font-semibold text-[#1D1D1F] tracking-tight block"
               >
                 Catatan Pengiriman (Opsional)
               </label>
@@ -137,25 +137,25 @@ export function KirimVendorDialog({
                 value={catatan}
                 onChange={(e) => setCatatan(e.target.value)}
                 placeholder="Misal: Tambahan air mineral untuk workshop atau instruksi antar..."
-                className="w-full px-3 py-2 text-xs rounded-[8px] border border-border bg-white text-text placeholder:text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+                className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#D1D1D6] bg-white text-text placeholder:text-[#86868B] shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all resize-none"
               />
             </div>
 
             {/* Warning callout */}
-            <div className="flex items-start gap-2.5 p-3 rounded-[8px] bg-blue-50/70 border border-blue-200 text-blue-950 text-xs">
-              <Lock className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-              <span>
+            <div className="flex items-start gap-2.5 p-3 rounded-[8px] bg-primary-50/30 border border-primary/20 text-[#1D1D1F] text-xs">
+              <Lock className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <span className="text-[#1D1D1F]">
                 Setelah dikirim, data shift ini akan berstatus <strong>Final</strong> dan terkunci. Perubahan kuota setelahnya wajib diajukan melalui alur <strong>Ajukan Revisi</strong>.
               </span>
             </div>
 
             {/* Dialog actions */}
-            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5EA]">
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
                 disabled={isProcessing}
-                className="px-4 py-2 text-xs font-medium rounded-[8px] border border-border bg-white text-text hover:bg-slate-50"
+                className="h-8.5 px-4 text-xs font-semibold rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] text-[#1D1D1F] transition-all cursor-pointer"
               >
                 Batal
               </button>
@@ -163,7 +163,7 @@ export function KirimVendorDialog({
                 type="button"
                 onClick={handleConfirm}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white shadow-xs"
+                className="inline-flex items-center gap-1.5 h-8.5 px-4 text-xs font-semibold rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-all cursor-pointer focus:outline-none focus:ring-3 focus:ring-primary/20"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>

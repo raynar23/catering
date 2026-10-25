@@ -97,7 +97,7 @@ function VendorFormInner({ vendorToEdit, onClose, onSuccess }: FormInnerProps) {
             value={kode}
             onChange={(e) => setKode(e.target.value.toUpperCase())}
             placeholder="Contoh: V006"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 uppercase tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all uppercase tabular-nums"
           />
         </FormField>
 
@@ -107,7 +107,7 @@ function VendorFormInner({ vendorToEdit, onClose, onSuccess }: FormInnerProps) {
             value={nama}
             onChange={(e) => setNama(e.target.value)}
             placeholder="Contoh: Aisya Catering"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
           />
         </FormField>
       </div>
@@ -119,7 +119,7 @@ function VendorFormInner({ vendorToEdit, onClose, onSuccess }: FormInnerProps) {
             value={namaKontak}
             onChange={(e) => setNamaKontak(e.target.value)}
             placeholder="Nama penanggung jawab"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
           />
         </FormField>
 
@@ -129,7 +129,7 @@ function VendorFormInner({ vendorToEdit, onClose, onSuccess }: FormInnerProps) {
             value={noWa}
             onChange={(e) => setNoWa(e.target.value)}
             placeholder="Contoh: 08123456789"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </FormField>
 
@@ -139,7 +139,7 @@ function VendorFormInner({ vendorToEdit, onClose, onSuccess }: FormInnerProps) {
             value={noTelp}
             onChange={(e) => setNoTelp(e.target.value)}
             placeholder="Contoh: 0313551234"
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </FormField>
       </div>
@@ -151,7 +151,7 @@ function VendorFormInner({ vendorToEdit, onClose, onSuccess }: FormInnerProps) {
             min={0}
             value={urutanRotasi}
             onChange={(e) => setUrutanRotasi(parseInt(e.target.value, 10) || 0)}
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
           />
         </FormField>
 
@@ -161,7 +161,7 @@ function VendorFormInner({ vendorToEdit, onClose, onSuccess }: FormInnerProps) {
               type="checkbox"
               checked={aktif}
               onChange={(e) => setAktif(e.target.checked)}
-              className="w-4 h-4 rounded text-primary border-border focus:ring-primary"
+              className="w-4 h-4 rounded-[4px] text-primary border-[#D1D1D6] focus:ring-primary/20 cursor-pointer"
             />
             <span className="text-xs font-medium text-text">Vendor Aktif Beroperasi</span>
           </label>
@@ -174,23 +174,23 @@ function VendorFormInner({ vendorToEdit, onClose, onSuccess }: FormInnerProps) {
           value={alamat}
           onChange={(e) => setAlamat(e.target.value)}
           placeholder="Alamat lengkap vendor catering..."
-          className="p-2.5 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 resize-none"
+          className="p-2.5 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all resize-none"
         />
       </FormField>
 
-      <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+      <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5EA]">
         <button
           type="button"
           disabled={loading}
           onClick={onClose}
-          className="h-9 px-4 rounded-[8px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-50 transition-colors cursor-pointer"
+          className="h-8.5 px-4 rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] active:bg-[#D1D1D6] text-xs font-semibold text-[#1D1D1F] disabled:opacity-50 transition-all cursor-pointer"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="h-9 px-4 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium disabled:opacity-50 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          className="h-8.5 px-4 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.08)] disabled:opacity-50 transition-all cursor-pointer focus:outline-none focus:ring-3 focus:ring-primary/20"
         >
           {loading ? "Menyimpan..." : "Simpan Vendor"}
         </button>

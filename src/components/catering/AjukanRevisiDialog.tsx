@@ -125,22 +125,22 @@ function AjukanRevisiForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {errorMsg && (
-        <div className="flex items-start gap-2 p-2.5 rounded-[6px] bg-rose-50 border border-rose-200 text-rose-900 text-xs">
-          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-          <span>{errorMsg}</span>
+        <div className="flex items-start gap-2 p-2.5 rounded-[8px] bg-[#FF3B30]/10 border border-[#FF3B30]/20 text-[#D70015] text-xs">
+          <AlertCircle className="w-4 h-4 text-[#FF3B30] shrink-0 mt-0.5" />
+          <span className="font-medium">{errorMsg}</span>
         </div>
       )}
 
       {/* Target summary badge */}
-      <div className="grid grid-cols-2 gap-2 p-2.5 rounded-[8px] bg-slate-50 border border-border text-xs">
+      <div className="grid grid-cols-2 gap-2 p-3 rounded-[10px] bg-[#F5F5F7]/70 border border-black/[0.06] text-xs">
         <div>
-          <span className="text-muted block">Bagian & Shift</span>
+          <span className="text-[#86868B] block text-[11px]">Bagian & Shift</span>
           <span className="font-semibold text-text">
             {target.bagianNama} - {target.shiftNama}
           </span>
         </div>
         <div>
-          <span className="text-muted block">Mitra Vendor</span>
+          <span className="text-[#86868B] block text-[11px]">Mitra Vendor</span>
           <span className="font-semibold text-text">
             {target.vendorNama || "-"}
           </span>
@@ -148,17 +148,17 @@ function AjukanRevisiForm({
       </div>
 
       {/* Counts & Delta Comparison Grid */}
-      <div className="border border-border rounded-[8px] overflow-hidden text-xs">
-        <div className="grid grid-cols-3 bg-slate-100 font-semibold text-text p-2 border-b border-border text-center">
+      <div className="border border-black/[0.08] rounded-[10px] overflow-hidden text-xs">
+        <div className="grid grid-cols-3 bg-[#F9F9FB] font-semibold text-[#86868B] p-2 border-b border-black/[0.06] text-center text-[11px] uppercase tracking-wider">
           <span>Metrik</span>
           <span>Saat Ini</span>
           <span>Revisi Baru</span>
         </div>
 
         {/* Karyawan row */}
-        <div className="grid grid-cols-3 items-center p-2.5 border-b border-border/60">
-          <span className="font-medium text-text">Karyawan</span>
-          <span className="text-center font-mono text-muted">
+        <div className="grid grid-cols-3 items-center p-2.5 border-b border-black/[0.06] bg-white">
+          <span className="font-semibold text-text">Karyawan</span>
+          <span className="text-center font-mono text-[#86868B]">
             {target.karyawanAwal} orang
           </span>
           <div className="flex items-center justify-center gap-1.5">
@@ -168,15 +168,15 @@ function AjukanRevisiForm({
               value={karyawanBaru}
               onChange={(e) => handleKaryawanChange(e.target.value)}
               disabled={isProcessing}
-              className="w-16 h-8 text-center font-mono font-semibold rounded-[6px] border border-border bg-white text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+              className="w-16 h-8 text-center font-mono font-semibold rounded-[6px] border border-[#D1D1D6] bg-white text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
             />
             {selisihKaryawan !== 0 && (
               <span
                 className={cn(
-                  "text-[11px] font-mono font-semibold px-1.5 py-0.5 rounded",
+                  "text-[11px] font-mono font-bold px-1.5 py-0.5 rounded-[4px]",
                   selisihKaryawan > 0
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-rose-50 text-rose-700"
+                    ? "bg-[#34C759]/15 text-[#1E8E3E]"
+                    : "bg-[#FF3B30]/15 text-[#D70015]"
                 )}
               >
                 {formatDelta(selisihKaryawan)}
@@ -186,9 +186,9 @@ function AjukanRevisiForm({
         </div>
 
         {/* Porsi row */}
-        <div className="grid grid-cols-3 items-center p-2.5 bg-blue-50/30">
-          <span className="font-medium text-text">Porsi Catering</span>
-          <span className="text-center font-mono text-muted">
+        <div className="grid grid-cols-3 items-center p-2.5 bg-primary-50/20">
+          <span className="font-semibold text-text">Porsi Catering</span>
+          <span className="text-center font-mono text-[#86868B]">
             {target.porsiAwal} porsi
           </span>
           <div className="flex items-center justify-center gap-1.5">
@@ -198,15 +198,15 @@ function AjukanRevisiForm({
               value={porsiBaru}
               onChange={(e) => handlePorsiChange(e.target.value)}
               disabled={isProcessing}
-              className="w-16 h-8 text-center font-mono font-bold text-primary rounded-[6px] border border-border bg-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+              className="w-16 h-8 text-center font-mono font-bold text-primary rounded-[6px] border border-[#D1D1D6] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
             />
             {selisihPorsi !== 0 && (
               <span
                 className={cn(
-                  "text-[11px] font-mono font-bold px-1.5 py-0.5 rounded",
+                  "text-[11px] font-mono font-bold px-1.5 py-0.5 rounded-[4px]",
                   selisihPorsi > 0
-                    ? "bg-emerald-100 text-emerald-800"
-                    : "bg-rose-100 text-rose-800"
+                    ? "bg-[#34C759]/15 text-[#1E8E3E]"
+                    : "bg-[#FF3B30]/15 text-[#D70015]"
                 )}
               >
                 {formatDelta(selisihPorsi)}
@@ -220,10 +220,10 @@ function AjukanRevisiForm({
       <div className="space-y-1">
         <label
           htmlFor="revisi-alasan"
-          className="text-xs font-semibold text-text flex items-center justify-between"
+          className="text-[12px] font-semibold text-[#1D1D1F] tracking-tight flex items-center justify-between"
         >
-          <span>Alasan Pengajuan Revisi *</span>
-          <span className="text-[11px] font-normal text-muted">Wajib diisi</span>
+          <span>Alasan Pengajuan Revisi <span className="text-[#FF3B30] font-bold">*</span></span>
+          <span className="text-[11px] font-normal text-[#86868B]">Wajib diisi</span>
         </label>
         <textarea
           id="revisi-alasan"
@@ -232,22 +232,22 @@ function AjukanRevisiForm({
           onChange={(e) => setAlasan(e.target.value)}
           disabled={isProcessing}
           placeholder="Contoh: Tambahan 3 personil lembur operasional kapal di dermaga..."
-          className="w-full px-3 py-2 text-xs rounded-[8px] border border-border bg-white text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
+          className="w-full px-3 py-2 text-xs rounded-[8px] border border-[#D1D1D6] bg-white text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all resize-none"
         />
       </div>
 
       {/* Notice box */}
-      <div className="text-[11px] text-muted leading-relaxed bg-slate-50 p-2.5 rounded-[6px] border border-border/80">
+      <div className="text-[11px] text-[#86868B] leading-relaxed bg-[#F5F5F7] p-2.5 rounded-[8px] border border-black/[0.06]">
         Pesanan akan beralih ke status <strong>Revisi</strong>. Perubahan kuota baru akan resmi berlaku pada rekapitulasi setelah disetujui oleh verifikator GA di menu <strong>Verifikasi Data</strong>.
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-border">
+      <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5EA]">
         <button
           type="button"
           onClick={onCancel}
           disabled={isProcessing}
-          className="px-4 py-2 text-xs font-medium rounded-[8px] border border-border bg-white text-text hover:bg-slate-50"
+          className="h-8.5 px-4 text-xs font-semibold rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] text-[#1D1D1F] transition-all cursor-pointer"
         >
           Batal
         </button>
@@ -255,9 +255,9 @@ function AjukanRevisiForm({
           type="submit"
           disabled={isProcessing || isNoChange || !alasan.trim()}
           className={cn(
-            "inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-[8px] text-white shadow-xs select-none transition-colors",
+            "inline-flex items-center gap-1.5 h-8.5 px-4 text-xs font-semibold rounded-[8px] text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] select-none transition-all cursor-pointer focus:outline-none focus:ring-3 focus:ring-primary/20",
             isProcessing || isNoChange || !alasan.trim()
-              ? "bg-slate-300 cursor-not-allowed"
+              ? "bg-[#D1D1D6] text-[#86868B] cursor-not-allowed shadow-none"
               : "bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94]"
           )}
         >

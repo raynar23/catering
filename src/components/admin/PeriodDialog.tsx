@@ -95,7 +95,7 @@ function PeriodFormInner({
           type="date"
           value={tanggal}
           onChange={(e) => setTanggal(e.target.value)}
-          className="h-9 px-3 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+          className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all tabular-nums"
         />
       </FormField>
 
@@ -104,7 +104,7 @@ function PeriodFormInner({
           <select
             value={shiftId}
             onChange={(e) => setShiftId(e.target.value)}
-            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer"
+            className="h-8.5 pl-3 pr-8 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all cursor-pointer"
           >
             {shifts.map((s) => (
               <option key={s.id} value={s.id}>
@@ -118,7 +118,7 @@ function PeriodFormInner({
           <select
             value={vendorId}
             onChange={(e) => setVendorId(e.target.value)}
-            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer"
+            className="h-8.5 pl-3 pr-8 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all cursor-pointer"
           >
             {vendors.map((v) => (
               <option key={v.id} value={v.id}>
@@ -135,23 +135,23 @@ function PeriodFormInner({
           value={keterangan}
           onChange={(e) => setKeterangan(e.target.value)}
           placeholder="Keterangan khusus jadwal hari ini..."
-          className="p-2.5 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 resize-none"
+          className="p-2.5 rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-placeholder shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all resize-none"
         />
       </FormField>
 
-      <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+      <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#E5E5EA]">
         <button
           type="button"
           disabled={loading}
           onClick={onClose}
-          className="h-9 px-4 rounded-[8px] border border-border text-xs font-medium text-text hover:bg-bg disabled:opacity-50 transition-colors cursor-pointer"
+          className="h-8.5 px-4 rounded-[8px] bg-[#E5E5EA]/80 hover:bg-[#DCDCE2] active:bg-[#D1D1D6] text-xs font-semibold text-[#1D1D1F] disabled:opacity-50 transition-all cursor-pointer"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="h-9 px-4 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium disabled:opacity-50 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          className="h-8.5 px-4 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.08)] disabled:opacity-50 transition-all cursor-pointer focus:outline-none focus:ring-3 focus:ring-primary/20"
         >
           {loading ? "Menyimpan..." : "Simpan Jadwal"}
         </button>
