@@ -38,7 +38,7 @@ function AppShellInner({
     <div className="h-dvh max-h-dvh w-full overflow-hidden flex bg-bg text-text">
       {/* Desktop Fixed Sidebar */}
       <div className="hidden lg:flex shrink-0 h-full">
-        <Sidebar groups={navGroups} badges={mergedBadges} />
+        <Sidebar groups={navGroups} badges={mergedBadges} profile={profile} />
       </div>
 
       {/* Mobile Drawer Overlay */}
@@ -56,6 +56,7 @@ function AppShellInner({
             <Sidebar
               groups={navGroups}
               badges={mergedBadges}
+              profile={profile}
               onItemClick={() => setDrawerOpen(false)}
             />
           </div>
