@@ -29,19 +29,22 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
   }
 
   return (
-    <div className="flex-1 min-h-0 overflow-auto">
-      <table className="w-full text-left border-collapse min-w-full md:min-w-[900px]">
+    <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+      <table className="w-full table-fixed text-left border-collapse text-xs">
         <thead className="sticky top-0 z-10 bg-slate-50 border-b border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
           <tr>
-            <th className="px-3 py-2.5">Tanggal & Shift</th>
-            <th className="px-3 py-2.5">Vendor</th>
-            <th className="px-3 py-2.5">Bagian</th>
-            <th className="px-3 py-2.5 text-right">Perubahan Porsi</th>
+            <th className="px-2.5 sm:px-3 py-2.5">
+              <span className="sm:hidden">Detail Pesanan</span>
+              <span className="hidden sm:inline">Tanggal & Shift</span>
+            </th>
+            <th className="px-3 py-2.5 hidden sm:table-cell">Vendor</th>
+            <th className="px-3 py-2.5 hidden sm:table-cell">Bagian</th>
+            <th className="px-2 sm:px-3 py-2.5 text-right w-[85px] sm:w-auto">Porsi</th>
             <th className="px-3 py-2.5 min-w-[160px] hidden md:table-cell">Alasan</th>
             <th className="px-3 py-2.5 hidden lg:table-cell">Pengaju</th>
             <th className="px-3 py-2.5 text-center hidden sm:table-cell">Respons Vendor</th>
-            <th className="px-3 py-2.5 text-center">Status</th>
-            <th className="px-3 py-2.5 text-center w-[120px] sm:w-[160px]">Aksi</th>
+            <th className="px-2 sm:px-3 py-2.5 text-center w-[76px] sm:w-auto">Status</th>
+            <th className="px-2 sm:px-3 py-2.5 text-center w-[85px] sm:w-[150px]">Aksi</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/60 text-xs">
@@ -67,20 +70,26 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                 key={rev.id}
                 className="hover:bg-slate-50/70 transition-colors group"
               >
-                {/* Tanggal & Shift */}
-                <td className="px-3 py-2.5 align-middle">
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-text">
+                {/* Tanggal & Shift (Mobile: includes Bagian & Vendor) */}
+                <td className="px-2.5 sm:px-3 py-2 align-middle">
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-bold text-text truncate sm:hidden">
+                      {rev.bagianNama}
+                    </span>
+                    <span className="font-semibold text-text text-xs sm:font-semibold">
                       {formatDateIndonesian(rev.tanggal, false)}
                     </span>
-                    <span className="text-[11px] text-muted">
+                    <span className="text-[11px] text-muted truncate">
                       {rev.shiftNama} ({rev.shiftLabel})
+                    </span>
+                    <span className="text-[10px] text-muted truncate sm:hidden mt-0.5">
+                      {rev.vendorNama} ({rev.vendorKode})
                     </span>
                   </div>
                 </td>
 
-                {/* Vendor */}
-                <td className="px-3 py-2.5 align-middle">
+                {/* Vendor (Desktop only) */}
+                <td className="px-3 py-2.5 align-middle hidden sm:table-cell">
                   <div className="flex flex-col">
                     <span className="font-medium text-text truncate max-w-[140px]" title={rev.vendorNama}>
                       {rev.vendorNama}
@@ -91,20 +100,22 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                   </div>
                 </td>
 
-                {/* Bagian */}
-                <td className="px-3 py-2.5 align-middle font-semibold text-text">
+                {/* Bagian (Desktop only) */}
+                <td className="px-3 py-2.5 align-middle font-semibold text-text hidden sm:table-cell">
                   {rev.bagianNama}
                 </td>
 
                 {/* Perubahan Porsi ("20 menjadi 23 (+3)") */}
-                <td className="px-3 py-2.5 align-middle text-right font-mono">
-                  <div className="inline-flex items-center gap-1.5 justify-end">
-                    <span className="text-muted">{rev.porsiAwal}</span>
-                    <span className="text-muted">&rarr;</span>
-                    <span className="font-bold text-text">{rev.porsiBaru}</span>
+                <td className="px-2 sm:px-3 py-2 align-middle text-right font-mono">
+                  <div className="flex flex-col items-end gap-0.5">
+                    <div className="inline-flex items-center gap-1 justify-end text-xs">
+                      <span className="text-muted">{rev.porsiAwal}</span>
+                      <span className="text-muted">&rarr;</span>
+                      <span className="font-bold text-text">{rev.porsiBaru}</span>
+                    </div>
                     <span
                       className={cn(
-                        "text-[11px] px-1.5 py-0.2 rounded font-bold ml-1",
+                        "text-[10px] px-1 py-0.2 rounded font-bold leading-tight",
                         rev.selisihPorsi > 0
                           ? "bg-emerald-100 text-emerald-800"
                           : rev.selisihPorsi < 0
@@ -112,7 +123,7 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                           : "bg-slate-100 text-slate-700"
                       )}
                     >
-                      ({deltaStr})
+                      {deltaStr}
                     </span>
                   </div>
                 </td>
@@ -140,25 +151,25 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                 </td>
 
                 {/* Status Revisi */}
-                <td className="px-3 py-2.5 align-middle text-center">
+                <td className="px-2 sm:px-3 py-2 align-middle text-center">
                   <StatusBadge status={rev.status} />
                 </td>
 
                 {/* Aksi */}
-                <td className="px-3 py-2.5 align-middle text-center">
-                  <div className="flex items-center justify-center gap-1.5">
+                <td className="px-2 sm:px-3 py-2 align-middle text-center">
+                  <div className="flex items-center justify-center gap-1">
                     {isPending ? (
                       <button
                         type="button"
                         onClick={() => onOpenVerify(rev)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-[6px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white shadow-xs"
+                        className="inline-flex items-center justify-center gap-1 px-2 py-1 text-xs font-semibold rounded-[6px] bg-primary hover:bg-[#0E63A1] text-white shadow-xs"
                         title="Verifikasi pengajuan revisi"
                       >
                         <CheckSquare className="w-3.5 h-3.5" />
-                        <span>Verifikasi</span>
+                        <span className="hidden sm:inline">Verifikasi</span>
                       </button>
                     ) : (
-                      <span className="text-[11px] text-muted font-medium px-2 py-1">
+                      <span className="text-[11px] text-muted font-medium px-1.5 py-1">
                         Selesai
                       </span>
                     )}
@@ -168,7 +179,7 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                         href={waUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-emerald-700 hover:bg-emerald-50 transition-colors shadow-xs"
+                        className="p-1 sm:p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-emerald-700 hover:bg-emerald-50 transition-colors shadow-xs"
                         title="Kirim pesan WhatsApp ke vendor"
                         aria-label="WhatsApp vendor"
                       >
@@ -179,7 +190,7 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                     {rev.periodId && (
                       <Link
                         href={`/admin/verifikasi/${rev.periodId}/riwayat`}
-                        className="p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs"
+                        className="p-1 sm:p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs hidden sm:inline-flex"
                         title="Lihat riwayat kronologi pesanan"
                         aria-label="Riwayat kronologi"
                       >

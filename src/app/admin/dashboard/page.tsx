@@ -44,7 +44,7 @@ export default async function AdminDashboardPage({ searchParams }: AdminDashboar
   const todayStr = formatDateLong(new Date());
 
   return (
-    <PageContainer>
+    <PageContainer scrollable>
       <PageHeader
         title="Dashboard"
         subtitle={todayStr}
