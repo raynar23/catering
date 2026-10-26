@@ -147,7 +147,7 @@ describe("Sidebar Layout Component", () => {
     expect(html).toContain("Tutup Menu");
   });
 
-  it("renders icon-only rail with TPS symbol and accessible tooltips when collapsed", () => {
+  it("renders icon-only rail with monochrome Pelindo icon and accessible tooltips when collapsed", () => {
     const html = renderToString(
       <Sidebar
         groups={MOCK_GROUPS}
@@ -157,9 +157,10 @@ describe("Sidebar Layout Component", () => {
       />
     );
 
-    // TPS symbol should be rendered instead of full logo
-    expect(html).toContain("Logo TPS");
+    // Monochrome Pelindo icon should be rendered instead of full logo
+    expect(html).toContain("Icon Pelindo Monokrom");
     expect(html).toContain("w-[68px]");
+    expect(html).toContain('title="Buka Sidebar"');
     // Nav items rendered with tooltips/aria-labels
     expect(html).toContain('title="Dashboard"');
     expect(html).toContain('title="Input Pesanan"');
