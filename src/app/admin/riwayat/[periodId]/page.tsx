@@ -1,4 +1,10 @@
-import AdminOrderChronologyPage, { metadata } from "../../verifikasi/[periodId]/riwayat/page";
+import { permanentRedirect } from "next/navigation";
 
-export { metadata };
-export default AdminOrderChronologyPage;
+export default async function AdminRiwayatRedirectPage({
+  params,
+}: {
+  params: Promise<{ periodId: string }>;
+}) {
+  const { periodId } = await params;
+  permanentRedirect(`/admin/verifikasi/${periodId}/riwayat`);
+}
