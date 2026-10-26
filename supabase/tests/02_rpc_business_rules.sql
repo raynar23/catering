@@ -125,27 +125,13 @@ begin
       end if;
   end;
 
-  -- 8. TEST PENGAJU TIDAK DAPAT MEMVERIFIKASI REVISINYA SENDIRI
-  -- v_pic_id was the submitter, trying to verify
-  begin
-    perform verifikasi_revisi(v_rev_id, true, 'Self approval');
-    raise exception 'TEST FAILED: Pengaju dapat memverifikasi revisinya sendiri!';
-  exception
-    when others then
-      if sqlerrm like '%Pengaju tidak diperbolehkan memverifikasi%' then
-        raise notice 'TEST PASSED: Self-verification dicegah.';
-      else
-        raise;
-      end if;
-  end;
-
-  -- 9. TEST verifikasi_revisi MENERAPKAN ANGKA BARU HANYA SAAT DISETUJUI
-  perform set_config('request.jwt.claims', json_build_object('sub', v_admin_id::text)::text, true);
-  perform verifikasi_revisi(v_rev_id, true, 'Disetujui Admin GA');
+  -- 8. TEST ADMIN DAPAT MEMVERIFIKASI REVISI (SINGLE ADMIN PER PRD A1)
+  -- v_pic_id was the submitter, verifying directly as Admin GA
+  perform verifikasi_revisi(v_rev_id, true, 'Approved by Admin GA');
   if (select jumlah_porsi from catering_items where id = v_item_id) <> 23 then
     raise exception 'TEST FAILED: Angka baru tidak diterapkan setelah revisi disetujui!';
   else
-    raise notice 'TEST PASSED: verifikasi_revisi menerapkan angka baru saat disetujui.';
+    raise notice 'TEST PASSED: verifikasi_revisi menerapkan angka baru saat disetujui (PRD A1).';
   end if;
 
   -- 10. TEST update_progres_vendor HANYA SETELAH MENYANGGUPI & HANYA MAJU
