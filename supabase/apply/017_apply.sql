@@ -8,7 +8,7 @@ do $$
 begin
   -- Enforce valid roles: only admin_ga and vendor
   alter table public.profiles drop constraint if exists chk_profiles_role_valid;
-  alter table public.profiles add constraint chk_profiles_role_valid check (role in ('admin_ga', 'vendor'));
+  alter table public.profiles add constraint chk_profiles_ro  le_valid check (role in ('admin_ga', 'vendor'));
 exception when others then null;
 end $$;
 
