@@ -407,10 +407,163 @@ begin
 end;
 $$;
 
-revoke execute on function public.check_db_count_and_sync() from public, anon;
-grant execute on function public.check_db_count_and_sync() to authenticated, service_role;
+revoke execute on function public.check_db_count_and_sync() from public, anon, authenticated;
+grant execute on function public.check_db_count_and_sync() to service_role;
 
--- 9. Realtime replica identity and publication
+-- 9. Revision verification (single/multi-admin per PRD Assumption A1)
+create or replace function public.verifikasi_revisi(
+  p_revision_id uuid,
+  p_setuju boolean,
+  p_catatan text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_role app_role;
+  v_rev record;
+  v_order_id uuid;
+  v_remaining_menunggu integer;
+begin
+  select role into v_role from public.profiles where id = auth.uid();
+  if v_role <> 'admin_ga' then
+    raise exception 'Akses ditolak: hanya Admin GA yang berhak menyetujui atau menolak revisi.';
+  end if;
+
+  select r.*, ci.order_id
+  into v_rev
+  from public.revisions r
+  join public.catering_items ci on ci.id = r.item_id
+  where r.id = p_revision_id;
+
+  if not found then
+    raise exception 'Data pengajuan revisi tidak ditemukan.';
+  end if;
+
+  if v_rev.status <> 'menunggu' then
+    raise exception 'Pengajuan revisi sudah diproses sebelumnya dengan status %.', v_rev.status;
+  end if;
+
+  -- Any authorized Admin GA can verify, including original proposer (PRD Assumption A1)
+  v_order_id := v_rev.order_id;
+
+  if p_setuju then
+    update public.catering_items
+    set jumlah_karyawan = v_rev.karyawan_baru,
+        jumlah_porsi = v_rev.porsi_baru,
+        updated_at = now()
+    where id = v_rev.item_id;
+
+    update public.revisions
+    set status = 'disetujui',
+        diverifikasi_oleh = auth.uid(),
+        diverifikasi_at = now(),
+        catatan_verifikator = p_catatan
+    where id = p_revision_id;
+
+    insert into public.order_logs (
+      order_id,
+      item_id,
+      revision_id,
+      aksi,
+      jumlah_awal,
+      selisih,
+      jumlah_baru,
+      keterangan,
+      oleh
+    ) values (
+      v_order_id,
+      v_rev.item_id,
+      p_revision_id,
+      'revisi_disetujui',
+      v_rev.porsi_awal,
+      v_rev.selisih_porsi,
+      v_rev.porsi_baru,
+      coalesce(p_catatan, 'Revisi disetujui'),
+      auth.uid()
+    );
+  else
+    if p_catatan is null or length(trim(p_catatan)) = 0 then
+      raise exception 'Catatan penolakan wajib diisi saat menolak revisi.';
+    end if;
+
+    update public.revisions
+    set status = 'ditolak',
+        diverifikasi_oleh = auth.uid(),
+        diverifikasi_at = now(),
+        catatan_verifikator = p_catatan
+    where id = p_revision_id;
+
+    insert into public.order_logs (
+      order_id,
+      item_id,
+      revision_id,
+      aksi,
+      jumlah_awal,
+      selisih,
+      jumlah_baru,
+      keterangan,
+      oleh
+    ) values (
+      v_order_id,
+      v_rev.item_id,
+      p_revision_id,
+      'revisi_ditolak',
+      v_rev.porsi_awal,
+      0,
+      v_rev.porsi_awal,
+      p_catatan,
+      auth.uid()
+    );
+  end if;
+
+  select count(*) into v_remaining_menunggu
+  from public.revisions r
+  join public.catering_items ci on ci.id = r.item_id
+  where ci.order_id = v_order_id and r.status = 'menunggu';
+
+  if v_remaining_menunggu = 0 then
+    update public.catering_orders
+    set status = 'final',
+        updated_at = now()
+    where id = v_order_id;
+  end if;
+
+  return p_revision_id;
+end;
+$$;
+
+revoke execute on function public.verifikasi_revisi(uuid, boolean, text) from public, anon;
+grant execute on function public.verifikasi_revisi(uuid, boolean, text) to authenticated;
+
+-- 10. Vendor synchronization trigger on periods
+create or replace function public.trg_sync_period_vendor_to_orders()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if new.vendor_id is distinct from old.vendor_id then
+    update public.catering_orders
+    set vendor_id = new.vendor_id,
+        updated_at = now()
+    where period_id = new.id
+      and vendor_id is distinct from new.vendor_id;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_sync_period_vendor on public.periods;
+create trigger trg_sync_period_vendor
+  after update of vendor_id on public.periods
+  for each row
+  execute function public.trg_sync_period_vendor_to_orders();
+
+-- 11. Realtime replica identity and publication
 alter table public.periods replica identity full;
 alter table public.catering_orders replica identity full;
 alter table public.revisions replica identity full;
