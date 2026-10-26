@@ -71,8 +71,9 @@ async function runTests() {
     process.exit(1);
   }
 
-  // Authenticate Vendor A (Aisya)
-  const { data: authA, error: errA } = await anonClient.auth.signInWithPassword({
+  // Authenticate Vendor A (Aisya) with isolated client
+  const authClientA = createClient(url, anonKey, { auth: { persistSession: false } });
+  const { data: authA, error: errA } = await authClientA.auth.signInWithPassword({
     email: "vendor@tps.co.id",
     password: "vendortps2026",
   });
@@ -81,12 +82,14 @@ async function runTests() {
     process.exit(1);
   }
   const clientA = createClient(url, anonKey, {
+    auth: { persistSession: false },
     global: { headers: { Authorization: `Bearer ${authA.session.access_token}` } }
   });
 
-  // Ensure and authenticate Vendor B (Catering IBU)
+  // Ensure and authenticate Vendor B (Catering IBU) with isolated client
   await adminClient.auth.admin.updateUserById("00000000-0000-0000-0000-000000000004", { password: "vendoributps2026" });
-  const { data: authB, error: errB } = await anonClient.auth.signInWithPassword({
+  const authClientB = createClient(url, anonKey, { auth: { persistSession: false } });
+  const { data: authB, error: errB } = await authClientB.auth.signInWithPassword({
     email: "vendor.ibu@tps.co.id",
     password: "vendoributps2026",
   });
@@ -95,6 +98,7 @@ async function runTests() {
     process.exit(1);
   }
   const clientB = createClient(url, anonKey, {
+    auth: { persistSession: false },
     global: { headers: { Authorization: `Bearer ${authB.session.access_token}` } }
   });
 
@@ -193,12 +197,16 @@ async function runTests() {
   const { data: aCrossItems } = await clientA.from("catering_items").select("id").in("order_id", bOrderIds);
   const { data: aCrossLogs } = await clientA.from("order_logs").select("id").in("order_id", bOrderIds);
 
-  // Check revisions for Vendor B
-  const { data: bRevs } = await adminClient
+  // Check revisions belonging to other vendors (non-Aisya)
+  const { data: otherRevs } = await adminClient
     .from("revisions")
-    .select("id, item_id")
+    .select("id, item_id, catering_items!inner(order_id, catering_orders!inner(vendor_id))")
+    .neq("catering_items.catering_orders.vendor_id", vAisya.id)
     .limit(10);
-  const { data: aCrossRevs } = await clientA.from("revisions").select("id").in("id", (bRevs || []).map(r => r.id));
+  const otherRevIds = (otherRevs || []).map((r) => r.id);
+  const { data: aCrossRevs } = otherRevIds.length > 0
+    ? await clientA.from("revisions").select("id").in("id", otherRevIds)
+    : { data: [] };
 
   // Check views for Vendor B data
   const { data: aCrossVPR } = await clientA.from("v_periode_ringkas").select("period_id").eq("vendor_id", vIbu.id);
@@ -345,14 +353,15 @@ async function runTests() {
   // ==========================================================================
   // SCENARIO (f): Anon role cannot read any operational or master tables
   // ==========================================================================
+  const pureAnon = createClient(url, anonKey, { auth: { persistSession: false } });
   const anonChecks = [
-    anonClient.from("profiles").select("id").limit(1),
-    anonClient.from("periods").select("id").limit(1),
-    anonClient.from("catering_orders").select("id").limit(1),
-    anonClient.from("catering_items").select("id").limit(1),
-    anonClient.from("revisions").select("id").limit(1),
-    anonClient.from("order_logs").select("id").limit(1),
-    anonClient.from("import_batches").select("id").limit(1),
+    pureAnon.from("profiles").select("id").limit(1),
+    pureAnon.from("periods").select("id").limit(1),
+    pureAnon.from("catering_orders").select("id").limit(1),
+    pureAnon.from("catering_items").select("id").limit(1),
+    pureAnon.from("revisions").select("id").limit(1),
+    pureAnon.from("order_logs").select("id").limit(1),
+    pureAnon.from("import_batches").select("id").limit(1),
   ];
 
   const anonResults = await Promise.all(anonChecks);
@@ -436,6 +445,20 @@ async function runTests() {
     scenarioGPassed
       ? "Realtime RLS aktif: Vendor A tidak menerima event revisi Vendor B"
       : `Gagal: Event revisi Vendor B bocor ke Realtime Vendor A (${JSON.stringify(realtimeReceivedEvent)})`
+  );
+
+  // ==========================================================================
+  // SCENARIO (h): SQL Count and Sync Audit (F4 - Bukan REST Limit 1.000)
+  // ==========================================================================
+  const { data: syncReport, error: syncErr } = await adminClient.rpc("check_db_count_and_sync");
+  const scenarioHPassed = !syncErr && syncReport && syncReport.is_consistent === true;
+  recordResult(
+    scenarioHPassed,
+    "Skenario (h)",
+    "hitungan dan sinkronisasi vendor langsung dalam SQL (bukan batas REST 1.000)",
+    scenarioHPassed
+      ? `Konsisten: ${syncReport.total_periods} periods, ${syncReport.total_orders} orders (${JSON.stringify(syncReport.status_breakdown)}), desync=${syncReport.desync_vendor_count}, orphan_orders=${syncReport.orphan_orders_count}`
+      : `Gagal verifikasi SQL count & sync: ${syncErr?.message || JSON.stringify(syncReport)}`
   );
 
   console.log("\n======================================================================");
