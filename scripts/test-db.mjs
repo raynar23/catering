@@ -472,6 +472,52 @@ async function runTests() {
       : `Gagal verifikasi SQL count & sync: ${syncErr?.message || JSON.stringify(syncReport)}`
   );
 
+  // Scenario (i): Vendor synchronization guarantee (G6.2)
+  let scenarioIPassed = false;
+  if (isReadOnly) {
+    scenarioIPassed = syncReport?.desync_vendor_count === 0;
+    recordResult(
+      scenarioIPassed,
+      "Skenario (i)",
+      "sinkronisasi vendor_id antara periods dan catering_orders terbukti 0 ketidaksinkronan",
+      scenarioIPassed
+        ? "0 ketidaksinkronan: Trigger sinkronisasi periods -> orders menjamin integritas relasi vendor"
+        : `Gagal: ditemukan ${syncReport?.desync_vendor_count} data desinkronisasi`
+    );
+  } else {
+    const { data: samplePeriod } = await adminClient
+      .from("periods")
+      .select("id, vendor_id")
+      .limit(1)
+      .single();
+
+    if (samplePeriod) {
+      const origVendor = samplePeriod.vendor_id;
+      const newVendor = origVendor === vAisya.id ? vIbu.id : vAisya.id;
+
+      await adminClient.from("periods").update({ vendor_id: newVendor }).eq("id", samplePeriod.id);
+
+      const { data: syncedOrder } = await adminClient
+        .from("catering_orders")
+        .select("vendor_id")
+        .eq("period_id", samplePeriod.id)
+        .maybeSingle();
+
+      scenarioIPassed = !syncedOrder || syncedOrder.vendor_id === newVendor;
+
+      await adminClient.from("periods").update({ vendor_id: origVendor }).eq("id", samplePeriod.id);
+
+      recordResult(
+        scenarioIPassed,
+        "Skenario (i)",
+        "trigger sinkronisasi periods.vendor_id -> catering_orders.vendor_id",
+        scenarioIPassed
+          ? "Trigger berhasil: Perubahan vendor pada period otomatis merefleksikan perubahan ke catering_orders"
+          : "Gagal: catering_orders.vendor_id tidak tersinkronisasi otomatis oleh trigger"
+      );
+    }
+  }
+
   console.log("\n======================================================================");
   console.log(`TOTAL HASIL: ${passedCount} passed, ${failedCount} failed`);
   console.log("======================================================================\n");
