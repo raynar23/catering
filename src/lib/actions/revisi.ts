@@ -226,6 +226,19 @@ export async function getPendingRevisionsCount(): Promise<number> {
   return count || 0;
 }
 
+function extractVendorTelp(kontak: string | null | undefined): string {
+  if (!kontak) return "";
+  try {
+    if (kontak.trim().startsWith("{")) {
+      const parsed = JSON.parse(kontak);
+      return parsed.no_wa || parsed.no_telp || "";
+    }
+  } catch {
+    // Non-JSON string fallback
+  }
+  return kontak;
+}
+
 interface RawRevisionQueryResult {
   id: string;
   item_id: string;
@@ -254,7 +267,7 @@ interface RawRevisionQueryResult {
         id: string;
         tanggal: string;
         shift?: { id: string; nama: string; label: string } | null;
-        vendor?: { id: string; kode: string; nama: string; telp: string; kontak: string } | null;
+        vendor?: { id: string; kode: string; nama: string; kontak?: string | null } | null;
       } | null;
     } | null;
   } | null;
@@ -272,7 +285,7 @@ interface RawVendorResponseQueryResult {
     id: string;
     tanggal: string;
     shift?: { id: string; nama: string; label: string; jam_mulai: string; jam_selesai: string } | null;
-    vendor?: { id: string; kode: string; nama: string; telp: string; kontak: string } | null;
+    vendor?: { id: string; kode: string; nama: string; kontak?: string | null } | null;
   } | null;
   items?: { jumlah_porsi: number }[] | null;
 }
@@ -287,7 +300,7 @@ interface RawOrderChronologyQueryResult {
     id: string;
     tanggal: string;
     shift?: { nama: string; label: string; jam_mulai: string; jam_selesai: string } | null;
-    vendor?: { kode: string; nama: string; telp: string; kontak: string } | null;
+    vendor?: { kode: string; nama: string; kontak?: string | null } | null;
   } | null;
   items?: { jumlah_porsi: number }[] | null;
 }
@@ -343,7 +356,7 @@ export async function getVerificationRevisionsList(): Promise<
             id,
             tanggal,
             shift:shifts (id, nama, label),
-            vendor:vendors (id, kode, nama, telp, kontak)
+            vendor:vendors (id, kode, nama, kontak)
           )
         )
       )
@@ -375,7 +388,7 @@ export async function getVerificationRevisionsList(): Promise<
       vendorId: vendor?.id || "",
       vendorKode: vendor?.kode || "",
       vendorNama: vendor?.nama || "",
-      vendorTelp: vendor?.telp || "",
+      vendorTelp: extractVendorTelp(vendor?.kontak),
       bagianId: bagian?.id || "",
       bagianNama: bagian?.nama || "",
       bagianKode: bagian?.kode || "",
@@ -418,7 +431,7 @@ export async function getVendorResponseFollowUpList(): Promise<
         id,
         tanggal,
         shift:shifts (id, nama, label, jam_mulai, jam_selesai),
-        vendor:vendors (id, kode, nama, telp, kontak)
+        vendor:vendors (id, kode, nama, kontak)
       ),
       items:catering_items (
         jumlah_porsi
@@ -452,7 +465,7 @@ export async function getVendorResponseFollowUpList(): Promise<
       vendorId: v?.id || "",
       vendorKode: v?.kode || "",
       vendorNama: v?.nama || "",
-      vendorTelp: v?.telp || "",
+      vendorTelp: extractVendorTelp(v?.kontak),
       vendorKontak: v?.kontak || "",
       totalPorsi,
       responVendor: o.respon_vendor,
@@ -483,7 +496,7 @@ export async function getOrderChronology(
         id,
         tanggal,
         shift:shifts (nama, label, jam_mulai, jam_selesai),
-        vendor:vendors (kode, nama, telp, kontak)
+        vendor:vendors (kode, nama, kontak)
       ),
       items:catering_items (
         jumlah_porsi
@@ -555,7 +568,7 @@ export async function getOrderChronology(
     shiftJam: s ? `${s.jam_mulai?.slice(0, 5)} - ${s.jam_selesai?.slice(0, 5)}` : "",
     vendorKode: v?.kode || "",
     vendorNama: v?.nama || "",
-    vendorTelp: v?.telp || "",
+    vendorTelp: extractVendorTelp(v?.kontak),
     vendorKontak: v?.kontak || "",
     status: order.status,
     responVendor: order.respon_vendor,
