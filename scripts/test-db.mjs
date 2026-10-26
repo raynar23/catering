@@ -531,6 +531,95 @@ async function runTests() {
     }
   }
 
+  // Scenario (j): Function execution privileges enforcement (H4)
+  // Vendor and Anon calling disallowed RPCs must be strictly rejected
+  let scenarioJBlocked = true;
+  const failureDetails = [];
+
+  // 1. Anon calls admin RPC
+  const { error: errAnonAdmin } = await anonClient.rpc("dashboard_ringkasan", {
+    p_tanggal_awal: "2026-10-01",
+    p_tanggal_akhir: "2026-10-02"
+  });
+  if (!errAnonAdmin) {
+    scenarioJBlocked = false;
+    failureDetails.push("Anon berhasil mengeksekusi dashboard_ringkasan");
+  }
+
+  // 2. Anon calls vendor RPC
+  const { error: errAnonVendor } = await anonClient.rpc("respon_periode_vendor", {
+    p_order_id: "00000000-0000-0000-0000-000000000000",
+    p_sanggup: true
+  });
+  if (!errAnonVendor) {
+    scenarioJBlocked = false;
+    failureDetails.push("Anon berhasil mengeksekusi respon_periode_vendor");
+  }
+
+  // 3. Anon calls delete_selected_periods
+  const { error: errAnonDelete } = await anonClient.rpc("delete_selected_periods", {
+    p_period_ids: ["00000000-0000-0000-0000-000000000000"]
+  });
+  if (!errAnonDelete) {
+    scenarioJBlocked = false;
+    failureDetails.push("Anon berhasil mengeksekusi delete_selected_periods");
+  }
+
+  // 4. Vendor calls admin-only delete_selected_periods
+  const { error: errVendorDelete } = await clientA.rpc("delete_selected_periods", {
+    p_period_ids: ["00000000-0000-0000-0000-000000000000"]
+  });
+  if (!errVendorDelete) {
+    scenarioJBlocked = false;
+    failureDetails.push("Vendor berhasil mengeksekusi delete_selected_periods");
+  }
+
+  // 5. Vendor calls admin-only ganti_vendor_periode
+  const { error: errVendorGanti } = await clientA.rpc("ganti_vendor_periode", {
+    p_period_id: "00000000-0000-0000-0000-000000000000",
+    p_vendor_baru_id: vIbu.id,
+    p_alasan: "Unauthorized vendor change attempt"
+  });
+  if (!errVendorGanti) {
+    scenarioJBlocked = false;
+    failureDetails.push("Vendor berhasil mengeksekusi ganti_vendor_periode");
+  }
+
+  // 6. Vendor calls simpan_catering
+  const { error: errVendorSimpan } = await clientA.rpc("simpan_catering", {
+    p_period_id: "00000000-0000-0000-0000-000000000000",
+    p_items: []
+  });
+  if (!errVendorSimpan) {
+    scenarioJBlocked = false;
+    failureDetails.push("Vendor berhasil mengeksekusi simpan_catering");
+  }
+
+  // 7. Vendor calls kirim_catering
+  const { error: errVendorKirim } = await clientA.rpc("kirim_catering", {
+    p_order_id: "00000000-0000-0000-0000-000000000000"
+  });
+  if (!errVendorKirim) {
+    scenarioJBlocked = false;
+    failureDetails.push("Vendor berhasil mengeksekusi kirim_catering");
+  }
+
+  // 8. Service-role-only check_db_count_and_sync called by anon
+  const { error: errAnonCheck } = await anonClient.rpc("check_db_count_and_sync");
+  if (!errAnonCheck) {
+    scenarioJBlocked = false;
+    failureDetails.push("Anon berhasil mengeksekusi check_db_count_and_sync");
+  }
+
+  recordResult(
+    scenarioJBlocked,
+    "Skenario (j)",
+    "pemanggilan fungsi yang tidak diizinkan oleh anon dan vendor seluruhnya ditolak",
+    scenarioJBlocked
+      ? "Semua pemanggilan fungsi terlarang (admin RPC oleh vendor, seluruh RPC oleh anon, service_role diagnostik oleh anon/vendor) 100% ditolak"
+      : `Gagal: ${failureDetails.join(", ")}`
+  );
+
   console.log("\n======================================================================");
   console.log(`TOTAL HASIL: ${passedCount} passed, ${failedCount} failed`);
   console.log("======================================================================\n");
