@@ -58,6 +58,10 @@ create policy "profiles_update_policy" on public.profiles
     )
   );
 
+-- Ensure no_hp column exists on public.profiles
+alter table public.profiles
+  add column if not exists no_hp text;
+
 -- Revoke blanket update privilege and grant only to self-service columns (nama, no_hp)
 revoke update on public.profiles from authenticated, anon;
 grant update (nama, no_hp) on public.profiles to authenticated;
