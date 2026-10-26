@@ -10,7 +10,7 @@ export class PdfNeedsOcrError extends Error {
 }
 
 export class PdfExtractor implements ExtractorInterface {
-  async extract(buffer: Buffer, filename: string): Promise<RawTableData[]> {
+  async extract(buffer: Buffer, _filename: string): Promise<RawTableData[]> {
     // Dynamic import to support various runtime environments
     const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
 

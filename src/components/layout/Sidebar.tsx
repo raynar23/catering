@@ -103,21 +103,22 @@ export function Sidebar({
         )}
       >
         {collapsed ? (
-          <Link
-            href={profile?.role === "vendor" ? "/vendor/dashboard" : "/admin/dashboard"}
-            className="flex items-center justify-center p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-            title="Terminal Petikemas Surabaya"
-            aria-label="Beranda Dashboard TPS"
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="flex items-center justify-center p-2 rounded-xl hover:bg-white/10 active:bg-white/15 transition-all cursor-pointer group"
+            title="Buka Sidebar"
+            aria-label="Buka Sidebar"
           >
             <Image
-              src="/images/tps-symbol.png"
-              alt="Logo TPS"
-              width={36}
-              height={36}
-              className="w-8 h-8 object-contain select-none"
+              src="/images/icon-pelindo-monokrom.png"
+              alt="Icon Pelindo Monokrom"
+              width={40}
+              height={40}
+              className="w-9 h-9 object-contain select-none transition-transform group-hover:scale-105"
               priority
             />
-          </Link>
+          </button>
         ) : (
           <>
             <Image

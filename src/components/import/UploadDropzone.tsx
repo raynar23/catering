@@ -78,7 +78,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
         setOcrProgress(100);
         setOcrStatus("Pemindaian OCR selesai, mengirim hasil...");
         await onAnalyze(selectedFile, forceType, text);
-      } catch (_err: unknown) {
+      } catch {
         setOcrProgress(null);
         setOcrStatus("");
       }

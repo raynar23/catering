@@ -2603,48 +2603,6 @@ $$;
 revoke execute on function public.delete_selected_periods(uuid[]) from public;
 grant execute on function public.delete_selected_periods(uuid[]) to authenticated;
 
--- 3. Fungsi RPC: Reset Seluruh Data Operasional Catering (Client Handover)
-create or replace function public.reset_operational_data(p_konfirmasi text)
-returns jsonb
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $$
-declare
-  v_count_periods integer := 0;
-  v_count_orders integer := 0;
-begin
-  if not public.is_admin() then
-    raise exception 'Akses ditolak: Hanya Admin GA yang diizinkan mereset data';
-  end if;
-
-  if upper(trim(p_konfirmasi)) not in ('HAPUS', 'HAPUS SEMUA DATA') then
-    raise exception 'Konfirmasi tidak sesuai. Ketik "HAPUS" untuk melanjutkan.';
-  end if;
-
-  perform set_config('app.bypass_order_logs_immutability', 'on', true);
-
-  select count(*) into v_count_periods from public.periods;
-  select count(*) into v_count_orders from public.catering_orders;
-
-  delete from public.order_logs;
-  delete from public.revisions;
-  delete from public.catering_items;
-  delete from public.catering_orders;
-  delete from public.periods;
-
-  return jsonb_build_object(
-    'success', true,
-    'deleted_periods', v_count_periods,
-    'deleted_orders', v_count_orders,
-    'message', 'Seluruh data operasional catering berhasil dibersihkan.'
-  );
-end;
-$$;
-
-revoke execute on function public.reset_operational_data(text) from public;
-grant execute on function public.reset_operational_data(text) to authenticated;
-
 -- Seed data
 -- Demo seed data for shifts, sections, vendors, profiles, and 29-day rolling schedule
 

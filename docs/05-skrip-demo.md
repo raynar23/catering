@@ -10,10 +10,10 @@ Skrip panduan ini dirancang untuk presentasi (*live demo*) di hadapan manajemen 
 Buka dua jendela peramban (*browser*) secara berdampingan di layar proyektor atau layar presentasi:
 - **Jendela 1 (Kiri - Normal Window)**: Untuk peran **Admin General Affairs**.
   - Buka `http://localhost:3000/login`
-  - Login dengan `admin` / `gatps2026`
+  - Login dengan akun Admin GA (`admin`)
 - **Jendela 2 (Kanan - Incognito / Private Window)**: Untuk peran **Mitra Vendor (Aisya Catering)**.
   - Buka `http://localhost:3000/login`
-  - Login dengan `vendor` / `vendortps2026`
+  - Login dengan akun Vendor (`vendor`)
 
 ---
 

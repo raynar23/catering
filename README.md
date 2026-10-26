@@ -69,13 +69,13 @@ Buka peramban di `http://localhost:3000`.
 ---
 
 ## Kredensial Akun Uji Coba
-
-| Peran (Role) | Username | Password | Email Auth |
-| :--- | :--- | :--- | :--- |
-| **Admin General Affairs** | `admin` | `gatps2026` | `admin@tps.co.id` |
-| **Mitra Vendor (Aisya)** | `vendor` | `vendortps2026` | `vendor@tps.co.id` |
-
-*Catatan:* Pengguna dapat mengetikkan username langsung (`admin` atau `vendor`) pada form login.
+ 
+| Peran (Role) | Username | Email Auth |
+| :--- | :--- | :--- |
+| **Admin General Affairs** | `admin` | `admin@tps.co.id` |
+| **Mitra Vendor (Aisya)** | `vendor` | `vendor@tps.co.id` |
+ 
+*Catatan:* Kata sandi demo dirotasi secara aman melalui skrip `node scripts/rotate-demo-passwords.mjs` yang hanya mencetak kredensial ke konsol terminal lokal. Pengguna dapat mengetikkan username langsung (`admin` atau `vendor`) pada form login.
 
 ---
 

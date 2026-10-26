@@ -3,7 +3,7 @@ import { updateSession } from '@/lib/supabase/middleware';
 import { decideRoute } from '@/lib/auth/route-guard';
 import { AppRole } from '@/lib/types';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { response, user, supabase } = await updateSession(request);
   const pathname = request.nextUrl.pathname;
 

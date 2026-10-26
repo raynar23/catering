@@ -10,7 +10,7 @@ Dokumen ini memuat panduan operasional mandiri bagi perwakilan mitra katering (V
 1. Buka tautan sistem katering pada peramban web (misalnya `http://localhost:3000/login`).
 2. Masukkan kredensial akun vendor Anda:
    - **Username**: `vendor` (atau email terdaftar vendor Anda, contoh: `vendor@tps.co.id`).
-   - **Password**: `vendortps2026`.
+   - **Password**: Masukkan kata sandi portal vendor yang telah diberikan oleh pihak General Affairs.
 3. Klik tombol **Masuk**. Sistem akan secara otomatis mengarahkan Anda ke portal mandiri vendor Anda.
 
 ---

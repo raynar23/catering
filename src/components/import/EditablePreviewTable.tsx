@@ -16,7 +16,7 @@ interface EditablePreviewTableProps {
 export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
   rows,
   onRowsChange,
-  documentType,
+  documentType: _documentType,
   options,
   onOptionsChange,
   onProceedToConfirmation,

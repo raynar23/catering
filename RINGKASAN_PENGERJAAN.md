@@ -10,10 +10,12 @@ Sistem ini dibangun untuk mendigitalkan dan mengotomatiskan alur kerja pemesanan
 
 ### Akun Uji Coba Resmi (Tersedia di Database)
 
-| Peran (Role) | Username / Email | Password | Keterangan & Akses |
-| :--- | :--- | :--- | :--- |
-| `admin_ga` | `admin@tps.co.id` (atau `admin`) | `gatps2026` | Akses penuh seluruh master data, input 3-shift, jadwal rotasi, verifikasi revisi, ganti vendor, dan audit timeline. |
-| `vendor` | `vendor@tps.co.id` (atau `vendor`) | `vendortps2026` | Terhubung ke mitra Aisya Catering (V001). Akses portal mandiri: konfirmasi pesanan, penyesuaian revisi, pembaruan 5 tahap progres, riwayat. |
+| Peran (Role) | Username / Email | Keterangan & Akses |
+| :--- | :--- | :--- |
+| `admin_ga` | `admin@tps.co.id` (atau `admin`) | Akses penuh seluruh master data, input 3-shift, jadwal rotasi, verifikasi revisi, ganti vendor, dan audit timeline. |
+| `vendor` | `vendor@tps.co.id` (atau `vendor`) | Terhubung ke mitra Aisya Catering (V001). Akses portal mandiri: konfirmasi pesanan, penyesuaian revisi, pembaruan 5 tahap progres, riwayat. |
+
+*Catatan Keamanan:* Kata sandi demo dirotasi secara aman menggunakan skrip `node scripts/rotate-demo-passwords.mjs` yang hanya mencetak kredensial ke konsol terminal lokal.
 
 *Catatan Autentikasi:* Sistem mendukung input username langsung (`admin` atau `vendor`) yang otomatis dinormalisasi menjadi email korporat `username@tps.co.id` pada sisi autentikasi Supabase SSR.
 

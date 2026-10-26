@@ -28,15 +28,15 @@ File migrasi tersimpan di folder `supabase/migrations/`:
 
 ## 2. Kredensial Akun Demo (2 Role: Admin GA & Vendor)
 
-| Username | Email Auth | Role | Akses / Keterangan | Kata Sandi Default |
-|---|---|---|---|---|
-| `admin` / `admin.ga` | `admin@tps.co.id` | `admin_ga` | Administrator General Affairs (Kelola Master, Input, Verifikasi, Pengaturan) | `gatps2026` |
-| `vendor` / `vendor.aisya` | `vendor@tps.co.id` | `vendor` | Rekanan Aisya Catering (V001) | `vendortps2026` |
-| `vendor.ibu` | `vendor.ibu@tps.co.id` | `vendor` | Rekanan Catering IBU (V002) - Akun Demo Vendor Kedua untuk Uji Isolasi | `vendortps2026` |
-| `admin2.ga` | `admin2.ga@tps.co.id` | `admin_ga` | Administrator General Affairs 2 (Multi-PIC) | `TpsCatering2026!` |
-| `vendor.nikmat` | `vendor.nikmat@tps.co.id` | `vendor` | Rekanan Nikmat Rasa (V003) | `TpsCatering2026!` |
-| `vendor.adhi` | `vendor.adhi@tps.co.id` | `vendor` | Rekanan Adhi Hidayah (V004) | `TpsCatering2026!` |
-| `vendor.nurina` | `vendor.nurina@tps.co.id` | `vendor` | Rekanan Nurina Catering (V005) | `TpsCatering2026!` |
+| Username | Email Auth | Role | Akses / Keterangan |
+|---|---|---|---|
+| `admin` / `admin.ga` | `admin@tps.co.id` | `admin_ga` | Administrator General Affairs (Kelola Master, Input, Verifikasi, Pengaturan) |
+| `vendor` / `vendor.aisya` | `vendor@tps.co.id` | `vendor` | Rekanan Aisya Catering (V001) |
+| `vendor.ibu` | `vendor.ibu@tps.co.id` | `vendor` | Rekanan Catering IBU (V002) - Akun Demo Vendor Kedua untuk Uji Isolasi |
+| `admin2.ga` | `admin2.ga@tps.co.id` | `admin_ga` | Administrator General Affairs 2 (Multi-PIC) |
+| `vendor.nikmat` | `vendor.nikmat@tps.co.id` | `vendor` | Rekanan Nikmat Rasa (V003) |
+| `vendor.adhi` | `vendor.adhi@tps.co.id` | `vendor` | Rekanan Adhi Hidayah (V004) |
+| `vendor.nurina` | `vendor.nurina@tps.co.id` | `vendor` | Rekanan Nurina Catering (V005) |
 
 Seluruh akun di atas otomatis terdaftar saat mengeksekusi `DATABASE_LENGKAP_CATERING.sql`. Anda juga dapat menyinkronkannya kembali lewat perintah:
 ```bash

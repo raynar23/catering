@@ -1,5 +1,5 @@
 // Fuzzy string matching, normalization, alias resolution, and date sanitization
-import { parseISO, format, isValid } from "date-fns";
+import { parseISO, isValid } from "date-fns";
 
 export interface KnownVendor {
   id: string;

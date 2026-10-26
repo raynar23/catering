@@ -96,12 +96,12 @@ GEMINI_API_KEY=
 
 Gunakan kredensial resmi berikut untuk menguji sistem:
 
-| Peran (Role) | Username | Password | Email Auth Terdaftar |
-| :--- | :--- | :--- | :--- |
-| **Admin General Affairs** | `admin` | `gatps2026` | `admin@tps.co.id` |
-| **Mitra Vendor (Aisya)** | `vendor` | `vendortps2026` | `vendor@tps.co.id` |
+| Peran (Role) | Username | Email Auth Terdaftar |
+| :--- | :--- | :--- |
+| **Admin General Affairs** | `admin` | `admin@tps.co.id` |
+| **Mitra Vendor (Aisya)** | `vendor` | `vendor@tps.co.id` |
 
-*Catatan:* Pengguna dapat mengetikkan username langsung (`admin` atau `vendor`) pada kartu login; sistem secara otomatis menormalisasinya menjadi email format Pelindo TPS.
+*Catatan:* Kata sandi demo dikelola dan dirotasi secara aman melalui skrip `node scripts/rotate-demo-passwords.mjs` yang hanya mencetak kredensial ke konsol terminal lokal. Pengguna dapat mengetikkan username langsung (`admin` atau `vendor`) pada kartu login; sistem secara otomatis menormalisasinya menjadi email format Pelindo TPS.
 
 ---
 

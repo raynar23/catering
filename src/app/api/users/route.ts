@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
     }
 
     const adminClient = createAdminClient();
-    let query = adminClient
+    const query = adminClient
       .from("profiles")
       .select(`
         id,

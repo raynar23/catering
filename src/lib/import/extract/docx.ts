@@ -4,7 +4,7 @@ import { ExtractorInterface, RawTableData } from "../types";
 import { normalizeString } from "../match";
 
 export class DocxExtractor implements ExtractorInterface {
-  async extract(buffer: Buffer, filename: string): Promise<RawTableData[]> {
+  async extract(buffer: Buffer, _filename: string): Promise<RawTableData[]> {
     const result = await mammoth.convertToHtml({ buffer });
     const html = result.value;
 

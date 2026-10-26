@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { DateRange } from "react-day-picker";
 import {

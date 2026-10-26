@@ -407,7 +407,7 @@ export async function deleteSelectedPeriodsAction(ids: string[]): Promise<Action
   return { success: true, message: `${ids.length} jadwal periode berhasil dihapus` };
 }
 
-// Reset all operational catering data for client handover
+// Reset all operational catering data for client handover (strictly dev/local only)
 export async function resetOperationalDataAction(confirmation: string): Promise<ActionResult> {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "admin_ga") {
@@ -416,6 +416,13 @@ export async function resetOperationalDataAction(confirmation: string): Promise<
 
   if (confirmation.trim().toUpperCase() !== "HAPUS") {
     return { success: false, error: 'Ketik "HAPUS" untuk mengonfirmasi pembersihan data' };
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return {
+      success: false,
+      error: "Reset seluruh data operasional dinonaktifkan di lingkungan produksi demi keamanan data audit append-only. Gunakan scripts/dev-reset.sql untuk reset manual.",
+    };
   }
 
   const supabase = await createClient();
@@ -427,7 +434,7 @@ export async function resetOperationalDataAction(confirmation: string): Promise<
   if (rpcErr) {
     return {
       success: false,
-      error: rpcErr.message || "Gagal mereset data operasional. Pastikan dummy_data_dashboard.sql telah dijalankan di Supabase.",
+      error: rpcErr.message || "Gagal mereset data operasional. Fungsi reset hanya dapat dipanggil oleh service_role atau skrip manual scripts/dev-reset.sql.",
     };
   }
 
