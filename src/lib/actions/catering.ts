@@ -331,6 +331,13 @@ export async function simpanCateringDraftAction(params: {
     };
   }
 
+  if (!params.items || !Array.isArray(params.items) || params.items.length === 0) {
+    return {
+      success: false,
+      error: "Daftar item catering tidak boleh kosong. Minimal satu bagian wajib diisi.",
+    };
+  }
+
   const supabase = await createClient();
 
   // Call simpan_catering RPC
@@ -379,6 +386,13 @@ export async function kirimCateringAction(params: {
 
   const supabase = await createClient();
   let effectiveOrderId = params.orderId;
+
+  if (!effectiveOrderId && (!params.items || params.items.length === 0)) {
+    return {
+      success: false,
+      error: "Pesanan belum dibuat dan item catering kosong. Isi porsi terlebih dahulu.",
+    };
+  }
 
   // If order does not exist or has unsaved items, save draft first
   if (!effectiveOrderId || (params.items && params.items.length > 0)) {

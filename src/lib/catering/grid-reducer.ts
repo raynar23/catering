@@ -36,6 +36,7 @@ export interface BagianRowItem {
   nama: string;
   lokasi_antar: string | null;
   urutan: number;
+  aktif?: boolean;
 }
 
 export interface GridState {
@@ -125,6 +126,7 @@ export function getMissingBagian(
   const missing: string[] = [];
 
   for (const b of bagianList) {
+    if (b.aktif === false) continue; // Only active sections require portions
     const cell = cells[b.id];
     if (!cell || cell.porsi === null) {
       missing.push(b.nama);
