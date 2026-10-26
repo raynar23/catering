@@ -30,18 +30,18 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
 
   return (
     <div className="flex-1 min-h-0 overflow-auto">
-      <table className="w-full text-left border-collapse min-w-[1020px]">
+      <table className="w-full text-left border-collapse min-w-full md:min-w-[900px]">
         <thead className="sticky top-0 z-10 bg-slate-50 border-b border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
           <tr>
             <th className="px-3 py-2.5">Tanggal & Shift</th>
             <th className="px-3 py-2.5">Vendor</th>
             <th className="px-3 py-2.5">Bagian</th>
             <th className="px-3 py-2.5 text-right">Perubahan Porsi</th>
-            <th className="px-3 py-2.5 min-w-[160px]">Alasan</th>
-            <th className="px-3 py-2.5">Pengaju</th>
-            <th className="px-3 py-2.5 text-center">Respons Vendor</th>
+            <th className="px-3 py-2.5 min-w-[160px] hidden md:table-cell">Alasan</th>
+            <th className="px-3 py-2.5 hidden lg:table-cell">Pengaju</th>
+            <th className="px-3 py-2.5 text-center hidden sm:table-cell">Respons Vendor</th>
             <th className="px-3 py-2.5 text-center">Status</th>
-            <th className="px-3 py-2.5 text-center w-[160px]">Aksi</th>
+            <th className="px-3 py-2.5 text-center w-[120px] sm:w-[160px]">Aksi</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/60 text-xs">
@@ -118,14 +118,14 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                 </td>
 
                 {/* Alasan */}
-                <td className="px-3 py-2.5 align-middle max-w-[200px]">
+                <td className="px-3 py-2.5 align-middle max-w-[200px] hidden md:table-cell">
                   <p className="text-xs text-text truncate" title={rev.alasan}>
                     {rev.alasan}
                   </p>
                 </td>
 
                 {/* Pengaju */}
-                <td className="px-3 py-2.5 align-middle">
+                <td className="px-3 py-2.5 align-middle hidden lg:table-cell">
                   <div className="flex flex-col">
                     <span className="text-text font-medium">{rev.diajukanOlehNama}</span>
                     <span className="text-[11px] text-muted">
@@ -135,7 +135,7 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                 </td>
 
                 {/* Respons Vendor */}
-                <td className="px-3 py-2.5 align-middle text-center">
+                <td className="px-3 py-2.5 align-middle text-center hidden sm:table-cell">
                   <StatusBadge status={rev.responVendor} />
                 </td>
 

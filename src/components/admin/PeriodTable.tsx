@@ -342,6 +342,7 @@ export function PeriodTable() {
     {
       key: "vendor_kontak",
       header: "Kontak Vendor",
+      className: "hidden md:table-cell",
       render: (row) => {
         if (!row.vendor_kontak) return "-";
         const link = waLink(
@@ -379,6 +380,7 @@ export function PeriodTable() {
     {
       key: "diupdate_oleh",
       header: "Diupdate Oleh",
+      className: "hidden lg:table-cell",
       render: (row) => row.diupdate_oleh || "-",
     },
     {

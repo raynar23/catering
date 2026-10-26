@@ -162,6 +162,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "no_hp",
       header: "No. HP / WA",
+      className: "hidden sm:table-cell",
       render: (row: UserRecord) => (
         <span className="text-xs text-text-muted">
           {row.no_hp ? row.no_hp : "-"}
@@ -178,6 +179,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "created_at",
       header: "Dibuat",
+      className: "hidden md:table-cell",
       render: (row: UserRecord) => (
         <span className="text-xs text-text-muted">
           {formatDate(row.created_at)}
@@ -187,7 +189,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "aksi",
       header: "Aksi",
-      className: "w-28 text-right",
+      className: "w-20 sm:w-28 text-right",
       render: (row: UserRecord) => {
         return (
           <div className="flex items-center justify-end gap-1">

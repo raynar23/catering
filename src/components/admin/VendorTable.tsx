@@ -139,6 +139,7 @@ export function VendorTable() {
     {
       key: "nama_kontak",
       header: "Nama Kontak",
+      className: "hidden md:table-cell",
       render: (row) => row.nama_kontak || "-",
     },
     {
@@ -170,11 +171,13 @@ export function VendorTable() {
     {
       key: "no_telp",
       header: "No. Telp",
+      className: "hidden lg:table-cell",
       render: (row) => <span className="tabular-nums">{row.no_telp || "-"}</span>,
     },
     {
       key: "alamat",
       header: "Alamat",
+      className: "hidden md:table-cell",
       render: (row) => (
         <span className="truncate max-w-xs block" title={row.alamat ?? ""}>
           {row.alamat || "-"}
@@ -185,7 +188,7 @@ export function VendorTable() {
       key: "aktif",
       header: "Status",
       align: "center",
-      width: 100,
+      width: 80,
       render: (row) => (
         <StatusBadge
           status={row.aktif ? "aktif" : "nonaktif"}

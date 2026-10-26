@@ -111,7 +111,7 @@ export function DataTable<T>({
                   key={col.key}
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
-                    "px-4 text-[11px] font-semibold uppercase tracking-wider text-[#86868B] select-none",
+                    "px-2.5 sm:px-4 text-[11px] font-semibold uppercase tracking-wider text-[#86868B] select-none",
                     col.align === "right" && "text-right",
                     col.align === "center" && "text-center",
                     col.className
@@ -128,7 +128,7 @@ export function DataTable<T>({
               Array.from({ length: pageSize }).map((_, i) => (
                 <tr key={`skeleton-${i}`} className="h-10">
                   {columns.map((col) => (
-                    <td key={`skeleton-cell-${col.key}`} className="px-4 py-2">
+                    <td key={`skeleton-cell-${col.key}`} className="px-2.5 sm:px-4 py-2">
                       <Skeleton className="h-4 w-full" />
                     </td>
                   ))}
@@ -158,7 +158,7 @@ export function DataTable<T>({
                         <td
                           key={`${key}-${col.key}`}
                           className={cn(
-                            "px-4 text-text tabular-nums truncate",
+                            "px-2.5 sm:px-4 text-text tabular-nums truncate",
                             col.align === "right" && "text-right",
                             col.align === "center" && "text-center",
                             col.className
