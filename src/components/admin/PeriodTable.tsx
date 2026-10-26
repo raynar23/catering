@@ -20,7 +20,6 @@ import { formatTimeShort, MONTH_OPTIONS } from "@/lib/date";
 import { waLink } from "@/lib/whatsapp";
 import { useToast } from "@/components/ui/Toast";
 import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
-import { ResetOperationalModal } from "./ResetOperationalModal";
 import {
   Plus,
   Settings2,
@@ -61,7 +60,6 @@ export function PeriodTable() {
 
   const [selectedPeriodIds, setSelectedPeriodIds] = useState<Set<string>>(new Set());
   const [deleteSelectedConfirmOpen, setDeleteSelectedConfirmOpen] = useState(false);
-  const [resetModalOpen, setResetModalOpen] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   // Load shifts and vendors options
@@ -510,14 +508,6 @@ export function PeriodTable() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setResetModalOpen(true)}
-            className="h-9 px-3.5 rounded-[8px] bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-white" />
-            <span>Hapus Semua Data</span>
-          </button>
 
           <button
             type="button"
@@ -623,15 +613,6 @@ export function PeriodTable() {
         variant="danger"
         isProcessing={isBulkDeleting}
         onConfirm={handleConfirmDeleteSelected}
-      />
-
-      <ResetOperationalModal
-        open={resetModalOpen}
-        onOpenChange={setResetModalOpen}
-        onSuccess={() => {
-          setSelectedPeriodIds(new Set());
-          loadData();
-        }}
       />
     </div>
   );
