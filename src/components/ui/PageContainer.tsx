@@ -6,12 +6,12 @@ interface PageContainerProps {
   className?: string;
 }
 
-// Fixed 1360px container ensuring zero-scroll layouts across desktop viewports
+// Fixed 1360px container ensuring zero-scroll layouts across desktop viewports while scrolling naturally on mobile
 export function PageContainer({ children, className }: PageContainerProps) {
   return (
     <div
       className={cn(
-        "w-full max-w-[1360px] mx-auto px-4 sm:px-6 flex-1 min-h-0 flex flex-col overflow-hidden",
+        "w-full max-w-[1360px] mx-auto px-3.5 sm:px-6 flex-1 min-h-0 flex flex-col lg:overflow-hidden",
         className
       )}
     >

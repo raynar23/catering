@@ -39,18 +39,18 @@ export function VendorBarChart({
   const maxVal = Math.max(...series.map((v) => v.total_porsi), 1);
 
   return (
-    <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 sm:p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+    <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 sm:p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
       <div className="mb-1.5 sm:mb-2 shrink-0">
         <h3 className="text-xs font-semibold text-text tracking-tight">Porsi per Vendor</h3>
-        <p className="text-[11px] text-[#86868B]">Distribusi pemenuhan katering oleh 5 vendor mitra</p>
+        <p className="text-[11px] text-[#86868B] truncate">Distribusi pemenuhan katering oleh 5 vendor mitra</p>
       </div>
 
       {isEmpty ? (
-        <div className="flex-1 flex items-center justify-center text-xs text-text-muted">
+        <div className="flex-1 flex items-center justify-center text-xs text-text-muted min-h-[140px]">
           Belum ada data final pada rentang ini
         </div>
       ) : (
-        <div className="flex-1 min-h-0 flex flex-col justify-between gap-1 overflow-y-auto">
+        <div className="flex-1 min-h-[150px] flex flex-col justify-between gap-1 overflow-y-auto">
           {series.map((item) => {
             const widthPct = Math.max(2, Math.round((item.total_porsi / maxVal) * 100));
             const isHovered = hoveredVendorId === item.vendor_id;
@@ -67,22 +67,22 @@ export function VendorBarChart({
                 <div className="flex items-center justify-between text-xs mb-1">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span
-                      className={`text-[12px] font-semibold truncate transition-colors ${
+                      className={`text-[11px] sm:text-[12px] font-semibold truncate transition-colors ${
                         isHovered ? "text-primary" : "text-[#1D1D1F]"
                       }`}
                     >
                       {item.vendor_nama}
                     </span>
-                    <span className="text-[10px] font-medium text-[#86868B] bg-black/[0.04] px-1.5 py-0.5 rounded-[4px] leading-none shrink-0">
+                    <span className="text-[9px] sm:text-[10px] font-medium text-[#86868B] bg-black/[0.04] px-1.5 py-0.5 rounded-[4px] leading-none shrink-0">
                       {item.vendor_kode}
                     </span>
                   </div>
 
                   <div className="flex items-baseline gap-1.5 shrink-0 text-xs">
-                    <span className="font-semibold text-[#1D1D1F] tabular-nums text-[12px]">
+                    <span className="font-semibold text-[#1D1D1F] tabular-nums text-[11px] sm:text-[12px]">
                       {formatNumber(item.total_porsi)}
                     </span>
-                    <span className="text-[#86868B] text-[11px] tabular-nums font-normal">
+                    <span className="text-[#86868B] text-[10px] sm:text-[11px] tabular-nums font-normal">
                       ({item.persentase}%)
                     </span>
                   </div>

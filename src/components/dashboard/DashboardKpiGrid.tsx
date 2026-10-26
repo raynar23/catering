@@ -24,9 +24,18 @@ export function DashboardKpiGrid({
 }: DashboardKpiGridProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 mb-2.5 select-none shrink-0">
+      <div className="grid grid-cols-2 sm:grid-cols-6 md:grid-cols-5 gap-2 sm:gap-2.5 mb-2.5 select-none shrink-0">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="bg-surface border border-border rounded-[10px] p-3 space-y-1.5">
+          <div
+            key={i}
+            className={`bg-surface border border-border rounded-[10px] p-3 space-y-1.5 ${
+              i === 4
+                ? "col-span-2 sm:col-span-3 md:col-span-1"
+                : i === 3
+                ? "sm:col-span-3 md:col-span-1"
+                : "sm:col-span-2 md:col-span-1"
+            }`}
+          >
             <Skeleton className="h-3 w-20" />
             <Skeleton className="h-6 w-24" />
             <Skeleton className="h-3 w-20" />
@@ -37,66 +46,66 @@ export function DashboardKpiGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 mb-2.5 select-none shrink-0">
+    <div className="grid grid-cols-2 sm:grid-cols-6 md:grid-cols-5 gap-2 sm:gap-2.5 mb-2.5 select-none shrink-0">
       {/* 1. Total Porsi */}
-      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Total Porsi</p>
-        <p className="text-xl lg:text-[26px] font-bold text-text tabular-nums tracking-tight my-1 leading-none">
+      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3 sm:p-3.5 flex flex-col justify-between sm:col-span-2 md:col-span-1 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Total Porsi</p>
+        <p className="text-xl sm:text-2xl lg:text-[26px] font-bold text-text tabular-nums tracking-tight my-1 leading-none">
           {formatNumber(totalPorsi)}
         </p>
-        <p className="text-[11px] text-[#86868B] truncate font-normal">
+        <p className="text-[10px] sm:text-[11px] text-[#86868B] truncate font-normal">
           Porsi pesanan berlaku
         </p>
       </div>
 
       {/* 2. Rata-rata Porsi per Hari */}
-      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Rata-rata/Hari</p>
-        <p className="text-xl lg:text-[26px] font-bold text-primary tabular-nums tracking-tight my-1 leading-none">
+      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3 sm:p-3.5 flex flex-col justify-between sm:col-span-2 md:col-span-1 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Rata-rata/Hari</p>
+        <p className="text-xl sm:text-2xl lg:text-[26px] font-bold text-primary tabular-nums tracking-tight my-1 leading-none">
           {formatNumber(avgPorsiPerHari)}
         </p>
-        <p className="text-[11px] text-[#86868B] truncate font-normal">
+        <p className="text-[10px] sm:text-[11px] text-[#86868B] truncate font-normal">
           Porsi rata-rata per hari
         </p>
       </div>
 
       {/* 3. Total Revisi */}
-      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Total Revisi</p>
-        <p className="text-xl lg:text-[26px] font-bold text-text tabular-nums tracking-tight my-1 leading-none">
+      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3 sm:p-3.5 flex flex-col justify-between sm:col-span-2 md:col-span-1 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Total Revisi</p>
+        <p className="text-xl sm:text-2xl lg:text-[26px] font-bold text-text tabular-nums tracking-tight my-1 leading-none">
           {formatNumber(totalRevisi)}
         </p>
-        <p className="text-[11px] text-[#86868B] truncate font-normal">
+        <p className="text-[10px] sm:text-[11px] text-[#86868B] truncate font-normal">
           Pengajuan revisi kuota
         </p>
       </div>
 
       {/* 4. Revisi Menunggu */}
-      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 flex flex-col justify-between shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Revisi Menunggu</p>
+      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3 sm:p-3.5 flex flex-col justify-between sm:col-span-3 md:col-span-1 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Revisi Menunggu</p>
         <p
-          className={`text-xl lg:text-[26px] font-bold tabular-nums tracking-tight my-1 leading-none ${
+          className={`text-xl sm:text-2xl lg:text-[26px] font-bold tabular-nums tracking-tight my-1 leading-none ${
             revisiMenunggu > 0 ? "text-[#9A5B00]" : "text-text"
           }`}
         >
           {formatNumber(revisiMenunggu)}
         </p>
-        <p className="text-[11px] text-[#86868B] truncate font-normal">
+        <p className="text-[10px] sm:text-[11px] text-[#86868B] truncate font-normal">
           {revisiMenunggu > 0 ? "Perlu verifikasi GA" : "Semua revisi tuntas"}
         </p>
       </div>
 
       {/* 5. Belum Input (Hari Ini & Besok) */}
-      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 flex flex-col justify-between col-span-2 sm:col-span-1 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Belum Diinput</p>
+      <div className="bg-white border border-black/[0.08] rounded-[12px] p-3 sm:p-3.5 flex flex-col justify-between col-span-2 sm:col-span-3 md:col-span-1 shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-[#86868B]">Belum Diinput</p>
         <p
-          className={`text-xl lg:text-[26px] font-bold tabular-nums tracking-tight my-1 leading-none ${
+          className={`text-xl sm:text-2xl lg:text-[26px] font-bold tabular-nums tracking-tight my-1 leading-none ${
             belumInput > 0 ? "text-danger" : "text-success"
           }`}
         >
           {formatNumber(belumInput)}
         </p>
-        <p className="text-[11px] text-[#86868B] truncate font-normal">
+        <p className="text-[10px] sm:text-[11px] text-[#86868B] truncate font-normal">
           {belumInput > 0 ? "Hari ini & besok kosong" : "Jadwal 2 hari terisi"}
         </p>
       </div>

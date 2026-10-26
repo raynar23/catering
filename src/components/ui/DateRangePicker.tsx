@@ -72,15 +72,15 @@ export function DateRangePicker({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="h-9 px-3 rounded-[8px] border border-border bg-surface text-text font-medium text-xs hover:bg-bg transition-colors flex items-center justify-between gap-3 min-w-[200px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+        className="h-8.5 sm:h-9 px-2.5 sm:px-3 rounded-[8px] border border-border bg-surface text-text font-medium text-xs hover:bg-bg transition-colors flex items-center justify-between gap-2 w-full sm:w-auto min-w-0 sm:min-w-[190px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
       >
-        <span className={cn(!value?.from && "text-placeholder")}>
+        <span className={cn("truncate", !value?.from && "text-placeholder")}>
           {displayText}
         </span>
       </button>
 
       {open && (
-        <div className="absolute left-0 mt-1.5 z-40 bg-surface border border-border rounded-[10px] shadow-xl p-3 flex flex-col md:flex-row gap-3 animate-in fade-in zoom-in-95">
+        <div className="absolute right-0 sm:right-auto sm:left-0 mt-1.5 z-40 bg-surface border border-border rounded-[10px] shadow-xl p-3 flex flex-col md:flex-row gap-3 animate-in fade-in zoom-in-95 max-w-[calc(100vw-32px)]">
           <div className="flex flex-col gap-1 border-b md:border-b-0 md:border-r border-border pb-2 md:pb-0 md:pr-3 min-w-[120px]">
             <span className="text-[11px] font-semibold text-text-muted px-2 py-1 select-none">
               Preset

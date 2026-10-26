@@ -95,7 +95,7 @@ export function AdminDashboardView({
   };
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col overflow-y-auto lg:overflow-hidden select-none">
+    <div className="flex flex-col lg:flex-1 lg:min-h-0 lg:overflow-hidden select-none gap-3 sm:gap-3.5 lg:gap-2.5 pb-8 lg:pb-0">
       {/* Date Filter Bar */}
       <DashboardFilterBar
         preset={preset}
@@ -115,18 +115,18 @@ export function AdminDashboardView({
         isLoading={loading}
       />
 
-      {/* Two Rows of Analytical Charts (100dvh Zero Page Scroll on Desktop) */}
-      <div className="flex-1 min-h-0 flex flex-col gap-2.5 pb-1">
+      {/* Two Rows of Analytical Charts (Responsive: stacked on mobile, 2x2 grid on iPad, zero-scroll on desktop) */}
+      <div className="flex flex-col lg:flex-1 lg:min-h-0 gap-3 sm:gap-3.5 lg:gap-2.5 pb-4 lg:pb-1">
         {/* Row 1: Trend line chart & Shift distribution donut */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1 min-h-0">
-          <div className="lg:col-span-8 h-full min-h-0">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-3.5 lg:gap-2.5 lg:flex-1 lg:min-h-0">
+          <div className="md:col-span-7 lg:col-span-8 min-h-[250px] sm:min-h-[270px] lg:min-h-0 lg:h-full">
             <DailyTrendChart
               currentSeries={data?.seri_harian ?? []}
               previousSeries={data?.seri_periode_sebelumnya ?? []}
               isLoading={loading}
             />
           </div>
-          <div className="lg:col-span-4 h-full min-h-0">
+          <div className="md:col-span-5 lg:col-span-4 min-h-[220px] sm:min-h-[240px] lg:min-h-0 lg:h-full">
             <ShiftDistributionDonut
               series={data?.seri_shift ?? []}
               totalPorsi={data?.total_porsi ?? 0}
@@ -136,14 +136,14 @@ export function AdminDashboardView({
         </div>
 
         {/* Row 2: Department vertical bars & Vendor horizontal bars */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 flex-1 min-h-0">
-          <div className="lg:col-span-7 h-full min-h-0">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-3.5 lg:gap-2.5 lg:flex-1 lg:min-h-0">
+          <div className="md:col-span-7 lg:col-span-7 min-h-[250px] sm:min-h-[270px] lg:min-h-0 lg:h-full">
             <BagianBarChart
               series={data?.seri_bagian ?? []}
               isLoading={loading}
             />
           </div>
-          <div className="lg:col-span-5 h-full min-h-0">
+          <div className="md:col-span-5 lg:col-span-5 min-h-[240px] sm:min-h-[260px] lg:min-h-0 lg:h-full">
             <VendorBarChart
               series={data?.seri_vendor ?? []}
               totalPorsi={data?.total_porsi ?? 0}

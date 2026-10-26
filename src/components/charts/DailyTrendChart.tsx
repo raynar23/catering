@@ -72,14 +72,14 @@ export function DailyTrendChart({
   }
 
   return (
-    <div className="bg-white border border-black/[0.08] rounded-[12px] p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-      <div className="flex items-center justify-between mb-2">
-        <div>
+    <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 sm:p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-3 shrink-0">
+        <div className="min-w-0">
           <h3 className="text-xs font-semibold text-text tracking-tight">Tren Porsi Harian</h3>
-          <p className="text-[11px] text-[#86868B]">Perbandingan rentang aktif dengan periode sebelumnya</p>
+          <p className="text-[11px] text-[#86868B] truncate">Perbandingan rentang aktif dengan periode sebelumnya</p>
         </div>
 
-        <div className="flex items-center gap-3 text-[11px]">
+        <div className="flex items-center gap-3 text-[11px] shrink-0">
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-0.5 bg-primary rounded-full inline-block" />
             <span className="text-text-muted">Periode Ini</span>
@@ -92,12 +92,12 @@ export function DailyTrendChart({
       </div>
 
       {isEmpty ? (
-        <div className="flex-1 flex items-center justify-center text-xs text-text-muted">
+        <div className="flex-1 flex items-center justify-center text-xs text-text-muted min-h-[140px]">
           Belum ada data final pada rentang ini
         </div>
       ) : (
-        <div className="relative flex-1 min-h-[140px] w-full">
-          <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+        <div className="relative flex-1 min-h-[150px] sm:min-h-[170px] w-full">
+          <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" className="w-full h-full">
             <defs>
               <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#008FD5" stopOpacity="0.18" />
