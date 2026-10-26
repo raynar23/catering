@@ -73,6 +73,7 @@ describe("Topbar Layout Component", () => {
     expect(html).toContain("PT Terminal Petikemas Surabaya");
     expect(html).not.toContain("Sistem Aktif");
     expect(html).toContain("Logo Danantara Indonesia");
+    expect(html).toContain("tps-symbol.png");
 
     // Verifies notification badge counter is rendered
     expect(html).toContain("3");
