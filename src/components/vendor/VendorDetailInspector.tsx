@@ -158,7 +158,11 @@ export function VendorDetailInspector({
                             {it.pendingRevision && (
                               <div className="mt-1 flex items-center gap-1 text-[11px] text-[#C5221F] bg-[#FCE8E6] px-1.5 py-0.5 rounded-[4px] w-fit">
                                 <AlertCircle className="w-3 h-3" />
-                                Revisi menunggu: {it.pendingRevision.porsiAwal} {"->"} {it.pendingRevision.porsiBaru} ({it.pendingRevision.selisihPorsi > 0 ? `+${it.pendingRevision.selisihPorsi}` : it.pendingRevision.selisihPorsi})
+                                <span>
+                                  Revisi menunggu:{" "}
+                                  <span className="line-through opacity-75">{it.pendingRevision.porsiAwal}</span>{" "}
+                                  <strong>{it.pendingRevision.porsiBaru}</strong> ({it.pendingRevision.selisihPorsi > 0 ? `+${it.pendingRevision.selisihPorsi}` : it.pendingRevision.selisihPorsi})
+                                </span>
                               </div>
                             )}
                           </div>

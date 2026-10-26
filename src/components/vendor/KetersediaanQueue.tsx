@@ -332,9 +332,8 @@ export function KetersediaanQueue({
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <span className="text-[11px] text-text-muted block">Perubahan Porsi</span>
-                    <div className="flex items-center gap-1 text-sm font-mono">
+                    <div className="flex items-center gap-1.5 text-sm font-mono">
                       <span className="text-text-muted line-through">{rev.porsiAwal}</span>
-                      <span>{"->"}</span>
                       <span className="font-bold text-text text-base">{rev.porsiBaru}</span>
                       <span className={`font-bold ml-1 ${rev.selisihPorsi > 0 ? "text-[#1E8E3E]" : "text-[#C5221F]"}`}>
                         ({formatDelta(rev.selisihPorsi)})

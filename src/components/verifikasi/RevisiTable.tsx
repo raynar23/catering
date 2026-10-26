@@ -29,22 +29,22 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
   }
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-      <table className="w-full table-fixed text-left border-collapse text-xs">
+    <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
+      <table className="w-full text-left border-collapse text-xs min-w-[520px] sm:min-w-0 sm:table-fixed">
         <thead className="sticky top-0 z-10 bg-slate-50 border-b border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
           <tr>
-            <th className="px-2.5 sm:px-3 py-2.5">
+            <th className="px-2.5 sm:px-3 py-2.5 min-w-[170px] sm:min-w-0">
               <span className="sm:hidden">Detail Pesanan</span>
               <span className="hidden sm:inline">Tanggal & Shift</span>
             </th>
-            <th className="px-3 py-2.5 hidden sm:table-cell">Vendor</th>
-            <th className="px-3 py-2.5 hidden sm:table-cell">Bagian</th>
-            <th className="px-2 sm:px-3 py-2.5 text-right w-[85px] sm:w-auto">Porsi</th>
+            <th className="px-3 py-2.5 hidden sm:table-cell sm:w-[140px]">Vendor</th>
+            <th className="px-3 py-2.5 hidden sm:table-cell sm:w-[130px]">Bagian</th>
+            <th className="px-2.5 sm:px-3 py-2.5 text-right w-[85px] sm:w-[100px]">Porsi</th>
             <th className="px-3 py-2.5 min-w-[160px] hidden md:table-cell">Alasan</th>
-            <th className="px-3 py-2.5 hidden lg:table-cell">Pengaju</th>
-            <th className="px-3 py-2.5 text-center hidden sm:table-cell">Respons Vendor</th>
-            <th className="px-2 sm:px-3 py-2.5 text-center w-[76px] sm:w-auto">Status</th>
-            <th className="px-2 sm:px-3 py-2.5 text-center w-[85px] sm:w-[150px]">Aksi</th>
+            <th className="px-3 py-2.5 hidden lg:table-cell sm:w-[120px]">Pengaju</th>
+            <th className="px-3 py-2.5 text-center hidden sm:table-cell sm:w-[120px]">Respons Vendor</th>
+            <th className="px-2.5 sm:px-3 py-2.5 text-center min-w-[140px] sm:min-w-0 sm:w-[140px]">Status</th>
+            <th className="px-2.5 sm:px-3 py-2.5 text-center min-w-[100px] sm:min-w-0 sm:w-[140px]">Aksi</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/60 text-xs">
@@ -105,13 +105,12 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                   {rev.bagianNama}
                 </td>
 
-                {/* Perubahan Porsi ("20 menjadi 23 (+3)") */}
-                <td className="px-2 sm:px-3 py-2 align-middle text-right font-mono">
+                {/* Perubahan Porsi ("~20~ 23 (+3)") */}
+                <td className="px-2.5 sm:px-3 py-2 align-middle text-right font-mono">
                   <div className="flex flex-col items-end gap-0.5">
-                    <div className="inline-flex items-center gap-1 justify-end text-xs">
-                      <span className="text-muted">{rev.porsiAwal}</span>
-                      <span className="text-muted">&rarr;</span>
-                      <span className="font-bold text-text">{rev.porsiBaru}</span>
+                    <div className="inline-flex items-center gap-1.5 justify-end text-xs">
+                      <span className="line-through text-slate-400 font-normal">{rev.porsiAwal}</span>
+                      <span className="font-bold text-text text-xs sm:text-sm">{rev.porsiBaru}</span>
                     </div>
                     <span
                       className={cn(
@@ -151,13 +150,13 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                 </td>
 
                 {/* Status Revisi */}
-                <td className="px-2 sm:px-3 py-2 align-middle text-center">
+                <td className="px-2.5 sm:px-3 py-2 align-middle text-center whitespace-nowrap">
                   <StatusBadge status={rev.status} />
                 </td>
 
                 {/* Aksi */}
-                <td className="px-2 sm:px-3 py-2 align-middle text-center">
-                  <div className="flex items-center justify-center gap-1">
+                <td className="px-2.5 sm:px-3 py-2 align-middle text-center whitespace-nowrap">
+                  <div className="flex items-center justify-center gap-1.5">
                     {isPending ? (
                       <button
                         type="button"

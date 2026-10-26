@@ -26,20 +26,20 @@ export function ResponsVendorTable({ items }: ResponsVendorTableProps) {
   }
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-      <table className="w-full table-fixed text-left border-collapse text-xs">
+    <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
+      <table className="w-full text-left border-collapse text-xs min-w-[480px] sm:min-w-0 sm:table-fixed">
         <thead className="sticky top-0 z-10 bg-slate-50 border-b border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
           <tr>
-            <th className="px-2.5 sm:px-3 py-2.5">
+            <th className="px-2.5 sm:px-3 py-2.5 min-w-[170px] sm:min-w-0">
               <span className="sm:hidden">Pesanan & Vendor</span>
               <span className="hidden sm:inline">Tanggal & Shift</span>
             </th>
-            <th className="px-3 py-2.5 hidden sm:table-cell">Vendor</th>
+            <th className="px-3 py-2.5 hidden sm:table-cell sm:w-[150px]">Vendor</th>
             <th className="px-3 py-2.5 text-right hidden sm:table-cell w-[90px]">Total Porsi</th>
-            <th className="px-2 sm:px-3 py-2.5 text-center w-[90px] sm:w-[130px]">Respons</th>
+            <th className="px-2.5 sm:px-3 py-2.5 text-center min-w-[125px] sm:min-w-0 sm:w-[130px]">Respons</th>
             <th className="px-3 py-2.5 min-w-[160px] hidden md:table-cell">Alasan Vendor</th>
-            <th className="px-3 py-2.5 hidden lg:table-cell">Waktu Respons</th>
-            <th className="px-2 sm:px-3 py-2.5 text-center w-[90px] sm:w-[170px]">Tindak Lanjut</th>
+            <th className="px-3 py-2.5 hidden lg:table-cell sm:w-[130px]">Waktu Respons</th>
+            <th className="px-2.5 sm:px-3 py-2.5 text-center min-w-[110px] sm:min-w-0 sm:w-[170px]">Tindak Lanjut</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/60 text-xs">
@@ -90,7 +90,7 @@ export function ResponsVendorTable({ items }: ResponsVendorTableProps) {
                 </td>
 
                 {/* Respons Vendor */}
-                <td className="px-2 sm:px-3 py-2 align-middle text-center">
+                <td className="px-2.5 sm:px-3 py-2 align-middle text-center whitespace-nowrap">
                   <StatusBadge status={row.responVendor} />
                   {row.catatanVendor && (
                     <p className="text-[10px] text-rose-800 italic truncate sm:hidden mt-1" title={row.catatanVendor}>
@@ -112,7 +112,7 @@ export function ResponsVendorTable({ items }: ResponsVendorTableProps) {
                 </td>
 
                 {/* Tindak Lanjut: Hubungi Vendor, Ganti Vendor, Riwayat */}
-                <td className="px-2 sm:px-3 py-2 align-middle text-center">
+                <td className="px-2.5 sm:px-3 py-2 align-middle text-center whitespace-nowrap">
                   <div className="flex items-center justify-center gap-1 sm:gap-1.5">
                     {waUrl && (
                       <a
