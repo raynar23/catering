@@ -69,7 +69,7 @@ describe("Topbar Layout Component", () => {
     );
 
     // Verifies system branding and Danantara logo are present
-    expect(html).toContain("Pengelolaan Data Catering Karyawan");
+    expect(html).toContain("Pengelolaan Catering");
     expect(html).toContain("PT Terminal Petikemas Surabaya");
     expect(html).not.toContain("Sistem Aktif");
     expect(html).toContain("Logo Danantara Indonesia");

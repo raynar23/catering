@@ -60,7 +60,7 @@ export function Topbar({
 
         <div className="min-w-0">
           <div className="text-[12.5px] sm:text-[13px] font-semibold text-text tracking-tight truncate">
-            Pengelolaan Data Catering Karyawan
+            Pengelolaan Catering
           </div>
           <div className="text-[11px] text-[#86868B] truncate hidden sm:block">
             PT Terminal Petikemas Surabaya
