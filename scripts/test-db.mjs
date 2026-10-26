@@ -95,13 +95,20 @@ async function runTests() {
   }
 
   // Authenticate Vendor A (Aisya) with isolated client session
+  const vendorAisyaEmail = env.TEST_VENDOR_AISYA_EMAIL || "vendor.aisya@tps.co.id";
+  const vendorAisyaPassword = env.TEST_VENDOR_AISYA_PASSWORD || process.env.TEST_VENDOR_AISYA_PASSWORD;
+  if (!vendorAisyaPassword) {
+    console.error("Missing TEST_VENDOR_AISYA_PASSWORD in environment. Default demo passwords removed per audit H5.");
+    process.exit(1);
+  }
+
   const authClientA = createClient(url, anonKey, { auth: { persistSession: false } });
   const { data: authA, error: errA } = await authClientA.auth.signInWithPassword({
-    email: "vendor@tps.co.id",
-    password: "vendortps2026",
+    email: vendorAisyaEmail,
+    password: vendorAisyaPassword,
   });
   if (errA || !authA.session) {
-    console.error("Failed to authenticate vendor@tps.co.id:", errA?.message);
+    console.error(`Failed to authenticate ${vendorAisyaEmail}:`, errA?.message);
     process.exit(1);
   }
   const clientA = createClient(url, anonKey, {
@@ -110,14 +117,20 @@ async function runTests() {
   });
 
   // Authenticate Vendor B (Catering IBU) with isolated client session
-  await adminClient.auth.admin.updateUserById("00000000-0000-0000-0000-000000000004", { password: "vendoributps2026" });
+  const vendorIbuEmail = env.TEST_VENDOR_IBU_EMAIL || "vendor.ibu@tps.co.id";
+  const vendorIbuPassword = env.TEST_VENDOR_IBU_PASSWORD || process.env.TEST_VENDOR_IBU_PASSWORD;
+  if (!vendorIbuPassword) {
+    console.error("Missing TEST_VENDOR_IBU_PASSWORD in environment. Default demo passwords removed per audit H5.");
+    process.exit(1);
+  }
+
   const authClientB = createClient(url, anonKey, { auth: { persistSession: false } });
   const { data: authB, error: errB } = await authClientB.auth.signInWithPassword({
-    email: "vendor.ibu@tps.co.id",
-    password: "vendoributps2026",
+    email: vendorIbuEmail,
+    password: vendorIbuPassword,
   });
   if (errB || !authB.session) {
-    console.error("Failed to authenticate vendor.ibu@tps.co.id:", errB?.message);
+    console.error(`Failed to authenticate ${vendorIbuEmail}:`, errB?.message);
     process.exit(1);
   }
   const clientB = createClient(url, anonKey, {

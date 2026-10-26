@@ -1,3 +1,5 @@
+// scripts/test-login.mjs
+// Test login for UAT accounts using credentials from environment variables.
 import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 import path from "path";
@@ -22,10 +24,15 @@ for (const line of envContent.split("\n")) {
 const supabaseUrl = envVars.NEXT_PUBLIC_SUPABASE_URL || envVars.SUPABASE_URL;
 const anonKey = envVars.NEXT_PUBLIC_SUPABASE_ANON_KEY || envVars.SUPABASE_PUBLISHABLE_KEY;
 
-const client = createClient(supabaseUrl, anonKey);
+const client = createClient(supabaseUrl, anonKey, { auth: { persistSession: false } });
 
 async function testLogin(email, password, expectedRole) {
   console.log(`Testing login for ${email}...`);
+  if (!password) {
+    console.error(`FAILED: Password for ${email} is missing in environment variables.`);
+    return false;
+  }
+
   const { data, error } = await client.auth.signInWithPassword({
     email,
     password,
@@ -38,7 +45,6 @@ async function testLogin(email, password, expectedRole) {
 
   console.log(`Login OK for ${email}, user ID:`, data.user.id);
 
-  // Check profile
   const { data: profile, error: profErr } = await client
     .from("profiles")
     .select("role, username, nama, aktif")
@@ -50,19 +56,22 @@ async function testLogin(email, password, expectedRole) {
     return false;
   }
 
-  console.log(`Profile OK:`, profile);
   if (profile.role !== expectedRole) {
     console.error(`Role mismatch! Expected ${expectedRole}, got ${profile.role}`);
     return false;
   }
 
+  console.log(`Profile OK: ${profile.username} (${profile.role})`);
   await client.auth.signOut();
   return true;
 }
 
 async function run() {
-  const adminOk = await testLogin("admin@tps.co.id", "gatps2026", "admin_ga");
-  const vendorOk = await testLogin("vendor@tps.co.id", "vendortps2026", "vendor");
+  const adminPass = envVars.TEST_ADMIN_PASSWORD || process.env.TEST_ADMIN_PASSWORD;
+  const vendorPass = envVars.TEST_VENDOR_AISYA_PASSWORD || process.env.TEST_VENDOR_AISYA_PASSWORD;
+
+  const adminOk = await testLogin("admin.ga@tps.co.id", adminPass, "admin_ga");
+  const vendorOk = await testLogin("vendor.aisya@tps.co.id", vendorPass, "vendor");
 
   if (adminOk && vendorOk) {
     console.log("ALL LOGINS VERIFIED AND WORKING PERFECTLY!");
