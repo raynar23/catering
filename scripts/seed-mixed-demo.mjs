@@ -1,11 +1,5 @@
 // scripts/seed-mixed-demo.mjs
-// Mengondisikan data demo Oktober 2026 agar memuat variasi status lengkap sesuai PRD:
-// - Belum Input (28 periode tanggal 22-31 Okt)
-// - Draft (2 pesanan)
-// - Final dengan respon disanggupi (mayoritas)
-// - Final dengan respon tidak sanggup (1-2 pesanan contoh penolakan kapasitas vendor)
-// - Revisi dengan revisi berstatus menunggu verifikasi
-// - Variasi progres vendor: menunggu, dipersiapkan, dikirim, selesai
+// Seeds mixed demo statuses for October 2026 per PRD specifications.
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -13,7 +7,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Environment variables Supabase belum disetel.');
+  console.error('Missing Supabase environment variables.');
   process.exit(1);
 }
 
@@ -22,9 +16,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 });
 
 async function run() {
-  console.log('Menyelaraskan variasi status demo data Oktober 2026...');
+  console.log('Aligning October 2026 demo data distribution...');
 
-  // 1. Ambil pesanan tanggal 2026-10-18 atau 2026-10-19 untuk respon tidak_sanggup
+  // Set sample vendor rejection response
   const { data: targetOrders } = await supabase
     .from('catering_orders')
     .select('id, status, respon_vendor, periods!inner(tanggal, shift_id)')
@@ -37,14 +31,14 @@ async function run() {
       .from('catering_orders')
       .update({
         respon_vendor: 'tidak_sanggup',
-        catatan_vendor: 'Kapasitas dapur penuh untuk shift malam mendadak',
+        catatan_vendor: 'Kitchen capacity full for unscheduled night shift',
         respon_vendor_at: '2026-10-19T14:30:00Z',
       })
       .eq('id', o.id);
-    console.log(`Pesanan ${o.id} (2026-10-19) disetel respon: tidak_sanggup.`);
+    console.log(`Order ${o.id} (2026-10-19) response set to: tidak_sanggup.`);
   }
 
-  // 2. Pastikan ada revisi berstatus menunggu pada pesanan revisi 2026-10-21
+  // Ensure sample pending revision exists
   const { data: revisiOrders } = await supabase
     .from('catering_orders')
     .select('id, catering_items(id, jumlah_porsi, jumlah_karyawan)')
@@ -70,22 +64,22 @@ async function run() {
           porsi_awal: item.jumlah_porsi,
           porsi_baru: item.jumlah_porsi + 3,
           selisih_porsi: 3,
-          alasan: 'Penambahan 3 personil pengamanan lembur mendadak',
+          alasan: 'Urgent security personnel overtime addition',
           status: 'menunggu',
           diajukan_oleh: '00000000-0000-0000-0000-000000000002',
           respon_vendor: 'menunggu',
         });
-        console.log(`Revisi menunggu berhasil dibuat untuk item ${item.id}.`);
+        console.log(`Pending revision created for item ${item.id}.`);
       } else {
-        console.log(`Revisi menunggu sudah aktif pada item ${item.id}.`);
+        console.log(`Pending revision already exists for item ${item.id}.`);
       }
     }
   }
 
-  console.log('Penyelarasan variasi status demo data selesai.');
+  console.log('Demo data distribution alignment complete.');
 }
 
 run().catch((err) => {
-  console.error('Error menyelaraskan demo:', err);
+  console.error('Failed to align demo data:', err);
   process.exit(1);
 });

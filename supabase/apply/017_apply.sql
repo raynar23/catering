@@ -1,18 +1,14 @@
--- ==============================================================================
--- 017_apply.sql: Idempotent Security Hardening, Vendor Isolation & Audit Fix
--- PT Terminal Petikemas Surabaya - Sistem Pengelolaan Data Catering Karyawan
--- ==============================================================================
+-- Security hardening and vendor isolation
 
--- 1. EXTENSIONS & APP_ROLE ENUM CONSTRAINT (F5)
+-- 1. App role enum constraint
 do $$
 begin
-  -- Enforce valid roles: only admin_ga and vendor
   alter table public.profiles drop constraint if exists chk_profiles_role_valid;
-  alter table public.profiles add constraint chk_profiles_ro  le_valid check (role in ('admin_ga', 'vendor'));
+  alter table public.profiles add constraint chk_profiles_role_valid check (role in ('admin_ga', 'vendor'));
 exception when others then null;
 end $$;
 
--- 2. HELPER FUNCTIONS FOR RLS (Security Definer, Search Path Hardened)
+-- 2. RLS helper functions
 create or replace function public.is_admin()
 returns boolean as $$
   select exists (
@@ -37,7 +33,7 @@ $$ language sql stable security definer set search_path = public, pg_temp;
 revoke execute on function public.my_vendor_id() from public, anon;
 grant execute on function public.my_vendor_id() to authenticated;
 
--- 3. PROFILES: ISOLATION, COLUMN PRIVILEGES & UPDATE TRIGGER GUARD (F1)
+-- 3. Profiles RLS and update guard
 alter table public.profiles enable row level security;
 
 drop policy if exists "profiles_select_policy" on public.profiles;
@@ -58,15 +54,14 @@ create policy "profiles_update_policy" on public.profiles
     )
   );
 
--- Ensure no_hp column exists on public.profiles
+-- Self-service column permissions
 alter table public.profiles
   add column if not exists no_hp text;
 
--- Revoke blanket update privilege and grant only to self-service columns (nama, no_hp)
 revoke update on public.profiles from authenticated, anon;
 grant update (nama, no_hp) on public.profiles to authenticated;
 
--- Hardened Trigger: Block any unauthorized modification to sensitive columns
+-- Prevent modifications to protected profile columns
 create or replace function public.guard_profiles_update()
 returns trigger as $$
 begin
@@ -93,7 +88,7 @@ create trigger trg_guard_profiles_update
   for each row
   execute function public.guard_profiles_update();
 
--- 4. PERIODS & OPERATIONAL TRANSACTION TABLES RLS (F1)
+-- 4. Operational tables RLS
 alter table public.periods enable row level security;
 alter table public.catering_orders enable row level security;
 alter table public.catering_items enable row level security;
@@ -101,7 +96,7 @@ alter table public.revisions enable row level security;
 alter table public.order_logs enable row level security;
 alter table public.import_batches enable row level security;
 
--- PERIODS
+-- Periods policies
 drop policy if exists "periods_select_policy" on public.periods;
 create policy "periods_select_policy" on public.periods
   for select to authenticated
@@ -113,7 +108,7 @@ create policy "periods_manage_policy" on public.periods
   using (public.is_admin())
   with check (public.is_admin());
 
--- CATERING ORDERS
+-- Orders policies
 drop policy if exists "orders_select_policy" on public.catering_orders;
 create policy "orders_select_policy" on public.catering_orders
   for select to authenticated
@@ -122,7 +117,7 @@ create policy "orders_select_policy" on public.catering_orders
     or (vendor_id = public.my_vendor_id() and status in ('final', 'revisi'))
   );
 
--- CATERING ITEMS
+-- Items policies
 drop policy if exists "items_select_policy" on public.catering_items;
 create policy "items_select_policy" on public.catering_items
   for select to authenticated
@@ -136,7 +131,7 @@ create policy "items_select_policy" on public.catering_items
     )
   );
 
--- REVISIONS
+-- Revisions policies
 drop policy if exists "revisions_select_policy" on public.revisions;
 create policy "revisions_select_policy" on public.revisions
   for select to authenticated
@@ -151,7 +146,7 @@ create policy "revisions_select_policy" on public.revisions
     )
   );
 
--- ORDER LOGS
+-- Order logs policies (append-only)
 drop policy if exists "order_logs_select_policy" on public.order_logs;
 create policy "order_logs_select_policy" on public.order_logs
   for select to authenticated
@@ -175,21 +170,21 @@ create policy "order_logs_no_delete" on public.order_logs
   for delete to authenticated
   using (false);
 
--- IMPORT BATCHES
+-- Import batches policies
 drop policy if exists "import_batches_policy" on public.import_batches;
 create policy "import_batches_policy" on public.import_batches
   for all to authenticated
   using (public.is_admin())
   with check (public.is_admin());
 
--- 5. REVOKE DIRECT WRITES FROM AUTHENTICATED & ANON (RPC-ONLY MUTATIONS)
+-- 5. Restrict mutations to RPC functions
 revoke insert, update, delete on public.catering_orders from authenticated, anon;
 revoke insert, update, delete on public.catering_items from authenticated, anon;
 revoke insert, update, delete on public.revisions from authenticated, anon;
 revoke insert, update, delete on public.order_logs from authenticated, anon;
 revoke insert, update, delete on public.import_batches from authenticated, anon;
 
--- Ensure SELECT rights on tables for authenticated users
+-- Grant select to authenticated role
 grant select on public.profiles to authenticated;
 grant select on public.shifts to authenticated;
 grant select on public.bagian to authenticated;
@@ -201,12 +196,12 @@ grant select on public.revisions to authenticated;
 grant select on public.order_logs to authenticated;
 grant select on public.import_batches to authenticated;
 
--- Complete lock down of anon role (no public access to operational/master tables or routines)
+-- Revoke all permissions from anon role
 revoke all on all tables in schema public from anon;
 revoke all on all routines in schema public from anon;
 revoke all on all sequences in schema public from anon;
 
--- 6. VIEWS HARDENING (security_invoker = true)
+-- 6. Views with security_invoker = true
 create or replace view public.v_rekap with (security_invoker = true) as
 select
   o.id as order_id,
@@ -341,15 +336,14 @@ grant select on public.v_periode_ringkas to authenticated;
 grant select on public.v_rekap_bulanan to authenticated;
 grant select on public.v_utilisasi_shift to authenticated;
 
--- 7. F2: REVOKE RESET_OPERATIONAL_DATA FROM API & AUTHENTICATED
+-- 7. Revoke operational reset privileges
 do $$
 begin
-  -- Cabut execute dari semua role selain service_role
   revoke execute on function public.reset_operational_data(text) from public, anon, authenticated;
 exception when others then null;
 end $$;
 
--- 8. F4: SERVER-SIDE SQL COUNT & SYNC AUDIT FUNCTION
+-- 8. Server-side SQL audit function
 create or replace function public.check_db_count_and_sync()
 returns jsonb
 language plpgsql
@@ -373,25 +367,24 @@ begin
   select count(*) into v_count_logs from public.order_logs;
   select count(*) into v_count_revisions from public.revisions;
 
-  -- Cek ketidaksinkronan vendor antara period dan order
+  -- Verify vendor consistency between periods and orders
   select count(*) into v_desync_vendor
   from public.catering_orders o
   join public.periods p on p.id = o.period_id
   where o.vendor_id is distinct from p.vendor_id;
 
-  -- Cek orphan orders
+  -- Check orphan records
   select count(*) into v_orphan_orders
   from public.catering_orders o
   left join public.periods p on p.id = o.period_id
   where p.id is null;
 
-  -- Cek orphan items
   select count(*) into v_orphan_items
   from public.catering_items ci
   left join public.catering_orders o on o.id = ci.order_id
   where o.id is null;
 
-  -- Breakdown status order
+  -- Status breakdown
   select coalesce(jsonb_object_agg(status, cnt), '{}'::jsonb) into v_status_breakdown
   from (
     select status::text, count(*) as cnt
@@ -417,7 +410,7 @@ $$;
 revoke execute on function public.check_db_count_and_sync() from public, anon;
 grant execute on function public.check_db_count_and_sync() to authenticated, service_role;
 
--- 9. REALTIME PUBLICATION & REPLICA IDENTITY FULL (F1.g)
+-- 9. Realtime replica identity and publication
 alter table public.periods replica identity full;
 alter table public.catering_orders replica identity full;
 alter table public.revisions replica identity full;

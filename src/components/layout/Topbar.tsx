@@ -47,7 +47,7 @@ export function Topbar({
       )}
     >
       <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-        {/* Toggle hanya ditampilkan di perangkat mobile/tablet (di desktop dihilangkan sesuai permintaan) */}
+        {/* Mobile drawer toggle */}
         <button
           type="button"
           onClick={onMenuToggle}

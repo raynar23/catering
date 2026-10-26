@@ -1,9 +1,10 @@
-// Database security and isolation test runner for Catering TPS
+// scripts/test-db.mjs
+// Database security and isolation test suite for Catering TPS.
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync, appendFileSync } from "fs";
+import { readFileSync } from "fs";
 import { resolve } from "path";
 
-// Load environment from .env.local
+// Load configuration from .env.local
 function loadEnv() {
   const envPath = resolve(process.cwd(), ".env.local");
   const content = readFileSync(envPath, "utf-8");
@@ -52,7 +53,7 @@ function recordResult(passed, code, name, details = "") {
     console.error(line);
     failedCount++;
   }
-  results.push(line);
+  results.push({ code, name, passed, details });
 }
 
 async function runTests() {
@@ -71,7 +72,7 @@ async function runTests() {
     process.exit(1);
   }
 
-  // Authenticate Vendor A (Aisya) with isolated client
+  // Authenticate Vendor A (Aisya) with isolated client session
   const authClientA = createClient(url, anonKey, { auth: { persistSession: false } });
   const { data: authA, error: errA } = await authClientA.auth.signInWithPassword({
     email: "vendor@tps.co.id",
@@ -86,7 +87,7 @@ async function runTests() {
     global: { headers: { Authorization: `Bearer ${authA.session.access_token}` } }
   });
 
-  // Ensure and authenticate Vendor B (Catering IBU) with isolated client
+  // Authenticate Vendor B (Catering IBU) with isolated client session
   await adminClient.auth.admin.updateUserById("00000000-0000-0000-0000-000000000004", { password: "vendoributps2026" });
   const authClientB = createClient(url, anonKey, { auth: { persistSession: false } });
   const { data: authB, error: errB } = await authClientB.auth.signInWithPassword({
@@ -102,14 +103,11 @@ async function runTests() {
     global: { headers: { Authorization: `Bearer ${authB.session.access_token}` } }
   });
 
-  // ==========================================================================
-  // SCENARIO (a): Vendor self-escalation attempt (role, vendor_id, aktif)
-  // ==========================================================================
+  // Scenario (a): Self-service privilege escalation guard
   let aRoleBlocked = false;
   let aVendorIdBlocked = false;
   let aAktifBlocked = false;
 
-  // 1. Role modification attempt
   const { error: errRole } = await clientA
     .from("profiles")
     .update({ role: "admin_ga" })
@@ -124,12 +122,10 @@ async function runTests() {
   if (errRole !== null || profAfterRole.role !== "admin_ga") {
     aRoleBlocked = true;
   }
-  // Ensure profile role is restored if it changed
   if (profAfterRole.role !== "vendor") {
     await adminClient.from("profiles").update({ role: "vendor" }).eq("id", authA.user.id);
   }
 
-  // 2. Vendor ID modification attempt
   const fakeVendorId = "00000000-0000-0000-0000-000000000002";
   const { error: errVId } = await clientA
     .from("profiles")
@@ -149,7 +145,6 @@ async function runTests() {
     await adminClient.from("profiles").update({ vendor_id: vAisya.id }).eq("id", authA.user.id);
   }
 
-  // 3. Aktif modification attempt
   const { error: errAktif } = await clientA
     .from("profiles")
     .update({ aktif: false })
@@ -178,10 +173,7 @@ async function runTests() {
       : `Gagal: role blocked=${aRoleBlocked}, vendor_id blocked=${aVendorIdBlocked}, aktif blocked=${aAktifBlocked}`
   );
 
-  // ==========================================================================
-  // SCENARIO (b): Vendor Aisya and Vendor Ibu mutual cross-reading isolation
-  // ==========================================================================
-  // Find order IDs and period IDs for Vendor B (Catering IBU)
+  // Scenario (b): Mutual cross-vendor data isolation
   const { data: bOrders } = await adminClient
     .from("catering_orders")
     .select("id, period_id")
@@ -191,13 +183,11 @@ async function runTests() {
   const bOrderIds = (bOrders || []).map((o) => o.id);
   const bPeriodIds = (bOrders || []).map((o) => o.period_id);
 
-  // Vendor A queries Vendor B resources
   const { data: aCrossPeriods } = await clientA.from("periods").select("id").in("id", bPeriodIds);
   const { data: aCrossOrders } = await clientA.from("catering_orders").select("id").in("id", bOrderIds);
   const { data: aCrossItems } = await clientA.from("catering_items").select("id").in("order_id", bOrderIds);
   const { data: aCrossLogs } = await clientA.from("order_logs").select("id").in("order_id", bOrderIds);
 
-  // Check revisions belonging to other vendors (non-Aisya)
   const { data: otherRevs } = await adminClient
     .from("revisions")
     .select("id, item_id, catering_items!inner(order_id, catering_orders!inner(vendor_id))")
@@ -208,7 +198,6 @@ async function runTests() {
     ? await clientA.from("revisions").select("id").in("id", otherRevIds)
     : { data: [] };
 
-  // Check views for Vendor B data
   const { data: aCrossVPR } = await clientA.from("v_periode_ringkas").select("period_id").eq("vendor_id", vIbu.id);
   const { data: aCrossRekap } = await clientA.from("v_rekap").select("period_id").eq("vendor_id", vIbu.id);
   const { data: aCrossRekapBulanan } = await clientA.from("v_rekap_bulanan").select("vendor_id").eq("vendor_id", vIbu.id);
@@ -241,100 +230,95 @@ async function runTests() {
       : `Bocor: periods=${countCrossPeriods}, orders=${countCrossOrders}, items=${countCrossItems}, logs=${countCrossLogs}, revs=${countCrossRevs}, v_ringkas=${countCrossVPR}, v_rekap=${countCrossRekap}, v_bulanan=${countCrossRekapBulanan}`
   );
 
-  // ==========================================================================
-  // SCENARIO (c): Vendor cannot see their own draft orders
-  // ==========================================================================
-  // Create or verify a draft order for Vendor Aisya
-  const { data: draftOrder } = await adminClient
+  // Scenario (c): Vendor draft order isolation
+  let draftOrderId = null;
+  const { data: existingDraft } = await adminClient
     .from("catering_orders")
-    .select("id, status, vendor_id")
+    .select("id")
     .eq("vendor_id", vAisya.id)
     .eq("status", "draft")
     .limit(1)
     .maybeSingle();
 
-  let draftOrderId = draftOrder?.id;
-  let createdDraft = false;
-
-  if (!draftOrderId) {
-    // Pick any period for Aisya and temporarily set order to draft
-    const { data: anyOrder } = await adminClient
-      .from("catering_orders")
+  if (existingDraft) {
+    draftOrderId = existingDraft.id;
+  } else {
+    const { data: periodForDraft } = await adminClient
+      .from("periods")
       .select("id")
       .eq("vendor_id", vAisya.id)
       .limit(1)
       .single();
 
-    if (anyOrder) {
-      draftOrderId = anyOrder.id;
-      await adminClient.from("catering_orders").update({ status: "draft" }).eq("id", draftOrderId);
-      createdDraft = true;
+    if (periodForDraft) {
+      const { data: newDraft } = await adminClient
+        .from("catering_orders")
+        .insert({
+          period_id: periodForDraft.id,
+          vendor_id: vAisya.id,
+          status: "draft",
+          created_by: authA.user.id
+        })
+        .select("id")
+        .single();
+      draftOrderId = newDraft?.id;
     }
   }
 
-  let draftVisibleCount = 0;
+  let vendorCanSeeDraft = false;
   if (draftOrderId) {
     const { data: draftCheck } = await clientA
       .from("catering_orders")
       .select("id")
-      .eq("id", draftOrderId);
-    draftVisibleCount = draftCheck?.length || 0;
-
-    // Restore order back to final if we modified it
-    if (createdDraft) {
-      await adminClient.from("catering_orders").update({ status: "final" }).eq("id", draftOrderId);
-    }
+      .eq("id", draftOrderId)
+      .maybeSingle();
+    vendorCanSeeDraft = Boolean(draftCheck);
   }
 
-  const scenarioCPassed = draftVisibleCount === 0;
+  const scenarioCPassed = !vendorCanSeeDraft;
   recordResult(
     scenarioCPassed,
     "Skenario (c)",
     "vendor tidak melihat pesanan draft miliknya sendiri",
     scenarioCPassed
       ? "Pesanan berstatus draft terisolasi dari portal vendor (0 baris)"
-      : `Gagal: Pesanan draft terlihat oleh vendor (${draftVisibleCount} baris)`
+      : `Gagal: vendor dapat membaca pesanan draft (order ID: ${draftOrderId})`
   );
 
-  // ==========================================================================
-  // SCENARIO (d): Vendor calling Admin RPCs must be rejected
-  // ==========================================================================
-  const rpcChecks = [
-    { name: "dashboard_ringkasan", call: () => clientA.rpc("dashboard_ringkasan", { p_dari: "2026-10-01", p_sampai: "2026-10-31" }) },
-    { name: "get_rekap_harian", call: () => clientA.rpc("get_rekap_harian", { p_dari: "2026-10-01", p_sampai: "2026-10-31" }) },
-    { name: "get_rekap_ringkasan", call: () => clientA.rpc("get_rekap_ringkasan", { p_dari: "2026-10-01", p_sampai: "2026-10-31" }) },
-    { name: "kirim_catering", call: () => clientA.rpc("kirim_catering", { p_period_id: "00000000-0000-0000-0000-000000000000" }) },
-    { name: "verifikasi_revisi", call: () => clientA.rpc("verifikasi_revisi", { p_revision_id: "00000000-0000-0000-0000-000000000000", p_status: "disetujui" }) },
-    { name: "ganti_vendor_periode", call: () => clientA.rpc("ganti_vendor_periode", { p_period_id: "00000000-0000-0000-0000-000000000000", p_vendor_baru_id: vIbu.id, p_alasan: "Test" }) },
-    { name: "konfirmasi_impor", call: () => clientA.rpc("konfirmasi_impor", { p_batch_id: "00000000-0000-0000-0000-000000000000", p_baris: [], p_opsi: {} }) },
+  // Scenario (d): Admin RPC execution restrictions
+  const dummyUUID = "00000000-0000-0000-0000-000000000001";
+  const rpcTests = [
+    { name: "dashboard_ringkasan", params: { p_tanggal_awal: "2026-10-01", p_tanggal_akhir: "2026-10-31" } },
+    { name: "get_rekap_harian", params: { p_tanggal_awal: "2026-10-01", p_tanggal_akhir: "2026-10-31" } },
+    { name: "get_rekap_bulanan", params: { p_bulan: "2026-10" } },
+    { name: "kirim_catering", params: { p_order_id: dummyUUID } },
+    { name: "verifikasi_revisi", params: { p_revision_id: dummyUUID, p_setuju: true } },
+    { name: "ganti_vendor_periode", params: { p_period_id: dummyUUID, p_vendor_id_baru: vIbu.id, p_alasan: "Audit test" } },
+    { name: "konfirmasi_impor_jadwal", params: { p_batch_id: dummyUUID, p_items: [] } }
   ];
 
-  const failedRpcs = [];
-  for (const rpcItem of rpcChecks) {
-    try {
-      const { data, error } = await rpcItem.call();
-      if (!error) {
-        failedRpcs.push(rpcItem.name);
-      }
-    } catch {
-      // Threw an exception, which is expected/rejected
+  let rpcBlockedCount = 0;
+  for (const t of rpcTests) {
+    const { error } = await clientA.rpc(t.name, t.params);
+    if (error) {
+      rpcBlockedCount++;
+    } else {
+      console.error(`RPC ${t.name} did not reject vendor execution!`);
     }
   }
 
-  const scenarioDPassed = failedRpcs.length === 0;
+  const scenarioDPassed = rpcBlockedCount === rpcTests.length;
   recordResult(
     scenarioDPassed,
     "Skenario (d)",
     "vendor memanggil RPC admin ditolak",
     scenarioDPassed
-      ? "Seluruh 7 RPC Admin GA menolak eksekusi dari role vendor"
-      : `Gagal: RPC berikut berhasil dieksekusi oleh vendor: ${failedRpcs.join(", ")}`
+      ? `Seluruh ${rpcTests.length} RPC Admin GA menolak eksekusi dari role vendor`
+      : `Gagal: hanya ${rpcBlockedCount}/${rpcTests.length} RPC yang ditolak`
   );
 
-  // ==========================================================================
-  // SCENARIO (e): Vendor reading import_batches and other profiles rejected
-  // ==========================================================================
-  const { data: vendorBatches } = await clientA.from("import_batches").select("id");
+  // Scenario (e): Import batches and foreign profile isolation
+  const { data: vendorBatches } = await clientA.from("import_batches").select("id").limit(5);
   const { data: vendorOtherProfiles } = await clientA.from("profiles").select("id, username").neq("id", authA.user.id);
 
   const batchesCount = vendorBatches?.length || 0;
@@ -350,9 +334,7 @@ async function runTests() {
       : `Gagal: import_batches=${batchesCount} baris, other_profiles=${otherProfilesCount} baris`
   );
 
-  // ==========================================================================
-  // SCENARIO (f): Anon role cannot read any operational or master tables
-  // ==========================================================================
+  // Scenario (f): Anonymous role table access lockdown
   const pureAnon = createClient(url, anonKey, { auth: { persistSession: false } });
   const anonChecks = [
     pureAnon.from("profiles").select("id").limit(1),
@@ -382,9 +364,7 @@ async function runTests() {
       : `Gagal: ${anonLeakedCount} tabel dapat dibaca oleh anon`
   );
 
-  // ==========================================================================
-  // SCENARIO (g): Realtime subscription of Vendor A does not receive Vendor B revisions
-  // ==========================================================================
+  // Scenario (g): Realtime channel cross-tenant filtering
   let realtimeLeaked = false;
   let realtimeReceivedEvent = null;
 
@@ -394,19 +374,17 @@ async function runTests() {
       "postgres_changes",
       { event: "*", schema: "public", table: "revisions" },
       (payload) => {
-        realtimeReceivedEvent = payload;
         realtimeLeaked = true;
+        realtimeReceivedEvent = payload;
       }
     )
     .subscribe();
 
-  // Wait for subscription to establish
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  // Admin inserts/updates a dummy revision on a Vendor B item
   const { data: bItem } = await adminClient
     .from("catering_items")
-    .select("id, order_id")
+    .select("id")
     .in("order_id", bOrderIds)
     .limit(1)
     .maybeSingle();
@@ -426,10 +404,8 @@ async function runTests() {
       .select()
       .maybeSingle();
 
-    // Wait 3.5 seconds to see if Vendor A receives the websocket broadcast
     await new Promise((resolve) => setTimeout(resolve, 3500));
 
-    // Cleanup revision
     if (tempRev) {
       await adminClient.from("revisions").delete().eq("id", tempRev.id);
     }
@@ -447,9 +423,7 @@ async function runTests() {
       : `Gagal: Event revisi Vendor B bocor ke Realtime Vendor A (${JSON.stringify(realtimeReceivedEvent)})`
   );
 
-  // ==========================================================================
-  // SCENARIO (h): SQL Count and Sync Audit (F4 - Bukan REST Limit 1.000)
-  // ==========================================================================
+  // Scenario (h): Direct SQL count and relationship consistency audit
   const { data: syncReport, error: syncErr } = await adminClient.rpc("check_db_count_and_sync");
   const scenarioHPassed = !syncErr && syncReport && syncReport.is_consistent === true;
   recordResult(
@@ -471,6 +445,6 @@ async function runTests() {
 }
 
 runTests().catch((err) => {
-  console.error("Critical test execution error:", err);
+  console.error("Test execution aborted with error:", err);
   process.exit(1);
 });

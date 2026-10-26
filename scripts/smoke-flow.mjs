@@ -1,6 +1,7 @@
-// End-to-end smoke flow test runner for Catering TPS
+// scripts/smoke-flow.mjs
+// End-to-end smoke flow test runner for Catering TPS.
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync, appendFileSync } from "fs";
+import { readFileSync } from "fs";
 import { resolve } from "path";
 
 function loadEnv() {
@@ -29,7 +30,7 @@ const url = env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL;
 const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_PUBLISHABLE_KEY;
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
 
-// Production project guard as required by audit rule F8
+// Production execution guard (F8)
 const PROD_PROJECT_ID = "tdvfbtxlnlduajztojng";
 const isProdProject = url && url.includes(PROD_PROJECT_ID);
 
@@ -37,9 +38,9 @@ if (isProdProject && process.env.ALLOW_SMOKE_RUN !== "true") {
   console.log("======================================================================");
   console.log("SMOKE FLOW EXECUTION GUARD (F8)");
   console.log(`Database Target: ${url}`);
-  console.log("STATUS: DITOLAK SESUAI ATURAN F8");
-  console.log("Alasan: Skrip smoke-flow.mjs tidak boleh dijalankan langsung ke project produksi utama.");
-  console.log("Untuk menjalankan pengujian, gunakan database lokal (Supabase Local) atau set ALLOW_SMOKE_RUN=true.");
+  console.log("STATUS: BLOCKED PER RULE F8");
+  console.log("Reason: smoke-flow.mjs must not run directly on the primary production project.");
+  console.log("To execute, use local database or set ALLOW_SMOKE_RUN=true.");
   console.log("======================================================================\n");
   process.exit(0);
 }
@@ -54,21 +55,21 @@ async function runSmokeFlow() {
   console.log(`Timestamp: ${new Date().toISOString()}`);
   console.log("======================================================================\n");
 
-  // Step 0: Authenticate Admin, Vendor A (Aisya), and Vendor B (IBU)
-  console.log("Langkah 0: Autentikasi tiga peran pengguna...");
+  // Step 0: Authenticate user roles
+  console.log("Step 0: Authenticating test accounts...");
   const { data: authAdmin, error: errAdm } = await anonClient.auth.signInWithPassword({
     email: "admin@tps.co.id",
     password: "gatps2026",
   });
   if (errAdm || !authAdmin.session) {
-    console.error("Gagal login sebagai admin:", errAdm?.message);
+    console.error("Failed to authenticate admin:", errAdm?.message);
     process.exit(1);
   }
   const clientAdmin = createClient(url, anonKey, {
     global: { headers: { Authorization: `Bearer ${authAdmin.session.access_token}` } }
   });
 
-  // Authenticate Admin 2 (Four-eyes principle verification)
+  // Authenticate Admin 2 (Four-eyes verification)
   await adminClient.auth.admin.updateUserById("00000000-0000-0000-0000-000000000002", { password: "admin2gatps2026" });
   const authClient2 = createClient(url, anonKey, { auth: { persistSession: false } });
   const { data: authAdmin2, error: errAdm2 } = await authClient2.auth.signInWithPassword({
@@ -76,7 +77,7 @@ async function runSmokeFlow() {
     password: "admin2gatps2026",
   });
   if (errAdm2 || !authAdmin2.session) {
-    console.error("Gagal login sebagai admin 2:", errAdm2?.message);
+    console.error("Failed to authenticate admin 2:", errAdm2?.message);
     process.exit(1);
   }
   const clientAdmin2 = createClient(url, anonKey, {
@@ -88,7 +89,7 @@ async function runSmokeFlow() {
     password: "vendortps2026",
   });
   if (errA || !authA.session) {
-    console.error("Gagal login sebagai vendor A:", errA?.message);
+    console.error("Failed to authenticate vendor A:", errA?.message);
     process.exit(1);
   }
   const clientA = createClient(url, anonKey, {
@@ -100,16 +101,16 @@ async function runSmokeFlow() {
     password: "vendoributps2026",
   });
   if (errB || !authB.session) {
-    console.error("Gagal login sebagai vendor B:", errB?.message);
+    console.error("Failed to authenticate vendor B:", errB?.message);
     process.exit(1);
   }
   const clientB = createClient(url, anonKey, {
     global: { headers: { Authorization: `Bearer ${authB.session.access_token}` } }
   });
 
-  console.log("  [OK] Admin GA, Vendor Aisya, dan Vendor IBU berhasil login.\n");
+  console.log("  [OK] Admin GA 1, Admin GA 2, Vendor Aisya, and Vendor IBU authenticated.\n");
 
-  // Fetch Vendor records & active shifts & sample bagian
+  // Fetch reference records
   const { data: vAisya } = await adminClient.from("vendors").select("id, nama").eq("kode", "V001").single();
   const { data: vIbu } = await adminClient.from("vendors").select("id, nama").eq("kode", "V002").single();
   const { data: shifts } = await adminClient.from("shifts").select("id, nama, urutan").order("urutan");
@@ -120,16 +121,15 @@ async function runSmokeFlow() {
   const month = String((Math.floor(randomSuffix / 100) % 12) + 1).padStart(2, "0");
   const testTanggal = `2028-${month}-${day}`;
 
-  // ALUR 1: Isi 3 shift, kirim, vendor menyanggupi, progres sampai selesai, admin verifikasi
+  // Flow 1: 3-shift order cycle
   console.log("----------------------------------------------------------------------");
-  console.log(`ALUR 1: Siklus Operasional Katering (Tanggal Uji: ${testTanggal})`);
+  console.log(`FLOW 1: Catering Operational Cycle (Test Date: ${testTanggal})`);
   console.log("----------------------------------------------------------------------");
 
   const createdPeriodIds = [];
   const createdOrderIds = [];
 
   for (const shift of shifts) {
-    // 1. Setup period assigned to Aisya
     const { data: period, error: pErr } = await adminClient
       .from("periods")
       .insert({
@@ -144,7 +144,6 @@ async function runSmokeFlow() {
     if (pErr) throw pErr;
     createdPeriodIds.push(period.id);
 
-    // 2. Setup catering order and items
     const { data: order, error: oErr } = await adminClient
       .from("catering_orders")
       .insert({
@@ -164,37 +163,37 @@ async function runSmokeFlow() {
       bagian_id: b.id,
       jumlah_karyawan: 20,
       jumlah_porsi: 20,
-      keterangan: "Porsi standar operasional"
+      keterangan: "Standard operational portion"
     }));
 
     await adminClient.from("catering_items").insert(itemsToInsert);
   }
 
-  console.log(`  [OK] 3 Shift berhasil dibuat untuk tanggal ${testTanggal} (Draft).`);
+  console.log(`  [OK] 3 Shifts created for date ${testTanggal} (Draft).`);
 
-  // Admin lock and submit first period via kirim_catering RPC
+  // Submit order to vendor
   const testPeriodId = createdPeriodIds[0];
   const testOrderId = createdOrderIds[0];
 
   const { error: kirimErr } = await clientAdmin.rpc("kirim_catering", {
     p_order_id: testOrderId,
-    p_catatan: "Penguncian pesanan smoke flow test"
+    p_catatan: "Smoke flow lock order"
   });
   if (kirimErr) {
-    console.error("Gagal kirim catering:", kirimErr.message);
+    console.error("Failed to submit catering:", kirimErr.message);
   }
-  console.log("  [OK] Admin GA mengunci periode dan mengirim ke vendor (Status: Final).");
+  console.log("  [OK] Admin GA locked period and submitted to vendor (Status: Final).");
 
-  // Vendor Aisya confirms order
+  // Vendor response
   const { error: responErr } = await clientA.rpc("respon_periode_vendor", {
     p_order_id: testOrderId,
     p_sanggup: true,
     p_catatan: null
   });
-  if (responErr) console.error("Gagal respon vendor:", responErr.message);
-  console.log("  [OK] Vendor Aisya mengonfirmasi kesanggupan (Respon: disanggupi).");
+  if (responErr) console.error("Failed vendor response:", responErr.message);
+  console.log("  [OK] Vendor Aisya accepted order (Response: disanggupi).");
 
-  // Vendor updates progress through stages
+  // Vendor progress updates
   const stages = ["dipersiapkan", "dikirim", "sampai", "selesai"];
   for (const stage of stages) {
     await clientA.rpc("update_progres_vendor", {
@@ -202,22 +201,22 @@ async function runSmokeFlow() {
       p_progres: stage
     });
   }
-  console.log("  [OK] Vendor Aisya memajukan progres: dipersiapkan -> dikirim -> sampai -> selesai.");
+  console.log("  [OK] Vendor Aisya advanced progress: dipersiapkan -> dikirim -> sampai -> selesai.");
 
-  // Admin verifies final status
+  // Admin verification
   const { data: orderCheck } = await clientAdmin
     .from("catering_orders")
     .select("status, respon_vendor, progres_vendor")
     .eq("id", testOrderId)
     .single();
 
-  console.log(`  [VERIFIKASI ADMIN]: Status=${orderCheck.status}, Respon=${orderCheck.respon_vendor}, Progres=${orderCheck.progres_vendor}`);
+  console.log(`  [VERIFICATION]: Status=${orderCheck.status}, Respon=${orderCheck.respon_vendor}, Progres=${orderCheck.progres_vendor}`);
   const alur1Passed = orderCheck.status === "final" && orderCheck.respon_vendor === "disanggupi" && orderCheck.progres_vendor === "selesai";
-  console.log(`  HASIL ALUR 1: ${alur1Passed ? "LULUS (PASS)" : "GAGAL (FAIL)"}\n`);
+  console.log(`  FLOW 1 RESULT: ${alur1Passed ? "PASS" : "FAIL"}\n`);
 
-  // ALUR 2: Revisi 20 -> 23: rekap tetap 20 saat menunggu, 23 setelah verifikasi, riwayat lengkap
+  // Flow 2: Revision workflow and quota calculation consistency (20 -> 23)
   console.log("----------------------------------------------------------------------");
-  console.log("ALUR 2: Pengajuan Revisi & Konsistensi Rekapitulasi (20 -> 23 Porsi)");
+  console.log("FLOW 2: Revision Workflow & Recalculation Consistency (20 -> 23 Portions)");
   console.log("----------------------------------------------------------------------");
 
   const { data: itemToRevise } = await adminClient
@@ -227,17 +226,17 @@ async function runSmokeFlow() {
     .limit(1)
     .single();
 
-  // 1. Ajukan revisi 20 -> 23
+  // Propose revision
   const { error: revErr } = await clientAdmin.rpc("ajukan_revisi", {
     p_item_id: itemToRevise.id,
     p_karyawan_baru: 23,
     p_porsi_baru: 23,
-    p_alasan: "Penambahan 3 operator lembur shift pagi"
+    p_alasan: "Addition of 3 overtime operators"
   });
-  if (revErr) console.error("Gagal ajukan revisi:", revErr.message);
-  console.log("  [OK] Admin mengajukan revisi kuota: 20 -> 23 porsi (+3 porsi). Status: Menunggu.");
+  if (revErr) console.error("Failed to propose revision:", revErr.message);
+  console.log("  [OK] Admin proposed revision: 20 -> 23 portions (+3 portions). Status: Pending.");
 
-  // 2. Cek v_rekap saat menunggu: HARUS tetap 20 porsi
+  // Verify pending status in view: must remain 20
   const { data: rekapPending } = await clientAdmin
     .from("v_rekap")
     .select("jumlah_porsi")
@@ -246,7 +245,7 @@ async function runSmokeFlow() {
     .single();
 
   const isPending20 = rekapPending?.jumlah_porsi === 20;
-  console.log(`  [VERIFIKASI REKAP SAAT MENUNGGU]: Porsi di v_rekap = ${rekapPending?.jumlah_porsi} (Harus 20) -> ${isPending20 ? "TEPAT" : "SALAH"}`);
+  console.log(`  [PENDING RECAP CHECK]: Portions in v_rekap = ${rekapPending?.jumlah_porsi} (Expected: 20) -> ${isPending20 ? "CORRECT" : "MISMATCH"}`);
 
   // Fetch revision record
   const { data: revRecord } = await adminClient
@@ -256,16 +255,16 @@ async function runSmokeFlow() {
     .eq("status", "menunggu")
     .single();
 
-  // 3. Verifikasi revisi oleh Admin GA 2 (Prinsip Four-Eyes / Segregation of Duties)
+  // Verify revision using four-eyes principle (Admin 2)
   const { error: verifErr } = await clientAdmin2.rpc("verifikasi_revisi", {
     p_revision_id: revRecord.id,
     p_setuju: true,
-    p_catatan: "Disetujui oleh Supervisor GA 2"
+    p_catatan: "Approved by GA Supervisor 2"
   });
-  if (verifErr) console.error("Gagal verifikasi revisi:", verifErr.message);
-  console.log("  [OK] Admin GA 2 memverifikasi revisi (Prinsip Four-Eyes, Status: disetujui).");
+  if (verifErr) console.error("Failed to verify revision:", verifErr.message);
+  console.log("  [OK] Admin GA 2 verified revision (Four-Eyes Principle, Status: Approved).");
 
-  // 4. Cek v_rekap setelah verifikasi: HARUS berubah menjadi 23 porsi
+  // Verify approved status in view: must be updated to 23
   const { data: rekapVerified } = await clientAdmin
     .from("v_rekap")
     .select("jumlah_porsi")
@@ -274,9 +273,9 @@ async function runSmokeFlow() {
     .single();
 
   const isVerified23 = rekapVerified?.jumlah_porsi === 23;
-  console.log(`  [VERIFIKASI REKAP SETELAH VERIFIKASI]: Porsi di v_rekap = ${rekapVerified?.jumlah_porsi} (Harus 23) -> ${isVerified23 ? "TEPAT" : "SALAH"}`);
+  console.log(`  [VERIFIED RECAP CHECK]: Portions in v_rekap = ${rekapVerified?.jumlah_porsi} (Expected: 23) -> ${isVerified23 ? "CORRECT" : "MISMATCH"}`);
 
-  // 5. Cek riwayat order_logs
+  // Verify audit log entry
   const { data: logs } = await adminClient
     .from("order_logs")
     .select("aksi, jumlah_awal, selisih, jumlah_baru, keterangan")
@@ -286,13 +285,13 @@ async function runSmokeFlow() {
     .single();
 
   const logValid = logs && logs.selisih === 3 && logs.jumlah_baru === 23;
-  console.log(`  [VERIFIKASI LOG AUDIT]: Aksi=${logs?.aksi}, Awal=${logs?.jumlah_awal}, Selisih=+${logs?.selisih}, Baru=${logs?.jumlah_baru}`);
+  console.log(`  [AUDIT LOG CHECK]: Action=${logs?.aksi}, Initial=${logs?.jumlah_awal}, Diff=+${logs?.selisih}, New=${logs?.jumlah_baru}`);
   const alur2Passed = isPending20 && isVerified23 && logValid;
-  console.log(`  HASIL ALUR 2: ${alur2Passed ? "LULUS (PASS)" : "GAGAL (FAIL)"}\n`);
+  console.log(`  FLOW 2 RESULT: ${alur2Passed ? "PASS" : "FAIL"}\n`);
 
-  // ALUR 3: Isolasi Vendor Lain (Vendor B tidak boleh melihat satu pun data di atas)
+  // Flow 3: Verify isolation for Vendor B
   console.log("----------------------------------------------------------------------");
-  console.log("ALUR 3: Verifikasi Isolasi Vendor B (Catering IBU)");
+  console.log("FLOW 3: Vendor B Isolation Verification (Catering IBU)");
   console.log("----------------------------------------------------------------------");
 
   const { data: bPeriods } = await clientB.from("periods").select("id").in("id", createdPeriodIds);
@@ -307,21 +306,21 @@ async function runSmokeFlow() {
   const countBRevs = bRevs?.length || 0;
   const countBLogs = bLogs?.length || 0;
 
-  console.log(`  Akses Vendor B ke Periods : ${countBPeriods} baris (Harus 0)`);
-  console.log(`  Akses Vendor B ke Orders  : ${countBOrders} baris (Harus 0)`);
-  console.log(`  Akses Vendor B ke Items   : ${countBItems} baris (Harus 0)`);
-  console.log(`  Akses Vendor B ke Revisi  : ${countBRevs} baris (Harus 0)`);
-  console.log(`  Akses Vendor B ke Logs    : ${countBLogs} baris (Harus 0)`);
+  console.log(`  Vendor B Access to Periods : ${countBPeriods} rows (Expected: 0)`);
+  console.log(`  Vendor B Access to Orders  : ${countBOrders} rows (Expected: 0)`);
+  console.log(`  Vendor B Access to Items   : ${countBItems} rows (Expected: 0)`);
+  console.log(`  Vendor B Access to Revisi  : ${countBRevs} rows (Expected: 0)`);
+  console.log(`  Vendor B Access to Logs    : ${countBLogs} rows (Expected: 0)`);
 
   const alur3Passed = countBPeriods === 0 && countBOrders === 0 && countBItems === 0 && countBRevs === 0 && countBLogs === 0;
-  console.log(`  HASIL ALUR 3: ${alur3Passed ? "LULUS ISOLASI (PASS)" : "GAGAL ISOLASI (FAIL)"}\n`);
+  console.log(`  FLOW 3 RESULT: ${alur3Passed ? "PASS" : "FAIL"}\n`);
 
   // Audit trail verification
-  console.log("Verifikasi integritas audit trail: order_logs dan revisi tersimpan permanen (append-only).");
+  console.log("Audit trail integrity: order_logs and revisions are permanently preserved (append-only).");
 
   const allPassed = alur1Passed && alur2Passed && alur3Passed;
   console.log("======================================================================");
-  console.log(`KESIMPULAN SMOKE FLOW: ${allPassed ? "SELURUH ALUR BERHASIL (PASS)" : "ADA ALUR GAGAL (FAIL)"}`);
+  console.log(`SMOKE FLOW CONCLUSION: ${allPassed ? "ALL FLOWS PASSED" : "FLOW FAILURE DETECTED"}`);
   console.log("======================================================================\n");
 
   if (!allPassed) process.exit(1);

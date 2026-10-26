@@ -47,11 +47,7 @@ function generateStrongPassword(length = 20) {
 }
 
 async function rotatePasswords() {
-  console.log("======================================================================");
-  console.log("CATERING TPS - DEMO PASSWORD ROTATION");
-  console.log("PERINGATAN: Kredensial baru hanya dicetak di terminal ini.");
-  console.log("JANGAN simpan atau commit output ini ke dalam file apapun.");
-  console.log("======================================================================\n");
+  console.log("Password rotation - new credentials printed to terminal only.\n");
 
   const { data: usersData, error: listErr } = await adminClient.auth.admin.listUsers();
   if (listErr) {
@@ -69,7 +65,7 @@ async function rotatePasswords() {
     });
 
     if (updErr) {
-      console.error(`Gagal rotasi ${user.email}:`, updErr.message);
+      console.error(`Failed to rotate ${user.email}:`, updErr.message);
     } else {
       credentials.push({
         email: user.email,
@@ -79,15 +75,13 @@ async function rotatePasswords() {
     }
   }
 
-  console.log("Daftar Kredensial Baru Hasil Rotasi:\n");
+  console.log("Rotated credentials:\n");
   for (const c of credentials) {
-    console.log(`- Akun: ${c.email}`);
-    console.log(`  Password Baru: ${c.newPassword}\n`);
+    console.log(`- Account: ${c.email}`);
+    console.log(`  Password: ${c.newPassword}\n`);
   }
 
-  console.log("======================================================================");
-  console.log(`Selesai: ${credentials.length} akun berhasil dirotasi.`);
-  console.log("======================================================================\n");
+  console.log(`Completed: ${credentials.length} accounts rotated.\n`);
 }
 
 rotatePasswords().catch((err) => {
