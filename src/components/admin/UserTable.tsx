@@ -120,7 +120,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
             <div className="w-7 h-7 rounded-full bg-[#E5E5EA] text-[#1D1D1F] font-semibold text-[11px] flex items-center justify-center shrink-0 border border-black/[0.06] shadow-xs">
               {initials || "US"}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 pr-1">
               <div className="font-medium text-text truncate flex items-center gap-1.5">
                 <span>{row.nama}</span>
                 {isSelf && (
@@ -132,6 +132,11 @@ export function UserTable({ currentUserId }: UserTableProps) {
               <div className="text-[11px] text-text-muted truncate font-mono">
                 @{row.username}
               </div>
+              {row.role === "vendor" && row.vendors && (
+                <div className="text-[10px] text-primary font-medium truncate sm:hidden">
+                  {row.vendors.nama} ({row.vendors.kode})
+                </div>
+              )}
             </div>
           </div>
         );
@@ -140,11 +145,13 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "role",
       header: "Role",
+      width: 80,
       render: (row: UserRecord) => <StatusBadge status={row.role} />,
     },
     {
       key: "vendor",
       header: "Vendor Mitra",
+      className: "hidden sm:table-cell",
       render: (row: UserRecord) => {
         if (row.role === "vendor" && row.vendors) {
           return (
@@ -162,6 +169,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "no_hp",
       header: "No. HP / WA",
+      className: "hidden sm:table-cell",
       render: (row: UserRecord) => (
         <span className="text-xs text-text-muted">
           {row.no_hp ? row.no_hp : "-"}
@@ -171,6 +179,8 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "status",
       header: "Status",
+      width: 76,
+      align: "center",
       render: (row: UserRecord) => (
         <StatusBadge status={row.aktif ? "aktif" : "nonaktif"} />
       ),
@@ -178,6 +188,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "created_at",
       header: "Dibuat",
+      className: "hidden md:table-cell",
       render: (row: UserRecord) => (
         <span className="text-xs text-text-muted">
           {formatDate(row.created_at)}
@@ -187,7 +198,8 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "aksi",
       header: "Aksi",
-      className: "w-28 text-right",
+      width: 80,
+      align: "right",
       render: (row: UserRecord) => {
         return (
           <div className="flex items-center justify-end gap-1">

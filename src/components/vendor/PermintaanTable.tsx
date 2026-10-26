@@ -99,20 +99,23 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
 
       {/* Table Container */}
       <div className="bg-surface border border-border rounded-[10px] flex-1 min-h-0 flex flex-col overflow-hidden shadow-xs">
-        <div className="flex-1 min-h-0 overflow-auto">
-          <table className="w-full text-[13px] text-left border-collapse min-w-[700px]">
-            <thead className="bg-[#F8FAFC] text-text-muted font-semibold border-b border-border text-[12px] sticky top-0 z-10">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+          <table className="w-full text-xs text-left border-collapse table-fixed">
+            <thead className="bg-[#F8FAFC] text-text-muted font-semibold border-b border-border text-[11px] sticky top-0 z-10">
               <tr>
-                <th className="py-3 px-4">Tanggal</th>
-                <th className="py-3 px-4">Shift Kerja</th>
-                <th className="py-3 px-4">Batas Jam Tiba</th>
-                <th className="py-3 px-4 text-right">Total Porsi</th>
-                <th className="py-3 px-4">Respon Vendor</th>
-                <th className="py-3 px-4">Progres Pengantaran</th>
-                <th className="py-3 px-4 text-center w-24">Aksi</th>
+                <th className="py-2.5 px-3">
+                  <span className="sm:hidden">Tanggal & Shift</span>
+                  <span className="hidden sm:inline">Tanggal</span>
+                </th>
+                <th className="py-3 px-4 hidden sm:table-cell">Shift Kerja</th>
+                <th className="py-3 px-4 hidden md:table-cell">Batas Jam Tiba</th>
+                <th className="py-2.5 px-2 text-right w-[75px] sm:w-[90px]">Porsi</th>
+                <th className="py-2.5 px-2 text-center w-[85px] sm:w-[130px]">Respon</th>
+                <th className="py-3 px-4 hidden md:table-cell">Progres Pengantaran</th>
+                <th className="py-2.5 px-2 text-center w-12 sm:w-20">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border text-xs">
               {filteredRows.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-text-muted">
@@ -129,10 +132,20 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
                     }}
                     className="hover:bg-black/[0.02] cursor-pointer transition-colors"
                   >
-                    <td className="py-3 px-4 font-medium text-text">
-                      {row.tanggal}
+                    <td className="py-2 px-3 align-middle">
+                      <div className="flex flex-col min-w-0 pr-1">
+                        <span className="font-semibold text-text text-xs">
+                          {row.tanggal}
+                        </span>
+                        <span className="text-[10px] text-text-muted truncate sm:hidden">
+                          {row.shiftNama} ({row.shiftLabel})
+                        </span>
+                        <span className="text-[10px] text-text-muted truncate sm:hidden">
+                          Tiba: {row.batasTiba} WIB
+                        </span>
+                      </div>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 hidden sm:table-cell">
                       <div className="flex items-center gap-1.5">
                         <span className="font-semibold text-text">
                           {row.shiftNama}
@@ -142,19 +155,19 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
                         </span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-text-muted">
+                    <td className="py-3 px-4 text-text-muted hidden md:table-cell">
                       <span className="flex items-center gap-1 text-[12px]">
                         <Clock className="w-3.5 h-3.5 text-text-muted" />
                         {row.batasTiba} WIB ({row.shiftJam})
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-right font-mono font-bold text-text">
+                    <td className="py-2 px-2 text-right font-mono font-bold text-text align-middle">
                       {formatNumber(row.totalPorsi)}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-2 px-2 text-center align-middle">
                       <StatusBadge status={row.responVendor} />
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 hidden md:table-cell">
                       <div className="flex items-center gap-2">
                         <StatusBadge status={row.progresVendor} />
                         {row.pendingRevisionsCount > 0 && (
@@ -168,7 +181,7 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
                         )}
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-2 px-2 text-center align-middle">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -176,7 +189,7 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
                           setSelectedOrder(row);
                           setInspectorOpen(true);
                         }}
-                        className="p-2 rounded-[6px] hover:bg-black/5 text-text-muted hover:text-text min-h-[44px] min-w-[44px] inline-flex items-center justify-center cursor-pointer"
+                        className="p-1 rounded-[6px] hover:bg-black/5 text-text-muted hover:text-text inline-flex items-center justify-center cursor-pointer"
                         title="Buka Rincian Bagian"
                         aria-label="Buka Rincian Bagian"
                       >

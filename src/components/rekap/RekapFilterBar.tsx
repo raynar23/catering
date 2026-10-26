@@ -75,15 +75,15 @@ export function RekapFilterBar({
   };
 
   return (
-    <div className="flex flex-col gap-3 py-2 select-none shrink-0">
+    <div className="flex flex-col gap-2 py-1.5 sm:py-2 select-none shrink-0">
       {/* Top Row: View Tabs Segmented & Export Button */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-2">
         {/* Segmented Control for View Mode */}
-        <div className="inline-flex items-center bg-[#E5E5EA]/70 p-[2.5px] rounded-[8px] gap-1 shrink-0 self-start">
+        <div className="inline-flex items-center bg-[#E5E5EA]/70 p-[2.5px] rounded-[8px] gap-1 shrink-0">
           <button
             type="button"
             onClick={() => onTabChange("harian")}
-            className={`h-7 px-3.5 rounded-[6px] text-xs font-semibold transition-all cursor-pointer ${
+            className={`h-7 px-2.5 sm:px-3.5 rounded-[6px] text-xs font-semibold transition-all cursor-pointer ${
               activeTab === "harian"
                 ? "bg-white text-text shadow-[0_1px_2.5px_rgba(0,0,0,0.12),0_0.5px_1px_rgba(0,0,0,0.06)]"
                 : "text-[#6E6E73] hover:text-[#1D1D1F]"
@@ -94,7 +94,7 @@ export function RekapFilterBar({
           <button
             type="button"
             onClick={() => onTabChange("ringkasan")}
-            className={`h-7 px-3.5 rounded-[6px] text-xs font-semibold transition-all cursor-pointer ${
+            className={`h-7 px-2.5 sm:px-3.5 rounded-[6px] text-xs font-semibold transition-all cursor-pointer ${
               activeTab === "ringkasan"
                 ? "bg-white text-text shadow-[0_1px_2.5px_rgba(0,0,0,0.12),0_0.5px_1px_rgba(0,0,0,0.06)]"
                 : "text-[#6E6E73] hover:text-[#1D1D1F]"
@@ -109,16 +109,15 @@ export function RekapFilterBar({
           type="button"
           onClick={onOpenExport}
           disabled={isLoading}
-          className="h-8.5 px-4 rounded-[8px] bg-primary text-white text-xs font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:bg-[#0E63A1] active:bg-[#0B5A94] transition-all cursor-pointer disabled:opacity-50 shrink-0 self-start sm:self-auto focus:outline-none focus:ring-3 focus:ring-primary/20"
+          className="h-8 px-3 sm:px-4 rounded-[8px] bg-primary text-white text-xs font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:bg-[#0E63A1] active:bg-[#0B5A94] transition-all cursor-pointer disabled:opacity-50 shrink-0 focus:outline-none focus:ring-3 focus:ring-primary/20"
         >
           Ekspor Dokumen
         </button>
       </div>
 
-      {/* Bottom Row: Date Presets, DateRangePicker, and Dropdowns — fills full width so last filter aligns with Ekspor Dokumen */}
-      <div className="flex flex-wrap items-center gap-2.5 w-full">
-        {/* Date Preset Segmented Control */}
-        <div className="inline-flex items-center bg-[#E5E5EA]/70 p-[2.5px] rounded-[8px] gap-1 shrink-0">
+      {/* Row 2: Date Presets & Custom Calendar DateRangePicker */}
+      <div className="flex flex-wrap items-center gap-2 w-full">
+        <div className="inline-flex items-center bg-[#E5E5EA]/70 p-[2px] rounded-[8px] gap-0.5 overflow-x-auto scrollbar-none max-w-full">
           {PRESET_OPTIONS.map((opt) => {
             const isSelected = preset === opt.value;
             return (
@@ -127,9 +126,9 @@ export function RekapFilterBar({
                 type="button"
                 disabled={isLoading}
                 onClick={() => handleSelectPreset(opt.value)}
-                className={`h-7 px-2.5 rounded-[6px] text-xs font-semibold transition-all cursor-pointer ${
+                className={`h-6.5 px-2 rounded-[5px] text-[11px] font-semibold transition-all cursor-pointer shrink-0 ${
                   isSelected
-                    ? "bg-white text-text shadow-[0_1px_2.5px_rgba(0,0,0,0.12),0_0.5px_1px_rgba(0,0,0,0.06)]"
+                    ? "bg-white text-text shadow-[0_1px_2px_rgba(0,0,0,0.1)]"
                     : "text-[#6E6E73] hover:text-[#1D1D1F]"
                 }`}
               >
@@ -147,15 +146,17 @@ export function RekapFilterBar({
           className="shrink-0"
         />
 
-        {/* Spacer pushes the dropdowns to fill the rest of the row */}
-        <div className="flex-1 min-w-0" />
+        <div className="hidden lg:block flex-1 min-w-0" />
+      </div>
 
+      {/* Row 3: Dropdowns (Compact 3-column grid on mobile, inline on desktop) */}
+      <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2.5 w-full">
         {/* Filter: Vendor */}
         <select
           value={vendorId}
           onChange={(e) => onVendorChange(e.target.value)}
           disabled={isLoading}
-          className="h-8.5 text-xs rounded-[8px] border border-[#D1D1D6] bg-white pl-3 pr-8 text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all cursor-pointer"
+          className="h-8 text-[11px] sm:text-xs rounded-[8px] border border-[#D1D1D6] bg-white pl-2 pr-6 sm:pl-3 sm:pr-8 text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all cursor-pointer truncate"
           aria-label="Filter Vendor"
         >
           <option value="">Semua Vendor</option>
@@ -171,13 +172,13 @@ export function RekapFilterBar({
           value={bagianId}
           onChange={(e) => onBagianChange(e.target.value)}
           disabled={isLoading}
-          className="h-8.5 text-xs rounded-[8px] border border-[#D1D1D6] bg-white pl-3 pr-8 text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all cursor-pointer"
+          className="h-8 text-[11px] sm:text-xs rounded-[8px] border border-[#D1D1D6] bg-white pl-2 pr-6 sm:pl-3 sm:pr-8 text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all cursor-pointer truncate"
           aria-label="Filter Bagian"
         >
           <option value="">Semua Bagian</option>
           {filterOptions.bagian.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.nama} ({b.kelompok})
+              {b.nama}
             </option>
           ))}
         </select>
@@ -187,13 +188,13 @@ export function RekapFilterBar({
           value={shiftId}
           onChange={(e) => onShiftChange(e.target.value)}
           disabled={isLoading}
-          className="h-8.5 text-xs rounded-[8px] border border-[#D1D1D6] bg-white pl-3 pr-8 text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all cursor-pointer"
+          className="h-8 text-[11px] sm:text-xs rounded-[8px] border border-[#D1D1D6] bg-white pl-2 pr-6 sm:pl-3 sm:pr-8 text-text shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all cursor-pointer truncate"
           aria-label="Filter Shift"
         >
           <option value="">Semua Shift</option>
           {filterOptions.shifts.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.nama} ({s.label})
+              {s.nama}
             </option>
           ))}
         </select>

@@ -117,15 +117,21 @@ export function BagianTable() {
       key: "nama",
       header: "Nama Bagian",
       render: (row) => (
-        <div>
-          <span className="font-medium text-text">{row.nama}</span>
-          {row.kode && (
-            <span className="ml-2 text-[11px] text-text-muted font-normal">
-              ({row.kode})
-            </span>
-          )}
+        <div className="min-w-0 pr-1">
+          <div className="font-semibold text-text truncate">
+            {row.nama}
+            {row.kode && (
+              <span className="ml-1 text-[11px] text-text-muted font-normal">
+                ({row.kode})
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-0.5 sm:hidden truncate">
+            <span>{row.kelompok || "-"}</span>
+            {row.lokasi_antar && <span>• {row.lokasi_antar}</span>}
+          </div>
           {row.alias && (
-            <div className="text-[11px] text-text-muted truncate max-w-xs mt-0.5">
+            <div className="text-[11px] text-text-muted truncate max-w-xs mt-0.5 hidden sm:block">
               Alias: {row.alias}
             </div>
           )}
@@ -135,16 +141,19 @@ export function BagianTable() {
     {
       key: "kelompok",
       header: "Kelompok",
+      className: "hidden sm:table-cell",
       render: (row) => row.kelompok || "-",
     },
     {
       key: "lokasi_antar",
       header: "Lokasi Antar",
+      className: "hidden sm:table-cell",
       render: (row) => row.lokasi_antar || "-",
     },
     {
       key: "keterangan",
       header: "Keterangan",
+      className: "hidden md:table-cell",
       render: (row) => (
         <span className="truncate max-w-xs block" title={row.keterangan ?? ""}>
           {row.keterangan || "-"}
@@ -155,7 +164,7 @@ export function BagianTable() {
       key: "aktif",
       header: "Status",
       align: "center",
-      width: 100,
+      width: 76,
       render: (row) => (
         <StatusBadge
           status={row.aktif ? "aktif" : "nonaktif"}
@@ -167,7 +176,7 @@ export function BagianTable() {
       key: "actions",
       header: "Aksi",
       align: "right",
-      width: 90,
+      width: 68,
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
           <button

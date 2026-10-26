@@ -133,14 +133,15 @@ function VerifikasiForm({
         <div className="flex items-center justify-between">
           <span className="text-muted font-medium">Perubahan Karyawan:</span>
           <span className="font-mono text-text">
-            {item.karyawanAwal} &rarr; <strong>{item.karyawanBaru}</strong>
+            <span className="line-through text-slate-400 mr-1.5 font-normal">{item.karyawanAwal}</span>
+            <strong>{item.karyawanBaru}</strong>
           </span>
         </div>
         <div className="flex items-center justify-between border-t border-border/50 pt-2">
           <span className="text-muted font-medium">Perubahan Porsi:</span>
           <div className="flex items-center gap-2 font-mono">
             <span className="text-text">
-              {item.porsiAwal} &rarr;{" "}
+              <span className="line-through text-slate-400 mr-1.5 font-normal">{item.porsiAwal}</span>
               <strong className="text-primary text-sm">{item.porsiBaru}</strong>
             </span>
             <span

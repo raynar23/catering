@@ -68,20 +68,20 @@ export function ShiftDistributionDonut({
   const isEmpty = totalPorsi === 0 || series.every((s) => s.total_porsi === 0);
 
   return (
-    <div className="bg-white border border-black/[0.08] rounded-[12px] p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-      <div className="mb-2">
+    <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 sm:p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="mb-2 shrink-0">
         <h3 className="text-xs font-semibold text-text tracking-tight">Distribusi per Shift</h3>
-        <p className="text-[11px] text-[#86868B]">Proporsi kebutuhan katering menurut jadwal kerja</p>
+        <p className="text-[11px] text-[#86868B] truncate">Proporsi kebutuhan katering menurut jadwal kerja</p>
       </div>
 
       {isEmpty ? (
-        <div className="flex-1 flex items-center justify-center text-xs text-text-muted">
+        <div className="flex-1 flex items-center justify-center text-xs text-text-muted min-h-[120px]">
           Belum ada data final pada rentang ini
         </div>
       ) : (
-        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-4 xl:gap-6 min-h-[120px]">
+        <div className="flex-1 flex flex-row items-center justify-center gap-3 sm:gap-5 xl:gap-6 min-h-[130px]">
           {/* SVG Donut Circle */}
-          <div className="relative w-32 h-32 xl:w-36 xl:h-36 shrink-0 flex items-center justify-center">
+          <div className="relative w-28 h-28 sm:w-32 sm:h-32 xl:w-36 xl:h-36 shrink-0 flex items-center justify-center">
             <svg viewBox="0 0 160 160" className="w-full h-full -rotate-90">
               {/* Background ring */}
               <circle
@@ -118,18 +118,18 @@ export function ShiftDistributionDonut({
 
             {/* Centered Total Label */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-              <span className="text-[10px] text-text-muted font-medium uppercase tracking-wider">
+              <span className="text-[9px] sm:text-[10px] text-text-muted font-medium uppercase tracking-wider">
                 Total
               </span>
-              <span className="text-sm font-bold text-text tabular-nums">
+              <span className="text-xs sm:text-sm font-bold text-text tabular-nums">
                 {formatNumber(totalPorsi)}
               </span>
-              <span className="text-[10px] text-text-muted">Porsi</span>
+              <span className="text-[9px] sm:text-[10px] text-text-muted">Porsi</span>
             </div>
           </div>
 
           {/* Detailed Legend */}
-          <div className="flex flex-col gap-2.5 flex-1 min-w-0 w-full sm:w-auto">
+          <div className="flex flex-col gap-1 sm:gap-2 flex-1 min-w-0">
             {slices.map((slice) => {
               const isHovered = hoveredShiftId === slice.shift_id;
               return (
@@ -137,11 +137,11 @@ export function ShiftDistributionDonut({
                   key={slice.shift_id}
                   onMouseEnter={() => setHoveredShiftId(slice.shift_id)}
                   onMouseLeave={() => setHoveredShiftId(null)}
-                  className={`flex items-center justify-between gap-3 p-1.5 rounded-[6px] transition-colors cursor-pointer ${
+                  className={`flex items-center justify-between gap-2 p-1 sm:p-1.5 rounded-[6px] transition-colors cursor-pointer ${
                     isHovered ? "bg-bg" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                     <span
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: slice.color }}

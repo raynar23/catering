@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, PanelLeft } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Profile } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -47,20 +47,27 @@ export function Topbar({
       )}
     >
       <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-        {/* Mobile drawer toggle */}
+        {/* Mobile drawer toggle using TPS symbol */}
         <button
           type="button"
           onClick={onMenuToggle}
-          className="p-1.5 -ml-1 text-text-muted hover:text-text rounded-[6px] hover:bg-black/[0.04] active:bg-black/[0.08] transition-colors cursor-pointer shrink-0 lg:hidden"
+          className="p-1 -ml-1 rounded-[8px] hover:bg-black/[0.04] active:bg-black/[0.08] transition-all cursor-pointer shrink-0 lg:hidden group flex items-center justify-center"
           title="Buka Menu"
           aria-label="Buka Menu"
         >
-          <PanelLeft className="w-5 h-5" />
+          <Image
+            src="/images/tps-symbol.png"
+            alt="Logo TPS"
+            width={28}
+            height={28}
+            className="w-7 h-7 object-contain select-none transition-transform group-hover:scale-105"
+            priority
+          />
         </button>
 
         <div className="min-w-0">
           <div className="text-[12.5px] sm:text-[13px] font-semibold text-text tracking-tight truncate">
-            Pengelolaan Data Catering Karyawan
+            Pengelolaan Catering
           </div>
           <div className="text-[11px] text-[#86868B] truncate hidden sm:block">
             PT Terminal Petikemas Surabaya

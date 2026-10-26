@@ -20,7 +20,6 @@ import { formatTimeShort, MONTH_OPTIONS } from "@/lib/date";
 import { waLink } from "@/lib/whatsapp";
 import { useToast } from "@/components/ui/Toast";
 import { useRealtimeTable } from "@/lib/realtime/useRealtimeTable";
-import { ResetOperationalModal } from "./ResetOperationalModal";
 import {
   Plus,
   Settings2,
@@ -61,7 +60,6 @@ export function PeriodTable() {
 
   const [selectedPeriodIds, setSelectedPeriodIds] = useState<Set<string>>(new Set());
   const [deleteSelectedConfirmOpen, setDeleteSelectedConfirmOpen] = useState(false);
-  const [resetModalOpen, setResetModalOpen] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   // Load shifts and vendors options
@@ -282,6 +280,7 @@ export function PeriodTable() {
   const columns: ColumnDef<PeriodListItem>[] = [
     {
       key: "select",
+      className: "hidden sm:table-cell",
       header: (
         <div className="flex items-center justify-center">
           <input
@@ -310,16 +309,22 @@ export function PeriodTable() {
     {
       key: "tanggal",
       header: "Tanggal",
-      width: 100,
+      width: 95,
       render: (row) => (
-        <span className="font-semibold text-text tabular-nums">
-          {formatDate(row.tanggal)}
-        </span>
+        <div className="min-w-0 pr-1">
+          <span className="font-semibold text-text tabular-nums block text-xs">
+            {formatDate(row.tanggal)}
+          </span>
+          <span className="text-[10px] text-text-muted sm:hidden block truncate">
+            {row.shift_nama}
+          </span>
+        </div>
       ),
     },
     {
       key: "shift_nama",
       header: "Shift Kerja",
+      className: "hidden sm:table-cell",
       render: (row) => (
         <div>
           <span className="font-medium text-text">{row.shift_nama}</span>
@@ -333,17 +338,25 @@ export function PeriodTable() {
       key: "vendor_nama",
       header: "Vendor",
       render: (row) => (
-        <div>
-          <span className="font-medium text-text">{row.vendor_nama}</span>
-          <span className="text-[11px] text-primary ml-1.5 font-semibold tabular-nums">
-            {row.vendor_kode}
-          </span>
+        <div className="min-w-0 pr-1">
+          <div className="font-medium text-text truncate">
+            {row.vendor_nama}
+            <span className="text-[10px] text-primary ml-1 font-semibold tabular-nums sm:hidden">
+              ({row.vendor_kode})
+            </span>
+          </div>
+          <div className="text-[10px] text-text-muted sm:hidden flex items-center gap-1 mt-0.5">
+            <span className="font-bold text-text tabular-nums">
+              {row.total_porsi > 0 ? `${row.total_porsi} porsi` : "-"}
+            </span>
+          </div>
         </div>
       ),
     },
     {
       key: "vendor_kontak",
       header: "Kontak Vendor",
+      className: "hidden md:table-cell",
       render: (row) => {
         if (!row.vendor_kontak) return "-";
         const link = waLink(
@@ -370,8 +383,9 @@ export function PeriodTable() {
     {
       key: "total_porsi",
       header: "Total Porsi",
+      className: "hidden sm:table-cell",
       align: "right",
-      width: 90,
+      width: 85,
       render: (row) => (
         <span className="font-semibold text-text tabular-nums">
           {row.total_porsi > 0 ? row.total_porsi : "-"}
@@ -381,27 +395,29 @@ export function PeriodTable() {
     {
       key: "diupdate_oleh",
       header: "Diupdate Oleh",
+      className: "hidden lg:table-cell",
       render: (row) => row.diupdate_oleh || "-",
     },
     {
       key: "status",
       header: "Status",
       align: "center",
-      width: 110,
+      width: 76,
       render: (row) => <StatusBadge status={row.status} />,
     },
     {
       key: "progres_vendor",
       header: "Progres Vendor",
+      className: "hidden md:table-cell",
       align: "center",
-      width: 120,
+      width: 110,
       render: (row) => <StatusBadge status={row.progres_vendor} />,
     },
     {
       key: "actions",
       header: "Aksi",
       align: "right",
-      width: 110,
+      width: 76,
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
           <button
@@ -440,13 +456,13 @@ export function PeriodTable() {
   return (
     <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
       {/* Filters and Actions Bar */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 py-3 select-none">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 py-2 sm:py-3 select-none shrink-0">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
           {/* Month Selector */}
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
-            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             {MONTH_OPTIONS.map((m) => (
               <option key={m.value} value={m.value}>
@@ -459,7 +475,7 @@ export function PeriodTable() {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
-            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
           >
             <option value={2025}>2025</option>
             <option value={2026}>2026</option>
@@ -470,7 +486,7 @@ export function PeriodTable() {
           <select
             value={selectedShift}
             onChange={(e) => setSelectedShift(e.target.value)}
-            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <option value="all">Semua Shift</option>
             {shifts.map((s) => (
@@ -484,7 +500,7 @@ export function PeriodTable() {
           <select
             value={selectedVendor}
             onChange={(e) => setSelectedVendor(e.target.value)}
-            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <option value="all">Semua Vendor</option>
             {vendors.map((v) => (
@@ -498,7 +514,7 @@ export function PeriodTable() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="h-9 pl-3.5 pr-10 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="col-span-2 sm:col-span-1 h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <option value="all">Semua Status</option>
             <option value="belum_input">Belum Input</option>
@@ -512,20 +528,11 @@ export function PeriodTable() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => setResetModalOpen(true)}
-            className="h-9 px-3.5 rounded-[8px] bg-red-500 hover:bg-red-600 active:bg-red-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-white" />
-            <span>Hapus Semua Data</span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => {
               setSelectedShiftToEdit(shifts[0] ?? null);
               setShiftDialogOpen(true);
             }}
-            className="h-9 px-3 rounded-[8px] border border-border bg-surface hover:bg-bg text-text text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="h-8.5 px-3 rounded-[8px] border border-border bg-surface hover:bg-bg text-text text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <Settings2 className="w-3.5 h-3.5 text-text-muted" />
             <span>Kelola Shift</span>
@@ -534,7 +541,7 @@ export function PeriodTable() {
           <button
             type="button"
             onClick={handleAddPeriod}
-            className="h-9 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Jadwal</span>
@@ -623,15 +630,6 @@ export function PeriodTable() {
         variant="danger"
         isProcessing={isBulkDeleting}
         onConfirm={handleConfirmDeleteSelected}
-      />
-
-      <ResetOperationalModal
-        open={resetModalOpen}
-        onOpenChange={setResetModalOpen}
-        onSuccess={() => {
-          setSelectedPeriodIds(new Set());
-          loadData();
-        }}
       />
     </div>
   );

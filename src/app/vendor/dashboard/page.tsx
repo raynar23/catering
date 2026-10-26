@@ -16,7 +16,7 @@ export default async function VendorDashboardPage() {
   const todayFormatted = formatDateLong(new Date());
 
   return (
-    <PageContainer>
+    <PageContainer scrollable>
       <PageHeader
         title={`Dashboard Vendor: ${data.vendorNama}`}
         subtitle={`Ringkasan operasional dan jadwal pesanan ${todayFormatted}`}

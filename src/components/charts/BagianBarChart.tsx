@@ -37,19 +37,19 @@ export function BagianBarChart({ series, isLoading = false }: BagianBarChartProp
   }
 
   return (
-    <div className="bg-white border border-black/[0.08] rounded-[12px] p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-      <div className="mb-2">
+    <div className="bg-white border border-black/[0.08] rounded-[12px] p-3.5 sm:p-4 flex flex-col h-full select-none shadow-[0_1px_3px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="mb-2 shrink-0">
         <h3 className="text-xs font-semibold text-text tracking-tight">Porsi per Bagian</h3>
-        <p className="text-[11px] text-[#86868B]">Alokasi konsumsi menurut unit kerja dan kelompok</p>
+        <p className="text-[11px] text-[#86868B] truncate">Alokasi konsumsi menurut unit kerja dan kelompok</p>
       </div>
 
       {isEmpty ? (
-        <div className="flex-1 flex items-center justify-center text-xs text-text-muted">
+        <div className="flex-1 flex items-center justify-center text-xs text-text-muted min-h-[140px]">
           Belum ada data final pada rentang ini
         </div>
       ) : (
-        <div className="flex-1 min-h-[140px] flex items-end overflow-x-auto pb-2 scrollbar-thin">
-          <div className="flex items-end gap-3 min-w-full px-2 pt-6 h-full">
+        <div className="flex-1 min-h-[150px] flex items-end overflow-x-auto pb-1 scrollbar-thin">
+          <div className="flex items-end gap-2 sm:gap-3 min-w-full px-1 sm:px-2 pt-4 h-full">
             {activeSeries.map((item) => {
               const heightPct = Math.max(4, Math.round((item.total_porsi / maxVal) * 100));
               const isHovered = hoveredBagianId === item.bagian_id;
@@ -59,7 +59,7 @@ export function BagianBarChart({ series, isLoading = false }: BagianBarChartProp
                   key={item.bagian_id}
                   onMouseEnter={() => setHoveredBagianId(item.bagian_id)}
                   onMouseLeave={() => setHoveredBagianId(null)}
-                  className="flex-1 min-w-[56px] flex flex-col items-center justify-end h-full group cursor-pointer"
+                  className="flex-1 min-w-[50px] sm:min-w-[56px] flex flex-col items-center justify-end h-full group cursor-pointer"
                 >
                   {/* Number above bar */}
                   <span
@@ -71,7 +71,7 @@ export function BagianBarChart({ series, isLoading = false }: BagianBarChartProp
                   </span>
 
                   {/* Vertical Bar */}
-                  <div className="w-full max-w-[36px] bg-slate-100/90 rounded-t-[6px] flex-1 min-h-[45px] max-h-24 relative flex items-end overflow-hidden">
+                  <div className="w-full max-w-[32px] sm:max-w-[36px] bg-slate-100/90 rounded-t-[6px] flex-1 min-h-[45px] max-h-24 relative flex items-end overflow-hidden">
                     <div
                       className={`w-full rounded-t-[6px] transition-all duration-300 ${
                         isHovered
@@ -83,9 +83,9 @@ export function BagianBarChart({ series, isLoading = false }: BagianBarChartProp
                   </div>
 
                   {/* Intact Department Name */}
-                  <div className="mt-2 text-center w-full">
+                  <div className="mt-1.5 sm:mt-2 text-center w-full">
                     <p
-                      className={`text-[11px] font-medium leading-tight truncate transition-colors ${
+                      className={`text-[10px] sm:text-[11px] font-medium leading-tight truncate transition-colors ${
                         isHovered ? "text-primary font-semibold" : "text-text"
                       }`}
                       title={item.bagian_nama}

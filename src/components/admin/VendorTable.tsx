@@ -117,7 +117,7 @@ export function VendorTable() {
     {
       key: "kode",
       header: "Kode",
-      width: 80,
+      width: 58,
       render: (row) => (
         <span className="font-semibold text-primary tabular-nums">
           {row.kode}
@@ -128,10 +128,24 @@ export function VendorTable() {
       key: "nama",
       header: "Nama Vendor",
       render: (row) => (
-        <div>
-          <span className="font-medium text-text">{row.nama}</span>
-          <div className="text-[11px] text-text-muted mt-0.5">
-            Rotasi #{row.urutan_rotasi}
+        <div className="min-w-0 pr-1">
+          <span className="font-semibold text-text block truncate">{row.nama}</span>
+          <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-0.5 truncate">
+            <span>Rotasi #{row.urutan_rotasi}</span>
+            {row.no_wa && (
+              <a
+                href={waLink(
+                  row.no_wa,
+                  `Halo ${row.nama}, kami dari General Affairs PT Terminal Petikemas Surabaya.`
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline sm:hidden inline-flex items-center gap-0.5"
+                title="WhatsApp Vendor"
+              >
+                • {row.no_wa}
+              </a>
+            )}
           </div>
         </div>
       ),
@@ -139,11 +153,13 @@ export function VendorTable() {
     {
       key: "nama_kontak",
       header: "Nama Kontak",
+      className: "hidden md:table-cell",
       render: (row) => row.nama_kontak || "-",
     },
     {
       key: "no_wa",
       header: "No. WhatsApp",
+      className: "hidden sm:table-cell",
       render: (row) => {
         if (!row.no_wa) return "-";
         const link = waLink(
@@ -170,11 +186,13 @@ export function VendorTable() {
     {
       key: "no_telp",
       header: "No. Telp",
+      className: "hidden lg:table-cell",
       render: (row) => <span className="tabular-nums">{row.no_telp || "-"}</span>,
     },
     {
       key: "alamat",
       header: "Alamat",
+      className: "hidden md:table-cell",
       render: (row) => (
         <span className="truncate max-w-xs block" title={row.alamat ?? ""}>
           {row.alamat || "-"}
@@ -185,7 +203,7 @@ export function VendorTable() {
       key: "aktif",
       header: "Status",
       align: "center",
-      width: 100,
+      width: 76,
       render: (row) => (
         <StatusBadge
           status={row.aktif ? "aktif" : "nonaktif"}
@@ -197,7 +215,7 @@ export function VendorTable() {
       key: "actions",
       header: "Aksi",
       align: "right",
-      width: 90,
+      width: 68,
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
           <button
