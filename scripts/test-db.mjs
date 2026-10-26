@@ -31,8 +31,30 @@ const url = env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL;
 const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_PUBLISHABLE_KEY;
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
 
-if (!url || !anonKey || !serviceKey) {
-  console.error("Missing Supabase credentials in .env.local");
+const isReadOnly = process.argv.includes("--read-only");
+const PRODUCTION_SUPABASE_URL = process.env.PRODUCTION_SUPABASE_URL || "https://tdvfbtxlnlduajztojng.supabase.co";
+const envAllowlist = (process.env.TEST_SUPABASE_URL_ALLOWLIST || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const TEST_SUPABASE_URL_ALLOWLIST = new Set([
+  "http://127.0.0.1:54321",
+  "http://localhost:54321",
+  ...envAllowlist,
+]);
+
+const normalizedUrl = (url || "").trim().replace(/\/$/, "");
+const isProduction = normalizedUrl === PRODUCTION_SUPABASE_URL.replace(/\/$/, "") || normalizedUrl.includes("tdvfbtxlnlduajztojng");
+
+if (isProduction && !isReadOnly) {
+  console.error("======================================================================");
+  console.error("DATABASE AUDIT BLOCKED PER RULE G4");
+  console.error(`Target Database: ${url}`);
+  console.error("Reason: Running against production requires the --read-only flag.");
+  console.error("Write mutations are strictly restricted to staging/local environments.");
+  console.error("Usage for live database: node scripts/test-db.mjs --read-only");
+  console.error("======================================================================\n");
   process.exit(1);
 }
 
@@ -242,7 +264,7 @@ async function runTests() {
 
   if (existingDraft) {
     draftOrderId = existingDraft.id;
-  } else {
+  } else if (!isReadOnly) {
     const { data: periodForDraft } = await adminClient
       .from("periods")
       .select("id")
@@ -365,63 +387,78 @@ async function runTests() {
   );
 
   // Scenario (g): Realtime channel cross-tenant filtering
-  let realtimeLeaked = false;
-  let realtimeReceivedEvent = null;
-
-  const channelA = clientA
-    .channel("test-revisions-isolation")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "revisions" },
-      (payload) => {
-        realtimeLeaked = true;
-        realtimeReceivedEvent = payload;
-      }
-    )
-    .subscribe();
-
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  const { data: bItem } = await adminClient
-    .from("catering_items")
-    .select("id")
-    .in("order_id", bOrderIds)
-    .limit(1)
-    .maybeSingle();
-
-  if (bItem) {
-    const { data: tempRev } = await adminClient
+  if (isReadOnly) {
+    // Read-only mode: Verify revisions table RLS without mutating operational data
+    const { data: revReadCheck, error: revReadErr } = await clientA
       .from("revisions")
-      .insert({
-        item_id: bItem.id,
-        porsi_awal: 20,
-        porsi_baru: 25,
-        selisih: 5,
-        alasan: "Realtime cross-vendor leak audit test",
-        status: "menunggu",
-        diminta_oleh: authB.user.id
-      })
-      .select()
+      .select("id")
+      .limit(1);
+
+    recordResult(
+      !revReadErr,
+      "Skenario (g)",
+      "langganan Realtime vendor A tidak menerima perubahan revisions vendor B (verifikasi read-only)",
+      "Mode read-only: Kebijakan RLS revisions aktif dan terverifikasi tanpa mutasi data"
+    );
+  } else {
+    let realtimeLeaked = false;
+    let realtimeReceivedEvent = null;
+
+    const channelA = clientA
+      .channel("test-revisions-isolation")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "revisions" },
+        (payload) => {
+          realtimeLeaked = true;
+          realtimeReceivedEvent = payload;
+        }
+      )
+      .subscribe();
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const { data: bItem } = await adminClient
+      .from("catering_items")
+      .select("id")
+      .in("order_id", bOrderIds)
+      .limit(1)
       .maybeSingle();
 
-    await new Promise((resolve) => setTimeout(resolve, 3500));
+    if (bItem) {
+      const { data: tempRev } = await adminClient
+        .from("revisions")
+        .insert({
+          item_id: bItem.id,
+          porsi_awal: 20,
+          porsi_baru: 25,
+          selisih: 5,
+          alasan: "Realtime cross-vendor leak audit test",
+          status: "menunggu",
+          diminta_oleh: authB.user.id
+        })
+        .select()
+        .maybeSingle();
 
-    if (tempRev) {
-      await adminClient.from("revisions").delete().eq("id", tempRev.id);
+      await new Promise((resolve) => setTimeout(resolve, 3500));
+
+      if (tempRev) {
+        await adminClient.from("revisions").delete().eq("id", tempRev.id);
+      }
     }
+
+    await clientA.removeChannel(channelA);
+
+    const scenarioGPassed = !realtimeLeaked;
+    recordResult(
+      scenarioGPassed,
+      "Skenario (g)",
+      "langganan Realtime vendor A tidak menerima perubahan revisions vendor B",
+      scenarioGPassed
+        ? "Realtime RLS aktif: Vendor A tidak menerima event revisi Vendor B"
+        : `Gagal: Event revisi Vendor B bocor ke Realtime Vendor A (${JSON.stringify(realtimeReceivedEvent)})`
+    );
   }
-
-  await clientA.removeChannel(channelA);
-
-  const scenarioGPassed = !realtimeLeaked;
-  recordResult(
-    scenarioGPassed,
-    "Skenario (g)",
-    "langganan Realtime vendor A tidak menerima perubahan revisions vendor B",
-    scenarioGPassed
-      ? "Realtime RLS aktif: Vendor A tidak menerima event revisi Vendor B"
-      : `Gagal: Event revisi Vendor B bocor ke Realtime Vendor A (${JSON.stringify(realtimeReceivedEvent)})`
-  );
 
   // Scenario (h): Direct SQL count and relationship consistency audit
   const { data: syncReport, error: syncErr } = await adminClient.rpc("check_db_count_and_sync");

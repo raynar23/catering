@@ -30,20 +30,34 @@ const url = env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL;
 const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_PUBLISHABLE_KEY;
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
 
-// Production execution guard (F8)
-const PROD_PROJECT_ID = "tdvfbtxlnlduajztojng";
-const isProdProject = url && url.includes(PROD_PROJECT_ID);
+// Target database execution guard (G4)
+const PRODUCTION_SUPABASE_URL = process.env.PRODUCTION_SUPABASE_URL || "https://tdvfbtxlnlduajztojng.supabase.co";
+const envAllowlist = (process.env.TEST_SUPABASE_URL_ALLOWLIST || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
-if (isProdProject && process.env.ALLOW_SMOKE_RUN !== "true") {
-  console.log("======================================================================");
-  console.log("SMOKE FLOW EXECUTION GUARD (F8)");
-  console.log(`Database Target: ${url}`);
-  console.log("STATUS: BLOCKED PER RULE F8");
-  console.log("Reason: smoke-flow.mjs must not run directly on the primary production project.");
-  console.log("To execute, use local database or set ALLOW_SMOKE_RUN=true.");
-  console.log("======================================================================\n");
-  process.exit(0);
+const TEST_SUPABASE_URL_ALLOWLIST = new Set([
+  "http://127.0.0.1:54321",
+  "http://localhost:54321",
+  ...envAllowlist,
+]);
+
+const normalizedUrl = (url || "").trim().replace(/\/$/, "");
+const isProduction = normalizedUrl === PRODUCTION_SUPABASE_URL.replace(/\/$/, "") || normalizedUrl.includes("tdvfbtxlnlduajztojng");
+const isAllowedTestTarget = TEST_SUPABASE_URL_ALLOWLIST.has(normalizedUrl);
+
+if (isProduction || !isAllowedTestTarget) {
+  console.error("======================================================================");
+  console.error("TEST EXECUTION BLOCKED PER RULE G4");
+  console.error(`Database Target: ${url}`);
+  console.error("Reason: smoke-flow.mjs performs mutation tests and is strictly forbidden");
+  console.error("from running against production. Target URL must be an explicit member");
+  console.error("of TEST_SUPABASE_URL_ALLOWLIST (e.g. local Supabase or dedicated staging).");
+  console.error("======================================================================\n");
+  process.exit(1);
 }
+
 
 const anonClient = createClient(url, anonKey);
 const adminClient = createClient(url, serviceKey);
@@ -255,14 +269,14 @@ async function runSmokeFlow() {
     .eq("status", "menunggu")
     .single();
 
-  // Verify revision using four-eyes principle (Admin 2)
-  const { error: verifErr } = await clientAdmin2.rpc("verifikasi_revisi", {
+  // Verify revision: Admin GA can verify, including original proposer (PRD Assumption A1)
+  const { error: verifErr } = await clientAdmin.rpc("verifikasi_revisi", {
     p_revision_id: revRecord.id,
     p_setuju: true,
-    p_catatan: "Approved by GA Supervisor 2"
+    p_catatan: "Approved by Admin GA"
   });
   if (verifErr) console.error("Failed to verify revision:", verifErr.message);
-  console.log("  [OK] Admin GA 2 verified revision (Four-Eyes Principle, Status: Approved).");
+  console.log("  [OK] Admin GA verified revision (PRD A1 single/multi-admin, Status: Approved).");
 
   // Verify approved status in view: must be updated to 23
   const { data: rekapVerified } = await clientAdmin
