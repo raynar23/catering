@@ -156,40 +156,48 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
 
                 {/* Aksi */}
                 <td className="px-2.5 sm:px-3 py-2 align-middle text-center whitespace-nowrap">
-                  <div className="flex items-center justify-center gap-1.5">
-                    {isPending ? (
-                      <button
-                        type="button"
-                        onClick={() => onOpenVerify(rev)}
-                        className="inline-flex items-center justify-center gap-1 px-2 py-1 text-xs font-semibold rounded-[6px] bg-primary hover:bg-[#0E63A1] text-white shadow-xs"
-                        title="Verifikasi pengajuan revisi"
-                      >
-                        <CheckSquare className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Verifikasi</span>
-                      </button>
-                    ) : (
-                      <span className="text-[11px] text-muted font-medium px-1.5 py-1">
-                        Selesai
-                      </span>
-                    )}
+                  <div className="inline-flex items-center justify-center gap-1.5">
+                    {/* Primary Action Slot (Fixed width so follow-up icons align perfectly) */}
+                    <div className="w-[48px] sm:w-[82px] flex items-center justify-center shrink-0">
+                      {isPending ? (
+                        <button
+                          type="button"
+                          onClick={() => onOpenVerify(rev)}
+                          className="inline-flex items-center justify-center gap-1 px-2 py-1 text-xs font-semibold rounded-[6px] bg-primary hover:bg-[#0E63A1] text-white shadow-xs"
+                          title="Verifikasi pengajuan revisi"
+                        >
+                          <CheckSquare className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Verifikasi</span>
+                        </button>
+                      ) : (
+                        <span className="text-[11px] text-muted font-medium">
+                          Selesai
+                        </span>
+                      )}
+                    </div>
 
-                    {waUrl && (
-                      <a
-                        href={waUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1 sm:p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-emerald-700 hover:bg-emerald-50 transition-colors shadow-xs"
-                        title="Kirim pesan WhatsApp ke vendor"
-                        aria-label="WhatsApp vendor"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5" />
-                      </a>
-                    )}
+                    {/* WhatsApp Action Slot (Fixed width to align vertically across all rows) */}
+                    <div className="w-7 flex items-center justify-center shrink-0">
+                      {waUrl ? (
+                        <a
+                          href={waUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 sm:p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-emerald-700 hover:bg-emerald-50 transition-colors shadow-xs"
+                          title="Kirim pesan WhatsApp ke vendor"
+                          aria-label="WhatsApp vendor"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                        </a>
+                      ) : (
+                        <span className="w-3.5 h-3.5" />
+                      )}
+                    </div>
 
                     {rev.periodId && (
                       <Link
                         href={`/admin/verifikasi/${rev.periodId}/riwayat`}
-                        className="p-1 sm:p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs hidden sm:inline-flex"
+                        className="p-1 sm:p-1.5 rounded-[6px] border border-border bg-white text-muted hover:text-text hover:bg-slate-50 transition-colors shadow-xs hidden sm:inline-flex shrink-0"
                         title="Lihat riwayat kronologi pesanan"
                         aria-label="Riwayat kronologi"
                       >
