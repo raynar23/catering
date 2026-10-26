@@ -30,21 +30,21 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
 
   return (
     <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
-      <table className="w-full text-left border-collapse text-xs min-w-[520px] sm:min-w-0 sm:table-fixed">
+      <table className="w-full text-left border-collapse text-xs min-w-[430px] sm:min-w-0 sm:table-fixed">
         <thead className="sticky top-0 z-10 bg-slate-50 border-b border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
           <tr>
-            <th className="px-2.5 sm:px-3 py-2.5 min-w-[170px] sm:min-w-0">
+            <th className="px-2.5 sm:px-3 py-2.5 w-[140px] sm:w-auto">
               <span className="sm:hidden">Detail Pesanan</span>
               <span className="hidden sm:inline">Tanggal & Shift</span>
             </th>
             <th className="px-3 py-2.5 hidden sm:table-cell sm:w-[140px]">Vendor</th>
             <th className="px-3 py-2.5 hidden sm:table-cell sm:w-[130px]">Bagian</th>
-            <th className="px-2.5 sm:px-3 py-2.5 text-right w-[85px] sm:w-[100px]">Porsi</th>
+            <th className="px-2 sm:px-3 py-2.5 text-center w-[72px] sm:w-[95px]">Porsi</th>
             <th className="px-3 py-2.5 min-w-[160px] hidden md:table-cell">Alasan</th>
             <th className="px-3 py-2.5 hidden lg:table-cell sm:w-[120px]">Pengaju</th>
             <th className="px-3 py-2.5 text-center hidden sm:table-cell sm:w-[120px]">Respons Vendor</th>
-            <th className="px-2.5 sm:px-3 py-2.5 text-center min-w-[140px] sm:min-w-0 sm:w-[140px]">Status</th>
-            <th className="px-2.5 sm:px-3 py-2.5 text-center min-w-[100px] sm:min-w-0 sm:w-[140px]">Aksi</th>
+            <th className="px-2 sm:px-3 py-2.5 text-center w-[120px] sm:w-[140px]">Status</th>
+            <th className="px-2 sm:px-3 py-2.5 text-center w-[98px] sm:w-[140px]">Aksi</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/60 text-xs">
@@ -106,9 +106,9 @@ export function RevisiTable({ items, onOpenVerify }: RevisiTableProps) {
                 </td>
 
                 {/* Perubahan Porsi ("~20~ 23 (+3)") */}
-                <td className="px-2.5 sm:px-3 py-2 align-middle text-right font-mono">
-                  <div className="flex flex-col items-end gap-0.5">
-                    <div className="inline-flex items-center gap-1.5 justify-end text-xs">
+                <td className="px-2 sm:px-3 py-2 align-middle text-center font-mono">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="inline-flex items-center gap-1.5 justify-center text-xs">
                       <span className="line-through text-slate-400 font-normal">{rev.porsiAwal}</span>
                       <span className="font-bold text-text text-xs sm:text-sm">{rev.porsiBaru}</span>
                     </div>
