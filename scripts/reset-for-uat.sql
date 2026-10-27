@@ -43,9 +43,10 @@ ALTER TABLE public.order_logs ENABLE TRIGGER trg_prevent_order_logs_mod;
 ALTER TABLE public.revisions ENABLE TRIGGER trg_prevent_revision_delete;
 ALTER TABLE public.revisions ENABLE TRIGGER trg_revision_immutable;
 
--- 5. Remove deprecated legacy user accounts (admin@tps.co.id and vendor@tps.co.id)
-DELETE FROM public.profiles WHERE username IN ('admin', 'vendor');
-DELETE FROM auth.users WHERE email IN ('admin@tps.co.id', 'vendor@tps.co.id');
+-- 5. Remove deprecated legacy test accounts (mock accounts, vendor@tps.co.id)
+-- Note: admin@tps.co.id, pic.cfs, pic.mekanik, pic.operator, and 5 vendor accounts are preserved.
+DELETE FROM public.profiles WHERE username IN ('vendor') OR username LIKE 'mock.%' OR username LIKE 'test.%';
+DELETE FROM auth.users WHERE email IN ('vendor@tps.co.id') OR email LIKE 'mock.%' OR email LIKE 'test.%';
 
 -- 6. Verification queries (output results to confirm clean state)
 SELECT

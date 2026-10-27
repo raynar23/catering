@@ -88,64 +88,29 @@ async function seedUatWindow() {
   const vendorMap = new Map(vendors.map((v) => [v.kode, v.id]));
   const vendorCodes = ["V001", "V002", "V003", "V004", "V005"];
 
-  // 2. Build 276 periods (2026-10-01 to 2026-12-31: 92 days)
-  console.log("Langkah 1: Memverifikasi & menyelaraskan 276 periode (Okt - Des 2026)...");
+  // 2. Fetch existing periods (Schedule MUST be pre-imported via Impor Data page)
+  console.log("Langkah 1: Memverifikasi keberadaan jadwal periode (Okt - Des 2026)...");
 
   const startIso = "2026-10-01";
   const endIso = "2026-12-31";
-  const allTargetDates = [];
 
-  let curIso = startIso;
-  while (curIso <= endIso) {
-    allTargetDates.push(curIso);
-    curIso = addDays(curIso, 1);
+  const { data: existingPeriods, error: periodsErr } = await supabase
+    .from("periods")
+    .select("id, tanggal, shift_id, vendor_id")
+    .gte("tanggal", startIso)
+    .lte("tanggal", endIso);
+
+  if (periodsErr || !existingPeriods || existingPeriods.length === 0) {
+    console.error("======================================================================");
+    console.error("ERROR: Jadwal periode Oktober - Desember 2026 belum ada di database.");
+    console.error("Sesuai Audit Prompt 19 (I5), jadwal asli client WAJIB diimpor terlebih dahulu");
+    console.error("melalui halaman Impor Data (data-real/ atau test-fixtures/jadwal-92hari-benchmark.xlsx).");
+    console.error("Seeder ini tidak diperbolehkan membuat periode sendiri.");
+    console.error("======================================================================");
+    process.exit(1);
   }
 
-  console.log(`- Total hari kalender: ${allTargetDates.length} hari (Okt 31, Nov 30, Des 31)`);
-  console.log(`- Total periode target: ${allTargetDates.length * 3} baris (3 shift per hari)`);
-
-  // Upsert all 276 periods
-  let dayIdx = 0;
-  const createdPeriods = [];
-
-  for (const dateStr of allTargetDates) {
-    for (const shift of shifts) {
-      // Rotating vendor assignment
-      const vCode = vendorCodes[(dayIdx + shift.urutan) % vendorCodes.length];
-      const vendorId = vendorMap.get(vCode);
-
-      const { data: existingPeriod } = await supabase
-        .from("periods")
-        .select("id, vendor_id")
-        .eq("tanggal", dateStr)
-        .eq("shift_id", shift.id)
-        .maybeSingle();
-
-      if (existingPeriod) {
-        createdPeriods.push({ id: existingPeriod.id, tanggal: dateStr, shift_id: shift.id, vendor_id: existingPeriod.vendor_id });
-      } else {
-        const { data: newPeriod, error: insErr } = await supabase
-          .from("periods")
-          .insert({
-            tanggal: dateStr,
-            shift_id: shift.id,
-            vendor_id: vendorId,
-            keterangan: `Jadwal shift ${shift.nama}`,
-          })
-          .select("id, tanggal, shift_id, vendor_id")
-          .single();
-
-        if (insErr) {
-          console.error(`Gagal insert periode ${dateStr} ${shift.nama}:`, insErr.message);
-        } else {
-          createdPeriods.push(newPeriod);
-        }
-      }
-    }
-    dayIdx++;
-  }
-
-  console.log(`- Berhasil memastikan ${createdPeriods.length} periode terdaftar di database.\n`);
+  console.log(`- Ditemukan ${existingPeriods.length} periode yang telah terdaftar di database.\n`);
 
   // 3. Define the UAT window dates
   const history14Start = addDays(todayStr, -14);
@@ -162,7 +127,7 @@ async function seedUatWindow() {
   let orderCreatedCount = 0;
   let itemsCreatedCount = 0;
 
-  for (const period of createdPeriods) {
+  for (const period of existingPeriods) {
     const tgl = period.tanggal;
 
     // A. Historical Window (today - 14 to today - 1)

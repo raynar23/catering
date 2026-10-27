@@ -158,10 +158,13 @@ async function runSmokeFlow() {
   const { data: shifts } = await adminClient.from("shifts").select("id, nama, urutan").order("urutan");
   const { data: bagianList } = await adminClient.from("bagian").select("id, nama").eq("aktif", true);
 
-  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  const day = String((randomSuffix % 28) + 1).padStart(2, "0");
-  const month = String((Math.floor(randomSuffix / 100) % 12) + 1).padStart(2, "0");
-  const testTanggal = `2028-${month}-${day}`;
+  // Test date allowlist guard: strictly inside the 2026-10-01 to 2026-12-31 schedule window
+  const allowedMinDate = "2026-10-01";
+  const allowedMaxDate = "2026-12-31";
+  const testTanggal = process.env.SMOKE_TEST_DATE || "2026-10-26";
+  if (testTanggal < allowedMinDate || testTanggal > allowedMaxDate) {
+    throw new Error(`Execution blocked: Test date ${testTanggal} is outside allowed UAT window [${allowedMinDate} .. ${allowedMaxDate}].`);
+  }
 
   // Flow 1: 3-shift order cycle
   console.log("----------------------------------------------------------------------");
