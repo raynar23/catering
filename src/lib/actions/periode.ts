@@ -140,7 +140,9 @@ export async function getPeriodList(
         respon_vendor,
         progres_vendor,
         submitted_by,
-        profiles:submitted_by (nama),
+        created_by,
+        submitted_profile:profiles!catering_orders_submitted_by_fkey (nama),
+        created_profile:profiles!catering_orders_created_by_fkey (nama),
         catering_items (porsi)
       )
     `,
@@ -180,7 +182,9 @@ interface RawPeriodRow {
     respon_vendor: string;
     progres_vendor: string;
     submitted_by: string | null;
-    profiles: { nama: string } | null;
+    created_by: string | null;
+    submitted_profile: { nama: string } | null;
+    created_profile: { nama: string } | null;
     catering_items: { porsi: number }[];
   }[] | null;
 }
@@ -213,7 +217,7 @@ interface RawPeriodRow {
         vendor_nama: vendor?.nama ?? "-",
         vendor_kontak: contact.no_wa || contact.no_telp || "",
         total_porsi: totalPorsi,
-        diupdate_oleh: order?.profiles?.nama ?? null,
+        diupdate_oleh: order?.submitted_profile?.nama ?? order?.created_profile?.nama ?? null,
         status: order?.status ?? "belum_input",
         respon_vendor: order?.respon_vendor ?? "menunggu",
         progres_vendor: order?.progres_vendor ?? "menunggu",

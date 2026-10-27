@@ -188,7 +188,7 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
           shiftId,
           orderId: res.data!.orderId,
           status: "draft",
-          lastUpdatedBy: "Admin GA",
+          lastUpdatedBy: res.data?.updatedBy || "Admin GA",
           lastUpdatedAt: new Date().toISOString(),
         },
       });
