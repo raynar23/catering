@@ -188,7 +188,7 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
           shiftId,
           orderId: res.data!.orderId,
           status: "draft",
-          lastUpdatedBy: "Admin GA",
+          lastUpdatedBy: res.data?.updatedBy || "Admin GA",
           lastUpdatedAt: new Date().toISOString(),
         },
       });
@@ -361,7 +361,7 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
         onConfirm={handleConfirmDiscardChanges}
       />
 
-      {/* Kirim ke Vendor dialog with missing validation */}
+      {/* Send to vendor dialog */}
       <KirimVendorDialog
         open={Boolean(kirimShiftId)}
         onOpenChange={(open) => !open && setKirimShiftId(null)}

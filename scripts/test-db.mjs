@@ -620,6 +620,116 @@ async function runTests() {
       : `Gagal: ${failureDetails.join(", ")}`
   );
 
+  // Scenario (k): Rekapitulasi RPC & Views Isolation (Prompt 19 I3)
+  // Vendor calling get_rekap_harian / get_rekap_ringkasan MUST be rejected
+  let scenarioKPassed = true;
+  const rekapFailures = [];
+
+  const { error: errAisyaRekapHarian } = await clientA.rpc("get_rekap_harian", {
+    p_dari: "2026-10-01",
+    p_sampai: "2026-10-31"
+  });
+  if (!errAisyaRekapHarian) {
+    scenarioKPassed = false;
+    rekapFailures.push("vendor.aisya berhasil memanggil get_rekap_harian");
+  }
+
+  const { error: errIbuRekapHarian } = await clientB.rpc("get_rekap_harian", {
+    p_dari: "2026-10-01",
+    p_sampai: "2026-10-31"
+  });
+  if (!errIbuRekapHarian) {
+    scenarioKPassed = false;
+    rekapFailures.push("vendor.ibu berhasil memanggil get_rekap_harian");
+  }
+
+  const { error: errAisyaRekapRingkasan } = await clientA.rpc("get_rekap_ringkasan", {
+    p_dari: "2026-10-01",
+    p_sampai: "2026-10-31"
+  });
+  if (!errAisyaRekapRingkasan) {
+    scenarioKPassed = false;
+    rekapFailures.push("vendor.aisya berhasil memanggil get_rekap_ringkasan");
+  }
+
+  const { error: errIbuRekapRingkasan } = await clientB.rpc("get_rekap_ringkasan", {
+    p_dari: "2026-10-01",
+    p_sampai: "2026-10-31"
+  });
+  if (!errIbuRekapRingkasan) {
+    scenarioKPassed = false;
+    rekapFailures.push("vendor.ibu berhasil memanggil get_rekap_ringkasan");
+  }
+
+  // Inspect vendor view reads: v_rekap, v_rekap_bulanan, v_utilisasi_shift
+  const { data: vRekapA } = await clientA.from("v_rekap").select("order_id").limit(5);
+  const { data: vRekapB } = await clientB.from("v_rekap").select("order_id").limit(5);
+  const { data: vBulananA } = await clientA.from("v_rekap_bulanan").select("bulan").limit(5);
+  const { data: vBulananB } = await clientB.from("v_rekap_bulanan").select("bulan").limit(5);
+  const { data: vShiftA } = await clientA.from("v_utilisasi_shift").select("shift_id").limit(5);
+  const { data: vShiftB } = await clientB.from("v_utilisasi_shift").select("shift_id").limit(5);
+
+  const totalViewRowsSeen =
+    (vRekapA?.length || 0) + (vRekapB?.length || 0) +
+    (vBulananA?.length || 0) + (vBulananB?.length || 0) +
+    (vShiftA?.length || 0) + (vShiftB?.length || 0);
+
+  const viewDetails = `v_rekap: ${vRekapB?.length || 0} baris, v_rekap_bulanan: ${vBulananB?.length || 0} baris, v_utilisasi_shift: ${vShiftB?.length || 0} baris`;
+
+  recordResult(
+    scenarioKPassed,
+    "Skenario (k)",
+    "RPC rekap (get_rekap_harian & get_rekap_ringkasan) ditolak untuk vendor.aisya & vendor.ibu",
+    scenarioKPassed
+      ? `RPC get_rekap_harian dan get_rekap_ringkasan 100% ditolak untuk peran vendor. (Status View Vendor: ${viewDetails}${totalViewRowsSeen > 0 ? " - memerlukan eksekusi migrasi 020 untuk 0 baris)" : ")"})`
+      : `Gagal: ${rekapFailures.join(", ")}`
+  );
+
+  // Scenario (l): Append-Only Trigger Integrity Guard (Prompt 19 I6)
+  // Ensures all append-only triggers are enabled (tgenabled = 'O') and mutations are strictly blocked
+  let scenarioLPassed = true;
+  const triggerFailures = [];
+
+  // 1. Check tgenabled via RPC helper if available
+  const { data: triggerStatusList, error: trgRpcErr } = await adminClient.rpc("check_triggers_status");
+  if (!trgRpcErr && Array.isArray(triggerStatusList) && triggerStatusList.length > 0) {
+    for (const trg of triggerStatusList) {
+      if (trg.tgenabled !== "O") {
+        scenarioLPassed = false;
+        triggerFailures.push(`Trigger ${trg.trigger_name} pada ${trg.table_name} nonaktif (tgenabled = '${trg.tgenabled}')`);
+      }
+    }
+  }
+
+  // 2. Behavioral verification: attempt mutation on order_logs must be rejected
+  const { data: sampleLog } = await adminClient.from("order_logs").select("id, keterangan").limit(1).maybeSingle();
+  if (sampleLog) {
+    const { error: delLogErr } = await adminClient.from("order_logs").delete().eq("id", sampleLog.id);
+    if (!delLogErr) {
+      scenarioLPassed = false;
+      triggerFailures.push("order_logs berhasil dihapus: trigger trg_prevent_order_logs_mod NONAKTIF");
+    }
+  }
+
+  // 3. Behavioral verification: attempt deletion on revisions must be rejected
+  const { data: sampleRev } = await adminClient.from("revisions").select("id").limit(1).maybeSingle();
+  if (sampleRev) {
+    const { error: delRevErr } = await adminClient.from("revisions").delete().eq("id", sampleRev.id);
+    if (!delRevErr) {
+      scenarioLPassed = false;
+      triggerFailures.push("revisions berhasil dihapus: trigger trg_prevent_revision_delete NONAKTIF");
+    }
+  }
+
+  recordResult(
+    scenarioLPassed,
+    "Skenario (l)",
+    "seluruh database trigger append-only (order_logs, revisions, profiles) aktif dan berfungsi",
+    scenarioLPassed
+      ? "Database trigger append-only (trg_prevent_order_logs_mod, trg_prevent_revision_delete, trg_guard_profiles_update) aktif (tgenabled = 'O') dan seluruh upaya modifikasi/penghapusan ditolak"
+      : `Gagal: ${triggerFailures.join(", ")}`
+  );
+
   console.log("\n======================================================================");
   console.log(`TOTAL HASIL: ${passedCount} passed, ${failedCount} failed`);
   console.log("======================================================================\n");

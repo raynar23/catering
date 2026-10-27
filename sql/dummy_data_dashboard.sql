@@ -1,28 +1,6 @@
--- =============================================================================
--- DUMMY DATA DASHBOARD & OPERASIONAL CATERING (1 HARI S.D. 1 TAHUN)
--- PT Terminal Petikemas Surabaya (Pelindo TPS)
--- =============================================================================
--- Petunjuk Penggunaan:
--- 1. Salin (copy) seluruh isi berkas ini.
--- 2. Buka Supabase Dashboard > SQL Editor > New Query.
--- 3. Tempel (paste) dan klik "Run".
--- 4. Buka halaman Dashboard (http://localhost:3000/admin/dashboard):
---    Filter "Hari Ini", "7 Hari", "30 Hari", "Bulan Ini", "3 Bulan", "6 Bulan",
---    dan "1 Tahun" akan terisi penuh dengan data porsi, grafik tren, donat shift,
---    distribusi porsi bagian, dan proporsi vendor mitra.
---
--- Cara Membersihkan / Menghapus Data Saat Serah Terima ke Client:
--- - OPSI 1 (Melalui Tampilan Web):
---   Buka menu "Periode Catering" (/admin/periode):
---   a. Klik tombol "Hapus Semua Data" di kanan atas > ketik "HAPUS" > Konfirmasi.
---   b. Atau centang kotak (checkbox) di header tabel untuk pilih semua data >
---      klik "Hapus Data Terpilih".
--- - OPSI 2 (Melalui SQL Editor Supabase):
---   Jalankan perintah berikut:
---   SELECT public.reset_operational_data('HAPUS');
--- =============================================================================
+-- Dummy data generator for dashboard analytics (development and staging only)
 
--- 1. Upgrade Trigger order_logs Immutability agar mendukung Reset / Bulk Delete
+-- Trigger to prevent order_logs modification
 create or replace function public.prevent_order_logs_mod()
 returns trigger as $$
 begin
@@ -33,7 +11,7 @@ begin
 end;
 $$ language plpgsql;
 
--- 2. Fungsi RPC: Hapus Jadwal Periode Terpilih Beserta Transaksinya (Admin GA)
+-- RPC function to delete selected periods and dependent records
 create or replace function public.delete_selected_periods(p_period_ids uuid[])
 returns jsonb
 language plpgsql
@@ -51,16 +29,16 @@ begin
     return jsonb_build_object('success', false, 'message', 'Tidak ada periode yang dipilih');
   end if;
 
-  -- Aktifkan bypass immutability untuk transaksi penghapusan ini
+  -- Bypass order_logs immutability for this deletion
   perform set_config('app.bypass_order_logs_immutability', 'on', true);
 
-  -- Hapus order_logs terkait pesanan pada periode terpilih
+  -- Delete dependent order_logs
   delete from public.order_logs
   where order_id in (
     select id from public.catering_orders where period_id = any(p_period_ids)
   );
 
-  -- Hapus revisions terkait item katering pada periode terpilih
+  -- Delete dependent revisions
   delete from public.revisions
   where item_id in (
     select ci.id from public.catering_items ci
@@ -68,17 +46,17 @@ begin
     where co.period_id = any(p_period_ids)
   );
 
-  -- Hapus catering_items
+  -- Delete catering_items
   delete from public.catering_items
   where order_id in (
     select id from public.catering_orders where period_id = any(p_period_ids)
   );
 
-  -- Hapus catering_orders
+  -- Delete catering_orders
   delete from public.catering_orders
   where period_id = any(p_period_ids);
 
-  -- Hapus periods
+  -- Delete periods
   delete from public.periods
   where id = any(p_period_ids);
 
@@ -95,7 +73,7 @@ $$;
 revoke execute on function public.delete_selected_periods(uuid[]) from public;
 grant execute on function public.delete_selected_periods(uuid[]) to authenticated;
 
--- 3. Fungsi RPC: Reset Seluruh Data Operasional Catering (Client Handover)
+-- RPC function to reset all operational data
 create or replace function public.reset_operational_data(p_konfirmasi text)
 returns jsonb
 language plpgsql
@@ -114,7 +92,7 @@ begin
     raise exception 'Konfirmasi tidak sesuai. Ketik "HAPUS" untuk melanjutkan.';
   end if;
 
-  -- Aktifkan bypass immutability untuk transaksi reset ini
+  -- Bypass order_logs immutability for operational reset
   perform set_config('app.bypass_order_logs_immutability', 'on', true);
 
   select count(*) into v_count_periods from public.periods;
@@ -138,7 +116,7 @@ $$;
 revoke execute on function public.reset_operational_data(text) from public;
 grant execute on function public.reset_operational_data(text) to authenticated;
 
--- 4. Fungsi RPC: dashboard_ringkasan (Memastikan RPC Selalu Aktif)
+-- RPC function for dashboard summary metrics
 create or replace function public.dashboard_ringkasan(
   p_dari date,
   p_sampai date
@@ -323,7 +301,7 @@ $$ language plpgsql stable security definer set search_path = public, pg_temp;
 revoke execute on function public.dashboard_ringkasan(date, date) from public;
 grant execute on function public.dashboard_ringkasan(date, date) to authenticated;
 
--- 5. GENERATOR DUMMY DATA: 1 TAHUN PENUH HINGGA HARI INI (OKTOBER 2026)
+-- Populate mock operational data for dashboard analytics
 do $$
 declare
   v_admin_id        uuid;
@@ -349,7 +327,7 @@ declare
   v_total_periods   integer := 0;
   v_total_orders    integer := 0;
 begin
-  -- Dynamic ID Lookup (Aman & Tidak Terikat Hardcoded UUID)
+  -- Lookup primary admin ID
   select id into v_admin_id from public.profiles where role = 'admin_ga' and aktif = true limit 1;
   if v_admin_id is null then
     select id into v_admin_id from public.profiles limit 1;
@@ -364,19 +342,18 @@ begin
     raise exception 'Master data (shifts, vendors, atau bagian) belum diisi. Jalankan migrasi master data terlebih dahulu.';
   end if;
 
-  -- Iterasi setiap hari dari 1 tahun lalu hingga hari ini
+  -- Iterate daily range
   for v_day in select gs::date from generate_series(v_start_date, v_end_date, '1 day'::interval) gs loop
-    -- Tetap isi hari kerja & operasional dermaga TPS
     v_day_index := v_day_index + 1;
 
-    -- Rotasi vendor berurutan di antara 5 mitra katering
+    -- Rotate vendor
     v_vendor_id := v_vendors[((v_day_index - 1) % array_length(v_vendors, 1)) + 1];
 
-    -- Loop 3 shift: Shift 3 (Malam), Shift 1 (Pagi), Shift 2 (Siang)
+    -- Iterate shifts
     for v_shift_loop in 1..array_length(v_shifts, 1) loop
       v_shift_id := v_shifts[v_shift_loop];
 
-      -- Jika periode sudah ada, gunakan ID yang ada atau buat baru
+      -- Find or create period
       select id into v_period_id from public.periods where tanggal = v_day and shift_id = v_shift_id;
       if v_period_id is null then
         insert into public.periods(id, tanggal, shift_id, vendor_id, keterangan, created_at)
@@ -385,13 +362,12 @@ begin
         v_total_periods := v_total_periods + 1;
       end if;
 
-      -- Untuk hari ini Shift 2 atau besok, sisakan sebagian periode sebagai 'belum_input'
-      -- agar indikator KPI 'Belum Diinput' menunjukkan angka realistis
+      -- Leave select periods unsubmitted for KPI coverage
       if v_day = v_end_date and v_shift_loop = 3 then
         continue;
       end if;
 
-      -- Cek apakah catering_orders sudah ada
+      -- Create order if not exists
       select id into v_order_id from public.catering_orders where period_id = v_period_id;
       if v_order_id is null then
         insert into public.catering_orders(
@@ -410,11 +386,11 @@ begin
         returning id into v_order_id;
         v_total_orders := v_total_orders + 1;
 
-        -- Isi rincian porsi untuk setiap bagian kerja
+        -- Insert portion items per department
         for v_b_idx in 1..v_bagian_count loop
           v_bagian_id := v_bagians[v_b_idx];
 
-          -- Variasi jumlah porsi yang dinamis & realistis per kelompok bagian
+          -- Vary portion counts by department
           case (v_b_idx % 5)
             when 0 then v_base_porsi := 42 + (extract(day from v_day)::int % 14); -- CC Operator
             when 1 then v_base_porsi := 56 + (extract(day from v_day)::int % 16); -- RTG Operator
@@ -423,7 +399,7 @@ begin
             else v_base_porsi := 15 + (extract(day from v_day)::int % 6);         -- Area CFS & Lainnya
           end case;
 
-          -- Sedikit variasi per shift kerja (Shift malam biasanya lebih ramping)
+          -- Adjust portions by shift
           if v_shift_loop = 1 then
             v_porsi := greatest(10, v_base_porsi - 8);
           elsif v_shift_loop = 2 then
@@ -441,7 +417,7 @@ begin
           );
         end loop;
 
-        -- Catat log riwayat audit trail
+        -- Record audit log entries
         perform set_config('app.bypass_order_logs_immutability', 'on', true);
         insert into public.order_logs(id, order_id, aksi, keterangan, oleh, created_at)
         values
@@ -449,8 +425,7 @@ begin
           (gen_random_uuid(), v_order_id, 'kirim_ke_vendor', 'Pesanan katering dikunci dan dikirim ke vendor', v_admin_id, v_day + interval '7 hours'),
           (gen_random_uuid(), v_order_id, 'vendor_sanggup', 'Vendor mitra menyatakan kesanggupan pesanan', v_admin_id, v_day + interval '8 hours');
 
-        -- Buat variasi revisi:
-        -- 1. Revisi historis disetujui setiap 5 hari pada Shift 1
+        -- Create historical approved revisions
         if v_shift_loop = 2 and (v_day_index % 5) = 0 then
           select id, jumlah_porsi into v_item_id, v_porsi
           from public.catering_items
@@ -481,7 +456,7 @@ begin
           end if;
         end if;
 
-        -- 2. Revisi aktif berstatus 'menunggu' pada hari ini & kemarin (agar KPI Revisi Menunggu terisi)
+        -- Create pending revisions for KPI coverage
         if v_day >= (v_end_date - interval '1 day')::date and v_shift_loop = 1 then
           select id, jumlah_porsi into v_item_id, v_porsi
           from public.catering_items
@@ -511,7 +486,7 @@ begin
     end loop;
   end loop;
 
-  -- Buat jadwal kosong untuk besok (agar KPI 'Belum Diinput' menunjukkan periode yang belum diisi)
+  -- Seed unsubmitted schedule periods for tomorrow
   for v_shift_loop in 1..array_length(v_shifts, 1) loop
     v_shift_id := v_shifts[v_shift_loop];
     v_vendor_id := v_vendors[((v_day_index + v_shift_loop) % array_length(v_vendors, 1)) + 1];
@@ -524,7 +499,7 @@ begin
   raise notice 'PENGISIAN DUMMY DATA SELESAI: % hari diproses dari % sampai %', v_day_index, v_start_date, v_end_date;
 end $$;
 
--- Periksa hasil pengisian data:
+-- Verify generated record counts
 select
   (select count(*) from public.periods) as total_periode,
   (select count(*) from public.catering_orders) as total_pesanan,

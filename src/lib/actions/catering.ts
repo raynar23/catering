@@ -315,7 +315,7 @@ export async function simpanCateringDraftAction(params: {
   shiftId: string;
   items: DirtyItemInput[];
   catatan?: string;
-}): Promise<CateringActionResult<{ orderId: string }>> {
+}): Promise<CateringActionResult<{ orderId: string; updatedBy?: string }>> {
   const profile = await getCurrentProfile();
   if (!profile || profile.role !== "admin_ga") {
     return {
@@ -365,7 +365,7 @@ export async function simpanCateringDraftAction(params: {
   return {
     success: true,
     message: "Draft berhasil disimpan.",
-    data: { orderId: orderId as string },
+    data: { orderId: orderId as string, updatedBy: profile.nama },
   };
 }
 

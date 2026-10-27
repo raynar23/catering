@@ -57,7 +57,7 @@ export function ResponsVendorTable({ items }: ResponsVendorTableProps) {
                 key={row.orderId}
                 className="hover:bg-slate-50/70 transition-colors group"
               >
-                {/* Tanggal & Shift (includes Vendor and Portions on mobile) */}
+                {/* Date & Shift (includes Vendor and Portions on mobile) */}
                 <td className="px-2.5 sm:px-3 py-2 align-middle">
                   <div className="flex flex-col min-w-0">
                     <span className="font-semibold text-text text-xs">
@@ -84,12 +84,12 @@ export function ResponsVendorTable({ items }: ResponsVendorTableProps) {
                   </div>
                 </td>
 
-                {/* Total Porsi (Desktop only) */}
+                {/* Total Portions (Desktop only) */}
                 <td className="px-3 py-2.5 align-middle text-right font-mono font-bold text-text hidden sm:table-cell">
                   {row.totalPorsi}
                 </td>
 
-                {/* Respons Vendor */}
+                {/* Vendor Response */}
                 <td className="px-2.5 sm:px-3 py-2 align-middle text-center whitespace-nowrap">
                   <StatusBadge status={row.responVendor} />
                   {row.catatanVendor && (
@@ -99,19 +99,19 @@ export function ResponsVendorTable({ items }: ResponsVendorTableProps) {
                   )}
                 </td>
 
-                {/* Catatan / Alasan Vendor (Desktop only) */}
+                {/* Vendor Notes (Desktop only) */}
                 <td className="px-3 py-2.5 align-middle max-w-[220px] hidden md:table-cell">
                   <p className="text-xs text-rose-900 font-medium italic truncate" title={row.catatanVendor || "Tidak ada catatan"}>
                     &quot;{row.catatanVendor || "Tidak menyanggupi pemenuhan pesanan"}&quot;
                   </p>
                 </td>
 
-                {/* Waktu Respons (Desktop only) */}
+                {/* Response Timestamp (Desktop only) */}
                 <td className="px-3 py-2.5 align-middle text-muted text-[11px] hidden lg:table-cell">
                   {row.responVendorAt ? new Date(row.responVendorAt).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" }) : "-"}
                 </td>
 
-                {/* Tindak Lanjut: Hubungi Vendor, Ganti Vendor, Riwayat */}
+                {/* Actions: Contact Vendor, Reassign Vendor, History */}
                 <td className="px-2.5 sm:px-3 py-2 align-middle text-center whitespace-nowrap">
                   <div className="flex items-center justify-center gap-1 sm:gap-1.5">
                     {waUrl && (
