@@ -373,30 +373,20 @@ export async function deleteSelectedPeriodsAction(ids: string[]): Promise<Action
     return { success: false, error: "Tidak ada jadwal periode yang dipilih" };
   }
 
+  if (ids.length > 100) {
+    return { success: false, error: "Batas maksimal penghapusan adalah 100 periode per panggilan" };
+  }
+
   const supabase = await createClient();
 
   const { data: rpcRes, error: rpcErr } = await supabase.rpc("delete_selected_periods", {
     p_period_ids: ids,
   });
 
-  if (!rpcErr && rpcRes) {
-    revalidatePath("/admin/periode");
-    revalidatePath("/admin/master/periode");
-    revalidatePath("/admin/dashboard");
-    revalidatePath("/admin/rekapitulasi");
-    return {
-      success: true,
-      message: (rpcRes as { message?: string })?.message ?? `${ids.length} jadwal periode berhasil dihapus`,
-    };
-  }
-
-  const { error: delErr } = await supabase.from("periods").delete().in("id", ids);
-  if (delErr) {
+  if (rpcErr) {
     return {
       success: false,
-      error: delErr.message.includes("foreign key") || delErr.message.includes("restrict")
-        ? "Sebagian periode memiliki pesanan terkait. Jalankan dummy_data_dashboard.sql di Supabase SQL Editor untuk mengaktifkan penghapusan menyeluruh."
-        : "Gagal menghapus data periode terpilih",
+      error: rpcErr.message || "Gagal menghapus data periode terpilih",
     };
   }
 
@@ -404,6 +394,9 @@ export async function deleteSelectedPeriodsAction(ids: string[]): Promise<Action
   revalidatePath("/admin/master/periode");
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/rekapitulasi");
-  return { success: true, message: `${ids.length} jadwal periode berhasil dihapus` };
+  return {
+    success: true,
+    message: (rpcRes as { message?: string })?.message ?? `${ids.length} jadwal periode kosong berhasil dihapus`,
+  };
 }
 

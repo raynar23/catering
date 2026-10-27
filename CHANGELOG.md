@@ -1,6 +1,38 @@
 # Changelog - Sistem Pengelolaan Data Catering Karyawan
 Semua perubahan penting pada proyek "Sistem Pengelolaan Data Catering Karyawan PT Terminal Petikemas Surabaya" didokumentasikan dalam berkas ini. Format mengikuti pedoman [Keep a Changelog](https://keepachangelog.com/id/1.0.0/) dan [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-10-26
+
+### Penutupan Temuan Audit 2 (Audit 2 Closure & Hardening)
+
+Rilis perbaikan dan pengerasan sistem pasca-Audit Tahap 2 untuk menutup temuan validasi operasional, hak akses stored procedure database, pembersihan riwayat kredensial, dan persiapan deployment produksi.
+
+#### Diperbaiki (Fixed)
+- **H1 - Validasi Pesanan Tanpa Item & Bagian Aktif**:
+  - Validasi ketat `p_items` pada RPC `simpan_catering` dan server action (`saveDraftAction`, `kirimAction`) untuk mencegah tersimpannya pesanan kosong tanpa rincian item.
+  - Penegasan integritas 5 bagian operasional resmi TPS (`CC Operator`, `RTG Operator`, `Mekanik CC`, `Mekanik RTG`, `Area Gudang CFS`) dengan 100% konsistensi referensi item katering (0 item yatim).
+  - Penambahan unit test multi-dimensi `consistency-across-reports.test.ts` yang memverifikasi keselarasan kalkulasi total porsi pada Dashboard KPI, Rekapitulasi, ekspor Excel, dan ekspor PDF.
+- **H4 - Pengerasan Hak Eksekusi Fungsi Database**:
+  - Migrasi `019_function_privileges_and_hardening.sql`: Pencabutan total `EXECUTE` pada seluruh fungsi skema `public` dari peran `public`, `anon`, dan `authenticated`.
+  - Konfigurasi `alter default privileges` untuk mencabut izin eksekusi otomatis fungsi di masa mendatang.
+  - Pemberian izin `authenticated` secara eksplisit hanya melalui allowlist ketat RPC operasional dan fungsi pembantu RLS (`is_admin`, `my_vendor_id`). Peran `anon` memiliki 0 izin eksekusi fungsi database.
+  - Pembatasan RPC `delete_selected_periods`: hanya dapat dipanggil oleh admin GA (`is_admin()`), dibatasi maksimal 100 periode per pemanggilan, dan secara ketat hanya mengizinkan penghapusan periode tanpa pesanan (`status = 'belum_input'`).
+  - Pembersihan dan penghapusan fungsi warisan yang redundan: `is_admin_or_pic()`, `current_user_role()`, dan `current_user_vendor_id()`.
+  - Penambahan pengujian hak eksekusi database Skenario (j) pada `scripts/test-db.mjs`.
+- **H5 - Pembersihan Kredensial & Secrets Guard**:
+  - Penghapusan file kredensial `supabase/add_admin_vendor_users.sql` dari repositori.
+  - Penghapusan seluruh kata sandi demo bawaan dari skrip pengujian (`smoke-flow.mjs`, `test-db.mjs`, `create-requested-users.mjs`). Skrip kini mewajibkan input environment variable dan gagal secara deterministik jika variabel tidak disediakan.
+  - Implementasi pengujian statis `src/lib/security-secrets-guard.test.ts` pada rangkaian Vitest untuk mendeteksi kata sandi demo, token JWT panjang, dan service role key dalam berkas terlacak.
+  - Rotasi seluruh kata sandi akun aktif di database live via `scripts/rotate-demo-passwords.mjs` dan verifikasi penolakan login dengan kata sandi lama.
+
+#### Ditambahkan (Added)
+- **H2 - Prosedur Reset UAT & Seeder Jadwal Mandiri**:
+  - Skrip SQL transaksi tunggal `scripts/reset-for-uat.sql` dengan mekanisme tabel cadangan (`_backup_*`), penonaktifan sementara dan verifikasi re-aktivasi trigger append-only, serta pembersihan data operasional tercemar dengan menjaga integritas data master.
+  - Skrip seeder `scripts/seed-uat-window.mjs` yang idempoten dan deterministik berdasarkan zona waktu Asia/Jakarta untuk jendela UAT 2026-10-01 s.d. 2026-12-31 (276 periode) dengan distribusi status realistis dan porsi sintetis (18-24).
+  - Standarisasi 7 akun pengguna UAT resmi (`admin.ga`, `admin2.ga`, `vendor.aisya` s.d. `vendor.nurina`) dan penonaktifan akun demo usang (`admin@tps.co.id` & `vendor@tps.co.id`).
+- **H7 - Dokumentasi Deployment**:
+  - Panduan resmi deployment produksi Vercel di `docs/deploy-vercel.md` mencakup spesifikasi variabel environment, konfigurasi Supabase Auth Site & Redirect URLs, serta daftar periksa pasca-deploy baca-saja.
+
 ---
 
 ## [1.0.0] - 2026-10-22

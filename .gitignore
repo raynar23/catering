@@ -36,3 +36,4 @@ yarn-error.log*
 data-real/
 agent/referensi/
 test-fixtures/*.xlsx
+supabase/.temp

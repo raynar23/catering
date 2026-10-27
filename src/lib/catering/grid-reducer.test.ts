@@ -226,4 +226,45 @@ describe("catering grid helpers", () => {
       keterangan: "Lembur",
     });
   });
+
+  it("only requires active bagian when validating readiness for kirim_catering", () => {
+    const mixedBagian: BagianRowItem[] = [
+      { id: "b1", kode: "CC_OP", nama: "CC Operator", lokasi_antar: "Dermaga", urutan: 1, aktif: true },
+      { id: "b2", kode: "RTG_OP", nama: "RTG Operator", lokasi_antar: "Lapangan", urutan: 2, aktif: true },
+      { id: "b3_inactive", kode: "OLD_SEC", nama: "Bagian Nonaktif", lokasi_antar: "Lama", urutan: 99, aktif: false },
+    ];
+
+    // Only active sections filled, inactive section is null
+    const cells = {
+      b1: { karyawan: 20, porsi: 20, keterangan: "", isCustomPorsi: false, isDirty: false },
+      b2: { karyawan: 15, porsi: 15, keterangan: "", isCustomPorsi: false, isDirty: false },
+      b3_inactive: { karyawan: null, porsi: null, keterangan: "", isCustomPorsi: false, isDirty: false },
+    };
+
+    const missing = getMissingBagian(mixedBagian, cells);
+    // Inactive section is ignored, so 0 missing sections -> eligible for kirim
+    expect(missing).toEqual([]);
+  });
+
+  it("input grid contains and displays exactly the five active operational bagian", () => {
+    const fiveActiveBagian: BagianRowItem[] = [
+      { id: "b1", kode: "CC_OP", nama: "CC Operator", lokasi_antar: "Dermaga / CC", urutan: 1, aktif: true },
+      { id: "b2", kode: "RTG_OP", nama: "RTG Operator", lokasi_antar: "Lapangan RTG", urutan: 2, aktif: true },
+      { id: "b3", kode: "MEK_CC", nama: "Mekanik CC", lokasi_antar: "Workshop CC", urutan: 3, aktif: true },
+      { id: "b4", kode: "MEK_RTG", nama: "Mekanik RTG", lokasi_antar: "Workshop RTG", urutan: 4, aktif: true },
+      { id: "b5", kode: "CFS", nama: "Area Gudang CFS", lokasi_antar: "Gudang CFS", urutan: 5, aktif: true },
+    ];
+
+    expect(fiveActiveBagian).toHaveLength(5);
+    expect(fiveActiveBagian.every((b) => b.aktif)).toBe(true);
+
+    const names = fiveActiveBagian.map((b) => b.nama);
+    expect(names).toEqual([
+      "CC Operator",
+      "RTG Operator",
+      "Mekanik CC",
+      "Mekanik RTG",
+      "Area Gudang CFS",
+    ]);
+  });
 });

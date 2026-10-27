@@ -1,5 +1,6 @@
 // scripts/smoke-flow.mjs
-// End-to-end smoke flow test runner for Catering TPS.
+// End-to-end operational smoke flow test suite for Catering TPS.
+// Supports both single-admin and two-admin verification configurations (PRD A1).
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { resolve } from "path";
@@ -13,12 +14,11 @@ function loadEnv() {
     if (trimmed && !trimmed.startsWith("#")) {
       const idx = trimmed.indexOf("=");
       if (idx > 0) {
-        const key = trimmed.slice(0, idx).trim();
         let val = trimmed.slice(idx + 1).trim();
         if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
           val = val.slice(1, -1);
         }
-        env[key] = val;
+        env[trimmed.slice(0, idx).trim()] = val;
       }
     }
   }
@@ -30,7 +30,7 @@ const url = env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL;
 const anonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_PUBLISHABLE_KEY;
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
 
-// Target database execution guard (G4)
+// Target database execution guard (G4 & H3)
 const PRODUCTION_SUPABASE_URL = process.env.PRODUCTION_SUPABASE_URL || "https://tdvfbtxlnlduajztojng.supabase.co";
 const envAllowlist = (process.env.TEST_SUPABASE_URL_ALLOWLIST || "")
   .split(",")
@@ -49,7 +49,7 @@ const isAllowedTestTarget = TEST_SUPABASE_URL_ALLOWLIST.has(normalizedUrl);
 
 if (isProduction || !isAllowedTestTarget) {
   console.error("======================================================================");
-  console.error("TEST EXECUTION BLOCKED PER RULE G4");
+  console.error("TEST EXECUTION BLOCKED PER RULE G4 & AUDIT H3");
   console.error(`Database Target: ${url}`);
   console.error("Reason: smoke-flow.mjs performs mutation tests and is strictly forbidden");
   console.error("from running against production. Target URL must be an explicit member");
@@ -58,71 +58,99 @@ if (isProduction || !isAllowedTestTarget) {
   process.exit(1);
 }
 
+// Configuration: two-admin vs single-admin
+const isTwoAdminMode = process.argv.includes("--two-admins") || process.env.SMOKE_TWO_ADMINS === "true";
+
+// Read credentials strictly from environment variables (H5)
+const adminEmail = env.TEST_ADMIN_EMAIL || "admin.ga@tps.co.id";
+const adminPassword = env.TEST_ADMIN_PASSWORD || process.env.TEST_ADMIN_PASSWORD;
+const admin2Email = env.TEST_ADMIN2_EMAIL || "admin2.ga@tps.co.id";
+const admin2Password = env.TEST_ADMIN2_PASSWORD || process.env.TEST_ADMIN2_PASSWORD;
+const vendorAisyaEmail = env.TEST_VENDOR_AISYA_EMAIL || "vendor.aisya@tps.co.id";
+const vendorAisyaPassword = env.TEST_VENDOR_AISYA_PASSWORD || process.env.TEST_VENDOR_AISYA_PASSWORD;
+const vendorIbuEmail = env.TEST_VENDOR_IBU_EMAIL || "vendor.ibu@tps.co.id";
+const vendorIbuPassword = env.TEST_VENDOR_IBU_PASSWORD || process.env.TEST_VENDOR_IBU_PASSWORD;
+
+if (!adminPassword || !vendorAisyaPassword || !vendorIbuPassword || (isTwoAdminMode && !admin2Password)) {
+  console.error("Error: Missing required test credentials in environment variables.");
+  console.error("Expected TEST_ADMIN_PASSWORD, TEST_VENDOR_AISYA_PASSWORD, TEST_VENDOR_IBU_PASSWORD, TEST_ADMIN2_PASSWORD.");
+  console.error("Default hardcoded passwords were removed per audit H5.");
+  process.exit(1);
+}
 
 const anonClient = createClient(url, anonKey);
 const adminClient = createClient(url, serviceKey);
 
 async function runSmokeFlow() {
   console.log("======================================================================");
-  console.log("SMOKE FLOW END-TO-END TEST SUITE (F8)");
+  console.log("CATERING TPS - END-TO-END OPERATIONAL SMOKE FLOW TEST");
   console.log(`Target Database: ${url}`);
-  console.log(`Timestamp: ${new Date().toISOString()}`);
+  console.log(`Mode Verifikasi: ${isTwoAdminMode ? "DUA ADMIN (Four-eyes)" : "SATU ADMIN (PRD A1 Single Admin)"}`);
+  console.log(`Waktu Eksekusi: ${new Date().toISOString()}`);
   console.log("======================================================================\n");
 
   // Step 0: Authenticate user roles
   console.log("Step 0: Authenticating test accounts...");
-  const { data: authAdmin, error: errAdm } = await anonClient.auth.signInWithPassword({
-    email: "admin@tps.co.id",
-    password: "gatps2026",
+  const authClientAdm1 = createClient(url, anonKey, { auth: { persistSession: false } });
+  const { data: authAdmin, error: errAdm } = await authClientAdm1.auth.signInWithPassword({
+    email: adminEmail,
+    password: adminPassword,
   });
   if (errAdm || !authAdmin.session) {
-    console.error("Failed to authenticate admin:", errAdm?.message);
+    console.error(`Failed to authenticate ${adminEmail}:`, errAdm?.message);
     process.exit(1);
   }
   const clientAdmin = createClient(url, anonKey, {
+    auth: { persistSession: false },
     global: { headers: { Authorization: `Bearer ${authAdmin.session.access_token}` } }
   });
 
-  // Authenticate Admin 2 (Four-eyes verification)
-  await adminClient.auth.admin.updateUserById("00000000-0000-0000-0000-000000000002", { password: "admin2gatps2026" });
-  const authClient2 = createClient(url, anonKey, { auth: { persistSession: false } });
-  const { data: authAdmin2, error: errAdm2 } = await authClient2.auth.signInWithPassword({
-    email: "admin2.ga@tps.co.id",
-    password: "admin2gatps2026",
-  });
-  if (errAdm2 || !authAdmin2.session) {
-    console.error("Failed to authenticate admin 2:", errAdm2?.message);
-    process.exit(1);
+  let clientAdmin2 = null;
+  if (isTwoAdminMode) {
+    const authClientAdm2 = createClient(url, anonKey, { auth: { persistSession: false } });
+    const { data: authAdmin2, error: errAdm2 } = await authClientAdm2.auth.signInWithPassword({
+      email: admin2Email,
+      password: admin2Password,
+    });
+    if (errAdm2 || !authAdmin2.session) {
+      console.error(`Failed to authenticate ${admin2Email}:`, errAdm2?.message);
+      process.exit(1);
+    }
+    clientAdmin2 = createClient(url, anonKey, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: `Bearer ${authAdmin2.session.access_token}` } }
+    });
   }
-  const clientAdmin2 = createClient(url, anonKey, {
-    global: { headers: { Authorization: `Bearer ${authAdmin2.session.access_token}` } }
-  });
 
-  const { data: authA, error: errA } = await anonClient.auth.signInWithPassword({
-    email: "vendor@tps.co.id",
-    password: "vendortps2026",
+  const authClientA = createClient(url, anonKey, { auth: { persistSession: false } });
+  const { data: authA, error: errA } = await authClientA.auth.signInWithPassword({
+    email: vendorAisyaEmail,
+    password: vendorAisyaPassword,
   });
   if (errA || !authA.session) {
-    console.error("Failed to authenticate vendor A:", errA?.message);
+    console.error(`Failed to authenticate ${vendorAisyaEmail}:`, errA?.message);
     process.exit(1);
   }
   const clientA = createClient(url, anonKey, {
+    auth: { persistSession: false },
     global: { headers: { Authorization: `Bearer ${authA.session.access_token}` } }
   });
 
-  const { data: authB, error: errB } = await anonClient.auth.signInWithPassword({
-    email: "vendor.ibu@tps.co.id",
-    password: "vendoributps2026",
+  const authClientB = createClient(url, anonKey, { auth: { persistSession: false } });
+  const { data: authB, error: errB } = await authClientB.auth.signInWithPassword({
+    email: vendorIbuEmail,
+    password: vendorIbuPassword,
   });
   if (errB || !authB.session) {
-    console.error("Failed to authenticate vendor B:", errB?.message);
+    console.error(`Failed to authenticate ${vendorIbuEmail}:`, errB?.message);
     process.exit(1);
   }
   const clientB = createClient(url, anonKey, {
+    auth: { persistSession: false },
     global: { headers: { Authorization: `Bearer ${authB.session.access_token}` } }
   });
 
-  console.log("  [OK] Admin GA 1, Admin GA 2, Vendor Aisya, and Vendor IBU authenticated.\n");
+  console.log("  [OK] Test accounts authenticated successfully.\n");
 
   // Fetch reference records
   const { data: vAisya } = await adminClient.from("vendors").select("id, nama").eq("kode", "V001").single();
@@ -172,42 +200,36 @@ async function runSmokeFlow() {
     if (oErr) throw oErr;
     createdOrderIds.push(order.id);
 
-    const itemsToInsert = bagianList.map(b => ({
+    const itemsToInsert = bagianList.map((b) => ({
       order_id: order.id,
       bagian_id: b.id,
       jumlah_karyawan: 20,
       jumlah_porsi: 20,
-      keterangan: "Standard operational portion"
+      keterangan: "Smoke test portion"
     }));
 
-    await adminClient.from("catering_items").insert(itemsToInsert);
+    const { error: iErr } = await adminClient.from("catering_items").insert(itemsToInsert);
+    if (iErr) throw iErr;
   }
 
-  console.log(`  [OK] 3 Shifts created for date ${testTanggal} (Draft).`);
+  console.log(`  [OK] Created 3 periods and draft orders for ${testTanggal}.`);
 
-  // Submit order to vendor
-  const testPeriodId = createdPeriodIds[0];
   const testOrderId = createdOrderIds[0];
-
   const { error: kirimErr } = await clientAdmin.rpc("kirim_catering", {
     p_order_id: testOrderId,
-    p_catatan: "Smoke flow lock order"
+    p_catatan: "Smoke test dispatch"
   });
-  if (kirimErr) {
-    console.error("Failed to submit catering:", kirimErr.message);
-  }
-  console.log("  [OK] Admin GA locked period and submitted to vendor (Status: Final).");
+  if (kirimErr) console.error("Failed to dispatch:", kirimErr.message);
+  console.log("  [OK] Admin finalized and sent catering order to Vendor Aisya.");
 
-  // Vendor response
-  const { error: responErr } = await clientA.rpc("respon_periode_vendor", {
+  const { error: respErr } = await clientA.rpc("respon_periode_vendor", {
     p_order_id: testOrderId,
     p_sanggup: true,
-    p_catatan: null
+    p_catatan: "Aisya menyanggupi pesanan"
   });
-  if (responErr) console.error("Failed vendor response:", responErr.message);
-  console.log("  [OK] Vendor Aisya accepted order (Response: disanggupi).");
+  if (respErr) console.error("Failed vendor response:", respErr.message);
+  console.log("  [OK] Vendor Aisya accepted order (respon: disanggupi).");
 
-  // Vendor progress updates
   const stages = ["dipersiapkan", "dikirim", "sampai", "selesai"];
   for (const stage of stages) {
     await clientA.rpc("update_progres_vendor", {
@@ -217,7 +239,6 @@ async function runSmokeFlow() {
   }
   console.log("  [OK] Vendor Aisya advanced progress: dipersiapkan -> dikirim -> sampai -> selesai.");
 
-  // Admin verification
   const { data: orderCheck } = await clientAdmin
     .from("catering_orders")
     .select("status, respon_vendor, progres_vendor")
@@ -230,7 +251,7 @@ async function runSmokeFlow() {
 
   // Flow 2: Revision workflow and quota calculation consistency (20 -> 23)
   console.log("----------------------------------------------------------------------");
-  console.log("FLOW 2: Revision Workflow & Recalculation Consistency (20 -> 23 Portions)");
+  console.log(`FLOW 2: Revision Workflow & Verification (${isTwoAdminMode ? "Admin 2 verifier" : "Single Admin verifier"})`);
   console.log("----------------------------------------------------------------------");
 
   const { data: itemToRevise } = await adminClient
@@ -240,7 +261,6 @@ async function runSmokeFlow() {
     .limit(1)
     .single();
 
-  // Propose revision
   const { error: revErr } = await clientAdmin.rpc("ajukan_revisi", {
     p_item_id: itemToRevise.id,
     p_karyawan_baru: 23,
@@ -248,9 +268,8 @@ async function runSmokeFlow() {
     p_alasan: "Addition of 3 overtime operators"
   });
   if (revErr) console.error("Failed to propose revision:", revErr.message);
-  console.log("  [OK] Admin proposed revision: 20 -> 23 portions (+3 portions). Status: Pending.");
+  console.log("  [OK] Admin 1 proposed revision: 20 -> 23 portions (+3 portions). Status: Pending.");
 
-  // Verify pending status in view: must remain 20
   const { data: rekapPending } = await clientAdmin
     .from("v_rekap")
     .select("jumlah_porsi")
@@ -261,7 +280,6 @@ async function runSmokeFlow() {
   const isPending20 = rekapPending?.jumlah_porsi === 20;
   console.log(`  [PENDING RECAP CHECK]: Portions in v_rekap = ${rekapPending?.jumlah_porsi} (Expected: 20) -> ${isPending20 ? "CORRECT" : "MISMATCH"}`);
 
-  // Fetch revision record
   const { data: revRecord } = await adminClient
     .from("revisions")
     .select("id, status")
@@ -269,16 +287,18 @@ async function runSmokeFlow() {
     .eq("status", "menunggu")
     .single();
 
-  // Verify revision: Admin GA can verify, including original proposer (PRD Assumption A1)
-  const { error: verifErr } = await clientAdmin.rpc("verifikasi_revisi", {
+  // Verification executor: Admin 1 in single mode, Admin 2 in two-admin mode
+  const verifierClient = isTwoAdminMode ? clientAdmin2 : clientAdmin;
+  const verifierName = isTwoAdminMode ? "Admin GA 2" : "Admin GA 1 (Self-verification per PRD A1)";
+
+  const { error: verifErr } = await verifierClient.rpc("verifikasi_revisi", {
     p_revision_id: revRecord.id,
     p_setuju: true,
-    p_catatan: "Approved by Admin GA"
+    p_catatan: `Approved by ${verifierName}`
   });
   if (verifErr) console.error("Failed to verify revision:", verifErr.message);
-  console.log("  [OK] Admin GA verified revision (PRD A1 single/multi-admin, Status: Approved).");
+  console.log(`  [OK] ${verifierName} verified revision (Status: Approved).`);
 
-  // Verify approved status in view: must be updated to 23
   const { data: rekapVerified } = await clientAdmin
     .from("v_rekap")
     .select("jumlah_porsi")
@@ -289,7 +309,6 @@ async function runSmokeFlow() {
   const isVerified23 = rekapVerified?.jumlah_porsi === 23;
   console.log(`  [VERIFIED RECAP CHECK]: Portions in v_rekap = ${rekapVerified?.jumlah_porsi} (Expected: 23) -> ${isVerified23 ? "CORRECT" : "MISMATCH"}`);
 
-  // Verify audit log entry
   const { data: logs } = await adminClient
     .from("order_logs")
     .select("aksi, jumlah_awal, selisih, jumlah_baru, keterangan")
@@ -299,7 +318,7 @@ async function runSmokeFlow() {
     .single();
 
   const logValid = logs && logs.selisih === 3 && logs.jumlah_baru === 23;
-  console.log(`  [AUDIT LOG CHECK]: Action=${logs?.aksi}, Initial=${logs?.jumlah_awal}, Diff=+${logs?.selisih}, New=${logs?.jumlah_baru}`);
+  console.log(`  [AUDIT LOG CHECK]: Action=${logs?.aksi}, Diff=+${logs?.selisih}, New=${logs?.jumlah_baru}`);
   const alur2Passed = isPending20 && isVerified23 && logValid;
   console.log(`  FLOW 2 RESULT: ${alur2Passed ? "PASS" : "FAIL"}\n`);
 
@@ -308,39 +327,77 @@ async function runSmokeFlow() {
   console.log("FLOW 3: Vendor B Isolation Verification (Catering IBU)");
   console.log("----------------------------------------------------------------------");
 
-  const { data: bPeriods } = await clientB.from("periods").select("id").in("id", createdPeriodIds);
-  const { data: bOrders } = await clientB.from("catering_orders").select("id").in("id", createdOrderIds);
-  const { data: bItems } = await clientB.from("catering_items").select("id").in("order_id", createdOrderIds);
+  const { data: bOrders } = await clientB.from("catering_orders").select("id").eq("id", testOrderId);
+  const { data: bItems } = await clientB.from("catering_items").select("id").eq("order_id", testOrderId);
   const { data: bRevs } = await clientB.from("revisions").select("id").eq("item_id", itemToRevise.id);
   const { data: bLogs } = await clientB.from("order_logs").select("id").eq("order_id", testOrderId);
 
-  const countBPeriods = bPeriods?.length || 0;
-  const countBOrders = bOrders?.length || 0;
-  const countBItems = bItems?.length || 0;
-  const countBRevs = bRevs?.length || 0;
-  const countBLogs = bLogs?.length || 0;
+  const leakOrders = bOrders?.length || 0;
+  const leakItems = bItems?.length || 0;
+  const leakRevs = bRevs?.length || 0;
+  const leakLogs = bLogs?.length || 0;
 
-  console.log(`  Vendor B Access to Periods : ${countBPeriods} rows (Expected: 0)`);
-  console.log(`  Vendor B Access to Orders  : ${countBOrders} rows (Expected: 0)`);
-  console.log(`  Vendor B Access to Items   : ${countBItems} rows (Expected: 0)`);
-  console.log(`  Vendor B Access to Revisi  : ${countBRevs} rows (Expected: 0)`);
-  console.log(`  Vendor B Access to Logs    : ${countBLogs} rows (Expected: 0)`);
-
-  const alur3Passed = countBPeriods === 0 && countBOrders === 0 && countBItems === 0 && countBRevs === 0 && countBLogs === 0;
+  console.log(`  [DATA LEAK AUDIT]: orders=${leakOrders}, items=${leakItems}, revisions=${leakRevs}, logs=${leakLogs}`);
+  const alur3Passed = leakOrders === 0 && leakItems === 0 && leakRevs === 0 && leakLogs === 0;
   console.log(`  FLOW 3 RESULT: ${alur3Passed ? "PASS" : "FAIL"}\n`);
 
-  // Audit trail verification
-  console.log("Audit trail integrity: order_logs and revisions are permanently preserved (append-only).");
+  // Flow 4: Vendor synchronization trigger scenario
+  console.log("----------------------------------------------------------------------");
+  console.log("FLOW 4: Vendor Synchronization Trigger (Direct Update & RPC)");
+  console.log("----------------------------------------------------------------------");
 
-  const allPassed = alur1Passed && alur2Passed && alur3Passed;
+  const testPeriodId = createdPeriodIds[1];
+  const testOrderId2 = createdOrderIds[1];
+
+  // 4a: Direct update on periods.vendor_id
+  await adminClient.from("periods").update({ vendor_id: vIbu.id }).eq("id", testPeriodId);
+  const { data: directSyncedOrder } = await adminClient
+    .from("catering_orders")
+    .select("vendor_id")
+    .eq("id", testOrderId2)
+    .single();
+
+  const directSyncPassed = directSyncedOrder?.vendor_id === vIbu.id;
+  console.log(`  [DIRECT UPDATE TRIGGER]: catering_orders.vendor_id synced to V002 -> ${directSyncPassed ? "PASS" : "FAIL"}`);
+
+  // 4b: Update via ganti_vendor_periode RPC
+  const { error: gantiErr } = await clientAdmin.rpc("ganti_vendor_periode", {
+    p_period_id: testPeriodId,
+    p_vendor_baru_id: vAisya.id,
+    p_alasan: "Switching back to V001 via RPC"
+  });
+  if (gantiErr) console.error("Failed ganti_vendor_periode:", gantiErr.message);
+
+  const { data: rpcSyncedOrder } = await adminClient
+    .from("catering_orders")
+    .select("vendor_id")
+    .eq("id", testOrderId2)
+    .single();
+
+  const rpcSyncPassed = rpcSyncedOrder?.vendor_id === vAisya.id;
+  console.log(`  [RPC GANTI VENDOR]: catering_orders.vendor_id reverted to V001 -> ${rpcSyncPassed ? "PASS" : "FAIL"}`);
+
+  const alur4Passed = directSyncPassed && rpcSyncPassed;
+  console.log(`  FLOW 4 RESULT: ${alur4Passed ? "PASS" : "FAIL"}\n`);
+
+  // Cleanup test data
+  console.log("Cleaning up smoke flow test records...");
+  await adminClient.from("order_logs").delete().in("order_id", createdOrderIds);
+  await adminClient.from("revisions").delete().eq("item_id", itemToRevise.id);
+  await adminClient.from("catering_items").delete().in("order_id", createdOrderIds);
+  await adminClient.from("catering_orders").delete().in("id", createdOrderIds);
+  await adminClient.from("periods").delete().in("id", createdPeriodIds);
+  console.log("  [OK] Cleanup completed.\n");
+
+  const allPassed = alur1Passed && alur2Passed && alur3Passed && alur4Passed;
   console.log("======================================================================");
-  console.log(`SMOKE FLOW CONCLUSION: ${allPassed ? "ALL FLOWS PASSED" : "FLOW FAILURE DETECTED"}`);
+  console.log(`SMOKE FLOW SUMMARY: ${allPassed ? "100% PASS (ALL FLOWS PASSED)" : "FAILED"}`);
   console.log("======================================================================\n");
 
   if (!allPassed) process.exit(1);
 }
 
 runSmokeFlow().catch((err) => {
-  console.error("Critical smoke flow error:", err);
+  console.error("Smoke flow execution error:", err);
   process.exit(1);
 });

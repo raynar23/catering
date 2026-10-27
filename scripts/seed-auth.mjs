@@ -92,7 +92,11 @@ const DEMO_USERS = [
   },
 ];
 
-const DEFAULT_PASSWORD = process.env.DEMO_USER_PASSWORD || "TpsCatering2026!";
+const DEFAULT_PASSWORD = process.env.DEMO_USER_PASSWORD;
+if (!DEFAULT_PASSWORD) {
+  console.error("Error: DEMO_USER_PASSWORD environment variable is required. Default passwords removed per audit H5.");
+  process.exit(1);
+}
 
 async function main() {
   console.log("Starting Auth and Profile Seeding...");

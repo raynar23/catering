@@ -64,10 +64,10 @@ Buka `.env.local` dan sesuaikan nilainya dari Dashboard Supabase Anda (**Project
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 
 # Kunci Anonim Publik (Aman di sisi peramban)
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key-here
 
 # Kunci Layanan Server Privilese Tinggi (HANYA SISI SERVER - JANGAN DIBOCORKAN)
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key-here
 
 # Konfigurasi Mesin AI Impor Cerdas (Bawaan: false - mesin aturan deterministik)
 IMPORT_AI_ENABLED=false
