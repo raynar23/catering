@@ -68,15 +68,15 @@ async function testLogin(email, password, expectedRole) {
 
 async function run() {
   const adminPass = envVars.TEST_ADMIN_PASSWORD || process.env.TEST_ADMIN_PASSWORD;
-  const vendorPass = envVars.TEST_VENDOR_AISYA_PASSWORD || process.env.TEST_VENDOR_AISYA_PASSWORD;
+  const vendorPass = envVars.TEST_VENDOR_PASSWORD || envVars.TEST_VENDOR_AISYA_PASSWORD || process.env.TEST_VENDOR_PASSWORD;
 
-  const adminOk = await testLogin("admin.ga@tps.co.id", adminPass, "admin_ga");
-  const vendorOk = await testLogin("vendor.aisya@tps.co.id", vendorPass, "vendor");
+  const adminOk = await testLogin("admin@tps.co.id", adminPass, "admin_ga");
+  const vendorOk = await testLogin("vendor@tps.co.id", vendorPass, "vendor");
 
   if (adminOk && vendorOk) {
-    console.log("ALL LOGINS VERIFIED AND WORKING PERFECTLY!");
+    console.log("All simulation logins verified successfully.");
   } else {
-    console.error("SOME LOGINS FAILED");
+    console.error("Simulation login verification failed.");
     process.exit(1);
   }
 }

@@ -106,4 +106,33 @@ describe('G3 & I4: Static Security Guard - No Operational Reset Paths & Script A
     expect(content).toContain('Jadwal periode Oktober - Desember 2026 belum ada di database');
     expect(content).not.toContain('.from("periods").insert('); // No period insertion in seed-uat-window
   });
+
+  it('J3: reset-for-uat.sql must use private schema _backup_vault with RLS and drop public backup tables', () => {
+    const resetPath = join(process.cwd(), 'scripts/reset-for-uat.sql');
+    const content = readFileSync(resetPath, 'utf-8');
+
+    expect(content).toContain('CREATE SCHEMA IF NOT EXISTS _backup_vault');
+    expect(content).toContain('_backup_vault.order_logs');
+    expect(content).toContain('ENABLE ROW LEVEL SECURITY');
+    expect(content).toContain('DROP TABLE IF EXISTS public._backup_order_logs CASCADE');
+  });
+
+  it('J4: vendor portal must not query admin-only reporting views (v_rekap, v_rekap_bulanan, v_utilisasi_shift)', () => {
+    const vendorActionPath = join(process.cwd(), 'src/lib/actions/vendor-portal.ts');
+    const vendorActionContent = readFileSync(vendorActionPath, 'utf-8');
+
+    const adminViews = ['v_rekap', 'v_rekap_bulanan', 'v_utilisasi_shift'];
+    for (const view of adminViews) {
+      expect(vendorActionContent).not.toMatch(new RegExp(`\\.from\\(["']${view}["']\\)`));
+    }
+
+    const vendorAppDir = join(process.cwd(), 'src/app/vendor');
+    const vendorAppFiles = getAllSrcFiles(vendorAppDir);
+    for (const vFile of vendorAppFiles) {
+      const vContent = readFileSync(vFile, 'utf-8');
+      for (const view of adminViews) {
+        expect(vContent).not.toMatch(new RegExp(`\\.from\\(["']${view}["']\\)`));
+      }
+    }
+  });
 });
