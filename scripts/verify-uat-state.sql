@@ -95,7 +95,7 @@ WHERE t.tgname IN (
 )
 ORDER BY c.relname, t.tgname;
 
--- Function execute privilege matrix
+-- Function execute privilege matrix (all public schema functions non-extension)
 SELECT
   p.proname AS function_name,
   pg_get_function_identity_arguments(p.oid) AS identity_arguments,
@@ -110,24 +110,21 @@ CROSS JOIN LATERAL (
     AND r.rolname IN ('anon', 'authenticated', 'service_role')
 ) r
 WHERE n.nspname = 'public'
-  AND p.proname IN (
-    'is_admin',
-    'my_vendor_id',
-    'simpan_catering',
-    'kirim_catering',
-    'ajukan_revisi',
-    'verifikasi_revisi',
-    'ganti_vendor_periode',
-    'konfirmasi_impor',
-    'dashboard_ringkasan',
-    'get_rekap_harian',
-    'get_rekap_ringkasan',
-    'delete_selected_periods',
-    'respon_periode_vendor',
-    'respon_revisi_vendor',
-    'update_progres_vendor',
-    'get_notifikasi',
-    'check_db_count_and_sync',
-    'check_triggers_status'
+  AND NOT EXISTS (
+    SELECT 1 FROM pg_depend d
+    WHERE d.objid = p.oid AND d.deptype = 'e'
   )
 ORDER BY p.proname, r.rolname;
+
+-- Public schema tables row-level security and access privileges
+SELECT
+  c.relname AS table_name,
+  c.relrowsecurity AS rls_enabled,
+  c.relforcerowsecurity AS rls_forced,
+  has_table_privilege('anon', c.oid, 'SELECT') AS anon_select,
+  has_table_privilege('authenticated', c.oid, 'SELECT') AS authenticated_select
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public'
+  AND c.relkind = 'r'
+ORDER BY c.relname;
