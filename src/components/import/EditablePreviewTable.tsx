@@ -267,7 +267,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
                       />
                     </td>
 
-                    {/* Editable Tanggal */}
+                    {/* Editable Date */}
                     <td className="p-3">
                       <input
                         type="date"
@@ -317,7 +317,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
                       </span>
                     </td>
 
-                    {/* Alasan / Catatan */}
+                    {/* Reason / Notes */}
                     <td className="p-3 text-xs text-neutral-600 dark:text-neutral-400">
                       {row.alasan || "-"}
                     </td>

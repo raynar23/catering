@@ -1,7 +1,7 @@
 -- Migration: 018_reset_and_bulk_delete.sql
 -- Bulk deletion and operational data reset for client handover
 
--- 1. Upgrade Trigger order_logs Immutability with bypass support
+-- Trigger to prevent order_logs modification
 create or replace function public.prevent_order_logs_mod()
 returns trigger as $$
 begin
@@ -12,7 +12,7 @@ begin
 end;
 $$ language plpgsql;
 
--- 2. Fungsi RPC: Hapus Jadwal Periode Terpilih Beserta Transaksinya (Admin GA)
+-- RPC function to delete selected periods and dependent records
 create or replace function public.delete_selected_periods(p_period_ids uuid[])
 returns jsonb
 language plpgsql

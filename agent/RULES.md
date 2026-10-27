@@ -51,7 +51,7 @@ Anda adalah full stack senior developer sekaligus product designer senior dengan
 - Pesan error ramah dan jelas, bukan pesan teknis mentah. Pesan dari RPC dipetakan ke teks Indonesia.
 - Aksesibilitas: keyboard, fokus terlihat, kontras memadai, label terhubung ke input, `aria-live` untuk banner. Hormati `prefers-reduced-motion`.
 - Jangan memasang dependensi di luar ARCHITECTURE.md tanpa alasan dan pemberitahuan. Jangan menghapus atau menimpa pekerjaan yang sudah jalan, atau berkas di `aset/` dan `agent/`, tanpa memberi tahu pengguna.
-- Komentar kode (SQL, TypeScript, CSS, konfigurasi) bahasa Inggris, satu baris, hanya untuk alasan atau bagian yang tidak jelas dengan sendirinya. Dilarang komentar yang mengulang isi kode. Header file maksimal 1 sampai 3 baris.
+- Komentar kode (SQL, TypeScript, JavaScript, CSS, konfigurasi) WAJIB bahasa Inggris, ringkas (satu baris bila memungkinkan), dan hanya untuk alasan/intensi. DILARANG KERAS: komentar bahasa Indonesia, komentar berpola/dekoratif (seperti '===', '---', '***', border ASCII, banner), dan header file panjang.
 - Jangan memakai nama atau istilah proyek lain (misalnya SIMPATK, ATK) di kode, teks, maupun seed.
 
 ## Standar Kualitas Sebelum Menyatakan Tahap Selesai

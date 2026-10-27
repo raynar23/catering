@@ -128,8 +128,7 @@ export default function AdminImporDataPage() {
       />
 
       <div className="mt-6 flex-1 min-h-0 flex flex-col">
-        {/* Responsive wrapper: On step 'unggah' and 'konfirmasi', container is constrained to max-w-2xl mx-auto so the stepper is perfectly aligned with the dropzone/confirmation box below it across all devices.
-            On step 'periksa', preview table needs full container width so stepper expands to full width as well. */}
+        {/* Responsive layout wrapper for stepper and content panels */}
         <div
           className={cn(
             "w-full transition-all duration-200",
@@ -145,7 +144,7 @@ export default function AdminImporDataPage() {
             }
           />
 
-          {/* Step 1: Unggah */}
+          {/* Step 1: Upload */}
           {currentStep === "unggah" && (
             <UploadDropzone
               onAnalyze={handleAnalyze}
@@ -159,7 +158,7 @@ export default function AdminImporDataPage() {
             />
           )}
 
-          {/* Step 3: Konfirmasi */}
+          {/* Step 3: Confirmation */}
           {currentStep === "konfirmasi" && analysisResult && (
             <ConfirmationPanel
               analysis={analysisResult}
@@ -175,7 +174,7 @@ export default function AdminImporDataPage() {
           )}
         </div>
 
-        {/* Step 2: Periksa */}
+        {/* Step 2: Review */}
         {currentStep === "periksa" && analysisResult && (
           <EditablePreviewTable
             rows={editableRows}

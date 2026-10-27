@@ -1,12 +1,8 @@
--- supabase/apply/020_apply_rekap_hardening.sql
--- Direct SQL paste script for Supabase SQL Editor:
--- 1. Hardens v_rekap, v_rekap_bulanan, v_utilisasi_shift to return 0 rows for vendors.
--- 2. Hardens get_rekap_harian & get_rekap_ringkasan with strict is_admin() checks and correct 7/5 argument grants.
--- 3. Provides check_triggers_status() to verify tgenabled = 'O'.
+-- Apply script: rekap views and RPC hardening
 
 BEGIN;
 
--- 1. HARDEN VIEWS: Enforce public.is_admin() so vendors receive strictly 0 rows
+-- Views enforcing is_admin check
 create or replace view public.v_rekap with (security_invoker = true) as
 select
   o.id as order_id,
@@ -82,7 +78,7 @@ grant select on public.v_rekap to authenticated;
 grant select on public.v_rekap_bulanan to authenticated;
 grant select on public.v_utilisasi_shift to authenticated;
 
--- 2. HARDEN RPC FUNCTIONS: get_rekap_harian and get_rekap_ringkasan
+-- Hardened RPC functions: get_rekap_harian and get_rekap_ringkasan
 create or replace function public.get_rekap_harian(
   p_dari date,
   p_sampai date,
@@ -443,7 +439,7 @@ $$;
 grant execute on function public.get_rekap_harian(date, date, uuid, uuid, uuid, integer, integer) to authenticated;
 grant execute on function public.get_rekap_ringkasan(date, date, uuid, uuid, uuid) to authenticated;
 
--- 3. TRIGGER STATUS INTROSPECTION HELPER (for test:db verification of tgenabled = 'O')
+-- Trigger status introspection helper for test:db verification
 create or replace function public.check_triggers_status()
 returns jsonb
 language plpgsql
