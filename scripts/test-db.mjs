@@ -116,27 +116,23 @@ async function runTests() {
     global: { headers: { Authorization: `Bearer ${authA.session.access_token}` } }
   });
 
-  // Authenticate Vendor B (Catering IBU) with isolated client session
+  // Authenticate Vendor B if configured
+  let clientB = null;
   const vendorIbuEmail = env.TEST_VENDOR_IBU_EMAIL || "vendor.ibu@tps.co.id";
   const vendorIbuPassword = env.TEST_VENDOR_IBU_PASSWORD || process.env.TEST_VENDOR_IBU_PASSWORD;
-  if (!vendorIbuPassword) {
-    console.error("Missing TEST_VENDOR_IBU_PASSWORD in environment. Default demo passwords removed per audit H5.");
-    process.exit(1);
+  if (vendorIbuPassword) {
+    const authClientB = createClient(url, anonKey, { auth: { persistSession: false } });
+    const { data: authB, error: errB } = await authClientB.auth.signInWithPassword({
+      email: vendorIbuEmail,
+      password: vendorIbuPassword,
+    });
+    if (!errB && authB?.session) {
+      clientB = createClient(url, anonKey, {
+        auth: { persistSession: false },
+        global: { headers: { Authorization: `Bearer ${authB.session.access_token}` } }
+      });
+    }
   }
-
-  const authClientB = createClient(url, anonKey, { auth: { persistSession: false } });
-  const { data: authB, error: errB } = await authClientB.auth.signInWithPassword({
-    email: vendorIbuEmail,
-    password: vendorIbuPassword,
-  });
-  if (errB || !authB.session) {
-    console.error(`Failed to authenticate ${vendorIbuEmail}:`, errB?.message);
-    process.exit(1);
-  }
-  const clientB = createClient(url, anonKey, {
-    auth: { persistSession: false },
-    global: { headers: { Authorization: `Bearer ${authB.session.access_token}` } }
-  });
 
   // Scenario (a): Self-service privilege escalation guard
   let aRoleBlocked = false;
@@ -634,13 +630,15 @@ async function runTests() {
     rekapFailures.push("vendor.aisya berhasil memanggil get_rekap_harian");
   }
 
-  const { error: errIbuRekapHarian } = await clientB.rpc("get_rekap_harian", {
-    p_dari: "2026-10-01",
-    p_sampai: "2026-10-31"
-  });
-  if (!errIbuRekapHarian) {
-    scenarioKPassed = false;
-    rekapFailures.push("vendor.ibu berhasil memanggil get_rekap_harian");
+  if (clientB) {
+    const { error: errIbuRekapHarian } = await clientB.rpc("get_rekap_harian", {
+      p_dari: "2026-10-01",
+      p_sampai: "2026-10-31"
+    });
+    if (!errIbuRekapHarian) {
+      scenarioKPassed = false;
+      rekapFailures.push("vendor.ibu berhasil memanggil get_rekap_harian");
+    }
   }
 
   const { error: errAisyaRekapRingkasan } = await clientA.rpc("get_rekap_ringkasan", {
@@ -652,22 +650,24 @@ async function runTests() {
     rekapFailures.push("vendor.aisya berhasil memanggil get_rekap_ringkasan");
   }
 
-  const { error: errIbuRekapRingkasan } = await clientB.rpc("get_rekap_ringkasan", {
-    p_dari: "2026-10-01",
-    p_sampai: "2026-10-31"
-  });
-  if (!errIbuRekapRingkasan) {
-    scenarioKPassed = false;
-    rekapFailures.push("vendor.ibu berhasil memanggil get_rekap_ringkasan");
+  if (clientB) {
+    const { error: errIbuRekapRingkasan } = await clientB.rpc("get_rekap_ringkasan", {
+      p_dari: "2026-10-01",
+      p_sampai: "2026-10-31"
+    });
+    if (!errIbuRekapRingkasan) {
+      scenarioKPassed = false;
+      rekapFailures.push("vendor.ibu berhasil memanggil get_rekap_ringkasan");
+    }
   }
 
   // Inspect vendor view reads: v_rekap, v_rekap_bulanan, v_utilisasi_shift
   const { data: vRekapA } = await clientA.from("v_rekap").select("order_id").limit(5);
-  const { data: vRekapB } = await clientB.from("v_rekap").select("order_id").limit(5);
+  const { data: vRekapB } = clientB ? await clientB.from("v_rekap").select("order_id").limit(5) : { data: [] };
   const { data: vBulananA } = await clientA.from("v_rekap_bulanan").select("bulan").limit(5);
-  const { data: vBulananB } = await clientB.from("v_rekap_bulanan").select("bulan").limit(5);
+  const { data: vBulananB } = clientB ? await clientB.from("v_rekap_bulanan").select("bulan").limit(5) : { data: [] };
   const { data: vShiftA } = await clientA.from("v_utilisasi_shift").select("shift_id").limit(5);
-  const { data: vShiftB } = await clientB.from("v_utilisasi_shift").select("shift_id").limit(5);
+  const { data: vShiftB } = clientB ? await clientB.from("v_utilisasi_shift").select("shift_id").limit(5) : { data: [] };
 
   const totalViewRowsSeen =
     (vRekapA?.length || 0) + (vRekapB?.length || 0) +

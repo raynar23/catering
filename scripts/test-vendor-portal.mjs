@@ -21,15 +21,12 @@ const url = env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL;
 const anon = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_PUBLISHABLE_KEY;
 
 async function runVendorAudit() {
-  console.log("======================================================================");
-  console.log("AUDIT PORTAL VENDOR PASCA MIGRASI 020 (PROMPT 20 J4)");
-  console.log(`Target Database: ${url}`);
-  console.log(`Akun Uji       : vendor.aisya@tps.co.id`);
-  console.log("======================================================================\n");
+  const vendorEmail = env.TEST_VENDOR_AISYA_EMAIL || "vendor@tps.co.id";
+  console.log("Auditing vendor portal access for", vendorEmail);
 
   const authClient = createClient(url, anon, { auth: { persistSession: false } });
   const { data: authData, error: authErr } = await authClient.auth.signInWithPassword({
-    email: "vendor.aisya@tps.co.id",
+    email: vendorEmail,
     password: env.TEST_VENDOR_AISYA_PASSWORD
   });
 
