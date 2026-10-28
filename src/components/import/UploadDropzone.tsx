@@ -131,17 +131,16 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
               {selectedFile ? selectedFile.name : "Tarik dan lepas berkas ke sini, atau klik untuk memilih"}
             </p>
             <p className="text-xs text-text-muted mt-1">
-              Mendukung XLSX, CSV, DOCX, PDF, dan Gambar Pindaian (Maksimal 10 MB)
+              {selectedFile
+                ? `${formatFileSize(selectedFile.size)} (Mesin ${getEngineBadge() === "ocr" ? "OCR Browser" : "Aturan"})`
+                : "Mendukung XLSX, CSV, DOCX, PDF, dan Gambar Pindaian (Maksimal 10 MB)"}
             </p>
+            {selectedFile && (
+              <p className="text-[11px] text-primary mt-1 font-medium">
+                Klik untuk mengganti berkas
+              </p>
+            )}
           </div>
-
-          {selectedFile && (
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-50 border border-primary/20 rounded-md text-xs font-medium text-primary">
-              <span>{formatFileSize(selectedFile.size)}</span>
-              <span>•</span>
-              <span>Mesin: {getEngineBadge() === "ocr" ? "OCR Browser" : "Aturan"}</span>
-            </div>
-          )}
         </div>
       </div>
 

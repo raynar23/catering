@@ -110,7 +110,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
               {analysis.namaFile}
             </p>
             <p className="text-xs text-text-muted">
-              Batch: {analysis.nomorBatch} • Mesin: {analysis.mesin.toUpperCase()}
+              Batch: {analysis.nomorBatch} — Mesin: {analysis.mesin.toUpperCase()}
             </p>
           </div>
 
