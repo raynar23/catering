@@ -15,6 +15,30 @@ interface ConfirmationPanelProps {
   onReset: () => void;
 }
 
+const getFriendlyFormat = (filename: string, tipe?: string): string => {
+  const ext = filename.split(".").pop()?.toLowerCase() || tipe?.toLowerCase() || "";
+  if (ext === "xlsx" || ext === "xls") return "Berkas Excel (.xlsx)";
+  if (ext === "csv") return "Berkas CSV (.csv)";
+  if (ext === "pdf") return "Dokumen PDF (.pdf)";
+  if (ext === "docx" || ext === "doc") return "Dokumen Word (.docx)";
+  return "Berkas Dokumen";
+};
+
+const getFriendlyCategory = (type: string): string => {
+  switch (type) {
+    case "jadwal":
+      return "Jadwal Catering";
+    case "vendor":
+      return "Daftar Vendor";
+    case "bagian":
+      return "Daftar Bagian";
+    case "rekap_harian":
+      return "Rekap Porsi Harian";
+    default:
+      return "Dokumen Catering";
+  }
+};
+
 export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
   analysis,
   rows,
@@ -48,15 +72,15 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
           </p>
         </div>
 
-        <div className="p-4 bg-bg rounded-[8px] text-xs space-y-1 text-left text-text-muted border border-border">
+        <div className="p-4 bg-bg rounded-[8px] text-xs space-y-1.5 text-left text-text-muted border border-border">
           <p>
-            Nomor Batch: <strong className="text-text">{analysis.nomorBatch}</strong>
+            Kategori Data: <strong className="text-text">{getFriendlyCategory(analysis.jenisDokumen)}</strong>
           </p>
           <p>
-            Jenis Dokumen: <strong className="text-text">{analysis.jenisDokumen.toUpperCase()}</strong>
+            Format Berkas: <strong className="text-text">{getFriendlyFormat(analysis.namaFile, analysis.tipeFile)}</strong>
           </p>
           <p>
-            Mesin Pemroses: <strong className="text-text">{analysis.mesin.toUpperCase()}</strong>
+            ID Riwayat: <span className="text-text font-mono text-[11px]">{analysis.nomorBatch}</span>
           </p>
         </div>
 
@@ -79,7 +103,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
           <button
             type="button"
             onClick={onReset}
-            className="text-xs text-text-muted hover:text-primary font-medium transition-colors"
+            className="text-xs text-text-muted hover:text-primary font-medium transition-colors cursor-pointer"
           >
             Impor Berkas Lainnya
           </button>
@@ -106,11 +130,11 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
             <span className="text-xs uppercase font-semibold text-text-muted tracking-wider">
               Identitas Berkas
             </span>
-            <p className="text-sm font-medium text-text truncate">
+            <p className="text-sm font-medium text-text truncate" title={analysis.namaFile}>
               {analysis.namaFile}
             </p>
             <p className="text-xs text-text-muted">
-              Batch: {analysis.nomorBatch} — Mesin: {analysis.mesin.toUpperCase()}
+              {getFriendlyFormat(analysis.namaFile, analysis.tipeFile)} • Siap disimpan
             </p>
           </div>
 
@@ -119,10 +143,10 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
               Total Baris
             </span>
             <p className="text-xl font-bold text-text tabular-nums">
-              {totalRowsCount} <span className="text-xs font-normal text-text-muted">baris</span>
+              {totalRowsCount} <span className="text-xs font-normal text-text-muted">baris valid</span>
             </p>
             <p className="text-xs text-text-muted">
-              Jenis: {analysis.jenisDokumen.toUpperCase()}
+              Kategori: {getFriendlyCategory(analysis.jenisDokumen)}
             </p>
           </div>
         </div>
