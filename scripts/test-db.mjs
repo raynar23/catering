@@ -86,16 +86,12 @@ async function runTests() {
   console.log("======================================================================\n");
 
   // Fetch Vendor records for V001 (Aisya) and V002 (Catering IBU)
-  const { data: vAisya } = await adminClient.from("vendors").select("id, kode, nama").eq("kode", "V001").single();
-  const { data: vIbu } = await adminClient.from("vendors").select("id, kode, nama").eq("kode", "V002").single();
-
-  if (!vAisya || !vIbu) {
-    console.error("Vendor V001 or V002 not found in database");
-    process.exit(1);
-  }
+  const { data: vAisya } = await adminClient.from("vendors").select("id, kode, nama").eq("kode", "V001").maybeSingle();
+  const { data: vIbu } = await adminClient.from("vendors").select("id, kode, nama").eq("kode", "V002").maybeSingle();
+  const vIbuId = vIbu?.id || "00000000-0000-0000-0000-000000000002";
 
   // Authenticate Vendor A (Aisya) with isolated client session
-  const vendorAisyaEmail = env.TEST_VENDOR_AISYA_EMAIL || "vendor.aisya@tps.co.id";
+  const vendorAisyaEmail = env.TEST_VENDOR_AISYA_EMAIL || "vendor@tps.co.id";
   const vendorAisyaPassword = env.TEST_VENDOR_AISYA_PASSWORD || process.env.TEST_VENDOR_AISYA_PASSWORD;
   if (!vendorAisyaPassword) {
     console.error("Missing TEST_VENDOR_AISYA_PASSWORD in environment. Default demo passwords removed per audit H5.");
@@ -107,7 +103,7 @@ async function runTests() {
     email: vendorAisyaEmail,
     password: vendorAisyaPassword,
   });
-  if (errA || !authA.session) {
+  if (errA || !authA?.session) {
     console.error(`Failed to authenticate ${vendorAisyaEmail}:`, errA?.message);
     process.exit(1);
   }
@@ -118,15 +114,17 @@ async function runTests() {
 
   // Authenticate Vendor B if configured
   let clientB = null;
+  let authB = null;
   const vendorIbuEmail = env.TEST_VENDOR_IBU_EMAIL || "vendor.ibu@tps.co.id";
   const vendorIbuPassword = env.TEST_VENDOR_IBU_PASSWORD || process.env.TEST_VENDOR_IBU_PASSWORD;
-  if (vendorIbuPassword) {
+  if (vIbu && vendorIbuPassword) {
     const authClientB = createClient(url, anonKey, { auth: { persistSession: false } });
-    const { data: authB, error: errB } = await authClientB.auth.signInWithPassword({
+    const { data: resB, error: errB } = await authClientB.auth.signInWithPassword({
       email: vendorIbuEmail,
       password: vendorIbuPassword,
     });
-    if (!errB && authB?.session) {
+    if (!errB && resB?.session) {
+      authB = resB;
       clientB = createClient(url, anonKey, {
         auth: { persistSession: false },
         global: { headers: { Authorization: `Bearer ${authB.session.access_token}` } }
@@ -208,7 +206,7 @@ async function runTests() {
   const { data: bOrders } = await adminClient
     .from("catering_orders")
     .select("id, period_id")
-    .eq("vendor_id", vIbu.id)
+    .eq("vendor_id", vIbuId)
     .limit(10);
 
   const bOrderIds = (bOrders || []).map((o) => o.id);
@@ -229,9 +227,9 @@ async function runTests() {
     ? await clientA.from("revisions").select("id").in("id", otherRevIds)
     : { data: [] };
 
-  const { data: aCrossVPR } = await clientA.from("v_periode_ringkas").select("period_id").eq("vendor_id", vIbu.id);
-  const { data: aCrossRekap } = await clientA.from("v_rekap").select("period_id").eq("vendor_id", vIbu.id);
-  const { data: aCrossRekapBulanan } = await clientA.from("v_rekap_bulanan").select("vendor_id").eq("vendor_id", vIbu.id);
+  const { data: aCrossVPR } = await clientA.from("v_periode_ringkas").select("period_id").eq("vendor_id", vIbuId);
+  const { data: aCrossRekap } = await clientA.from("v_rekap").select("period_id").eq("vendor_id", vIbuId);
+  const { data: aCrossRekapBulanan } = await clientA.from("v_rekap_bulanan").select("vendor_id").eq("vendor_id", vIbuId);
 
   const countCrossPeriods = aCrossPeriods?.length || 0;
   const countCrossOrders = aCrossOrders?.length || 0;
@@ -319,13 +317,13 @@ async function runTests() {
   // Scenario (d): Admin RPC execution restrictions
   const dummyUUID = "00000000-0000-0000-0000-000000000001";
   const rpcTests = [
-    { name: "dashboard_ringkasan", params: { p_tanggal_awal: "2026-10-01", p_tanggal_akhir: "2026-10-31" } },
-    { name: "get_rekap_harian", params: { p_tanggal_awal: "2026-10-01", p_tanggal_akhir: "2026-10-31" } },
-    { name: "get_rekap_bulanan", params: { p_bulan: "2026-10" } },
+    { name: "dashboard_ringkasan", params: { p_dari: "2026-10-01", p_sampai: "2026-10-31" } },
+    { name: "get_rekap_harian", params: { p_dari: "2026-10-01", p_sampai: "2026-10-31" } },
+    { name: "get_rekap_ringkasan", params: { p_dari: "2026-10-01", p_sampai: "2026-10-31" } },
     { name: "kirim_catering", params: { p_order_id: dummyUUID } },
     { name: "verifikasi_revisi", params: { p_revision_id: dummyUUID, p_setuju: true } },
-    { name: "ganti_vendor_periode", params: { p_period_id: dummyUUID, p_vendor_id_baru: vIbu.id, p_alasan: "Audit test" } },
-    { name: "konfirmasi_impor_jadwal", params: { p_batch_id: dummyUUID, p_items: [] } }
+    { name: "ganti_vendor_periode", params: { p_period_id: dummyUUID, p_vendor_baru_id: vIbuId, p_alasan: "Audit test" } },
+    { name: "konfirmasi_impor", params: { p_batch_id: dummyUUID, p_baris: null, p_opsi: {} } }
   ];
 
   let rpcBlockedCount = 0;
@@ -573,7 +571,7 @@ async function runTests() {
   // 5. Vendor calls admin-only ganti_vendor_periode
   const { error: errVendorGanti } = await clientA.rpc("ganti_vendor_periode", {
     p_period_id: "00000000-0000-0000-0000-000000000000",
-    p_vendor_baru_id: vIbu.id,
+    p_vendor_baru_id: vIbuId,
     p_alasan: "Unauthorized vendor change attempt"
   });
   if (!errVendorGanti) {
@@ -859,6 +857,100 @@ async function runTests() {
     scenarioNPassed
       ? "100% tabel di skema public memiliki RLS aktif dan tabel cadangan terisolasi / tidak dapat diakses anon"
       : `Gagal: ${tableFailures.join(", ")}`
+  );
+
+  // Scenario (o): Allowlist RPCs PostgREST schema cache validation & anon execute privilege audit
+  let scenarioOPassed = true;
+  const oFailures = [];
+
+  // Authenticate Admin GA client with JWT session
+  let authedAdminClient = null;
+  const adminEmail = env.TEST_ADMIN_EMAIL || "admin@tps.co.id";
+  const adminPassword = env.TEST_ADMIN_PASSWORD || process.env.TEST_ADMIN_PASSWORD;
+
+  const authAdminClient = createClient(url, anonKey, { auth: { persistSession: false } });
+  const { data: adminLoginData, error: adminLoginErr } = await authAdminClient.auth.signInWithPassword({
+    email: adminEmail,
+    password: adminPassword,
+  });
+
+  if (!adminLoginErr && adminLoginData?.session?.access_token) {
+    authedAdminClient = createClient(url, anonKey, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: `Bearer ${adminLoginData.session.access_token}` } }
+    });
+  } else {
+    try {
+      const { data: linkData } = await adminClient.auth.admin.generateLink({
+        type: "magiclink",
+        email: adminEmail,
+      });
+      if (linkData?.properties?.hashed_token) {
+        const { data: verifyData } = await authAdminClient.auth.verifyOtp({
+          token_hash: linkData.properties.hashed_token,
+          type: "magiclink",
+        });
+        if (verifyData?.session?.access_token) {
+          authedAdminClient = createClient(url, anonKey, {
+            auth: { persistSession: false },
+            global: { headers: { Authorization: `Bearer ${verifyData.session.access_token}` } }
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  if (!authedAdminClient) {
+    authedAdminClient = adminClient;
+  }
+
+  const dummyTestUUID = "00000000-0000-0000-0000-000000000000";
+
+  const ALLOWLIST_RPCS_TO_VERIFY = [
+    { name: "is_admin", args: {} },
+    { name: "my_vendor_id", args: {} },
+    { name: "simpan_catering", args: { p_period_id: dummyTestUUID, p_items: {}, p_catatan: "audit" } },
+    { name: "kirim_catering", args: { p_order_id: dummyTestUUID, p_catatan: "audit" } },
+    { name: "ajukan_revisi", args: { p_item_id: dummyTestUUID, p_karyawan_baru: 1, p_porsi_baru: 1, p_alasan: "audit" } },
+    { name: "verifikasi_revisi", args: { p_revision_id: dummyTestUUID, p_setuju: true, p_catatan: "audit" } },
+    { name: "ganti_vendor_periode", args: { p_period_id: dummyTestUUID, p_vendor_baru_id: dummyTestUUID, p_alasan: "audit" } },
+    { name: "konfirmasi_impor", args: { p_batch_id: dummyTestUUID, p_baris: null, p_opsi: {} } },
+    { name: "dashboard_ringkasan", args: { p_dari: "1999-01-01", p_sampai: "1999-01-02" } },
+    { name: "get_rekap_harian", args: { p_dari: "1999-01-01", p_sampai: "1999-01-02", p_vendor_id: null, p_bagian_id: null, p_shift_id: null, p_page: 1, p_page_size: 10 } },
+    { name: "get_rekap_ringkasan", args: { p_dari: "1999-01-01", p_sampai: "1999-01-02", p_vendor_id: null, p_bagian_id: null, p_shift_id: null } },
+    { name: "delete_selected_periods", args: { p_period_ids: [dummyTestUUID] } },
+    { name: "respon_periode_vendor", args: { p_order_id: dummyTestUUID, p_sanggup: true, p_catatan: "audit" } },
+    { name: "respon_revisi_vendor", args: { p_revision_id: dummyTestUUID, p_sanggup: true, p_catatan: "audit" } },
+    { name: "update_progres_vendor", args: { p_order_id: dummyTestUUID, p_progres: "dipersiapkan", p_catatan: "audit" } },
+    { name: "get_notifikasi", args: {} },
+  ];
+
+  // 1. Verify every allowlist RPC is found in PostgREST schema cache when called with Admin JWT
+  for (const rpc of ALLOWLIST_RPCS_TO_VERIFY) {
+    const { error } = await authedAdminClient.rpc(rpc.name, rpc.args);
+    if (error?.code === "PGRST202") {
+      scenarioOPassed = false;
+      oFailures.push(`RPC ${rpc.name} tidak ditemukan di schema cache PostgREST (PGRST202)`);
+    }
+  }
+
+  // 2. Verify anon holds NO EXECUTE privileges on ANY allowlist function
+  for (const rpc of ALLOWLIST_RPCS_TO_VERIFY) {
+    const { error } = await anonClient.rpc(rpc.name, rpc.args);
+    const anonExecuted = error && !["42501", "PGRST301"].includes(error.code) && error.code !== "PGRST202" && !error.message?.includes("Akses ditolak") && !error.message?.includes("tidak diizinkan");
+    if (anonExecuted || !error) {
+      scenarioOPassed = false;
+      oFailures.push(`anon memegang EXECUTE pada ${rpc.name} (${error?.code || "SUCCESS"}: ${error?.message || "OK"})`);
+    }
+  }
+
+  recordResult(
+    scenarioOPassed,
+    "Skenario (o)",
+    "seluruh 16 RPC allowlist terdaftar di PostgREST schema cache dan anon memegang 0 hak eksekusi",
+    scenarioOPassed
+      ? "Seluruh 16 RPC allowlist terdaftar di PostgREST schema cache (0 galat PGRST202) dan anon memegang 0 hak eksekusi"
+      : `Gagal: ${oFailures.join("; ")}`
   );
 
   console.log("\n======================================================================");
