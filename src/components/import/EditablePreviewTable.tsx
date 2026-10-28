@@ -247,10 +247,9 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
             onClick={onProceedToConfirmation}
             disabled={hasErrors || rows.length === 0}
             title={hasErrors ? "Selesaikan seluruh baris error sebelum melanjutkan" : "Lanjut ke langkah konfirmasi"}
-            className="px-3.5 py-1.5 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-[6px] transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
+            className="px-3.5 py-1.5 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-[6px] transition-colors shadow-xs cursor-pointer"
           >
-            <span>Lanjut ke Konfirmasi</span>
-            <span aria-hidden="true">→</span>
+            Lanjut ke Konfirmasi
           </button>
         </div>
       </div>
@@ -545,10 +544,9 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
             id="btn-lanjut-konfirmasi-bottom"
             onClick={onProceedToConfirmation}
             disabled={hasErrors || rows.length === 0}
-            className="px-5 py-2 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer flex items-center gap-2"
+            className="px-5 py-2 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
           >
-            <span>Lanjut ke Konfirmasi</span>
-            <span aria-hidden="true">→</span>
+            Lanjut ke Konfirmasi
           </button>
         </div>
       </div>

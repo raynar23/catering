@@ -51,6 +51,7 @@ describe("EditablePreviewTable Component", () => {
     expect(html).toContain('id="btn-lanjut-konfirmasi-top"');
     expect(html).toContain('id="btn-lanjut-konfirmasi-bottom"');
     expect(html).toContain("Lanjut ke Konfirmasi");
+    expect(html).not.toContain("→");
   });
 
   it("disables both confirmation buttons when rows contain errors", () => {
