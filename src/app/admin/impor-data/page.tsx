@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 export default function AdminImporDataPage() {
   const [currentStep, setCurrentStep] = useState<ImportStep>("unggah");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analyzingText, setAnalyzingText] = useState("Mengekstrak dan menganalisis berkas...");
+  const [analyzingText, setAnalyzingText] = useState("Mengekstrak berkas...");
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -37,7 +37,7 @@ export default function AdminImporDataPage() {
   const handleAnalyze = async (file: File, forceType: DocumentType, ocrText?: string) => {
     setIsAnalyzing(true);
     setAnalysisError(null);
-    setAnalyzingText(ocrText ? "Menganalisis hasil pindaian OCR..." : "Mengekstrak berkas dan memetakan jadwal...");
+    setAnalyzingText(ocrText ? "Memindai OCR..." : "Mengekstrak berkas...");
 
     try {
       const formData = new FormData();
