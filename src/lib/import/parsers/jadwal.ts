@@ -99,54 +99,61 @@ export function parseJadwal(
       const rawShiftVal = row[shiftCol];
       const rawVendorVal = row[vendorCol];
 
-      // Parse date with propagation for merged rows across 3 shifts
+      const cleanShift = normalizeString(String(rawShiftVal ?? ""));
+      const cleanVendor = normalizeString(String(rawVendorVal ?? ""));
+
+      // Skip completely empty rows and empty separator rows between days
+      if (!cleanShift && !cleanVendor) {
+        continue;
+      }
+
+      // Parse date with propagation for merged rows across shifts
       let parsedDate = parseFlexibleDate(rawDateVal);
-      if (!parsedDate && lastValidDate && (rawShiftVal || rawVendorVal)) {
+      if (!parsedDate && lastValidDate && (cleanShift || cleanVendor)) {
         parsedDate = lastValidDate;
       } else if (parsedDate) {
         lastValidDate = parsedDate;
       }
 
-      // Skip completely empty rows
-      if (!parsedDate && !rawShiftVal && !rawVendorVal) {
-        continue;
-      }
-
       // Match shift
-      const shiftMatch = matchShift(String(rawShiftVal ?? ""), knownShifts);
+      const shiftMatch = matchShift(cleanShift, knownShifts);
 
-      // Clean and match vendor (trimming extra whitespace like 'Nikmat Rasa  ')
-      const cleanVendorName = normalizeString(String(rawVendorVal ?? ""));
-      const vendorMatch = matchVendor(cleanVendorName, knownVendors);
+      // Clean and match vendor
+      const vendorMatch = cleanVendor ? matchVendor(cleanVendor, knownVendors) : null;
 
-      // Initial status determination
+      // Mark missing or invalid date, shift, or vendor as error
       let status: JadwalParsedRow["status"] = "cocok";
       let alasan: string | undefined = undefined;
 
       if (!parsedDate) {
         status = "error";
-        alasan = "Tanggal tidak valid atau tidak terbaca";
-      } else if (shiftMatch.status === "perlu_cek") {
-        status = "perlu_cek";
-        alasan = shiftMatch.alasan;
+        alasan = "Tanggal kosong atau tidak valid";
+      } else if (!cleanShift || shiftMatch.status === "perlu_cek" || !shiftMatch.shift_id) {
+        status = "error";
+        alasan = !cleanShift ? "Shift tidak boleh kosong" : (shiftMatch.alasan || "Shift tidak valid");
+      } else if (!cleanVendor || !vendorMatch) {
+        status = "error";
+        alasan = "Nama vendor tidak boleh kosong";
       } else if (vendorMatch.status === "baru") {
         status = "baru";
         alasan = vendorMatch.alasan;
       } else if (vendorMatch.status === "perlu_cek") {
         status = "perlu_cek";
         alasan = vendorMatch.alasan;
+      } else {
+        status = "cocok";
       }
 
       const parsedRow: JadwalParsedRow = {
         id: `jadwal-${rowSeq++}`,
         tanggal: parsedDate || "",
         shift_id: shiftMatch.shift_id,
-        shift_nama: shiftMatch.shift_nama,
-        shift_alias: shiftMatch.shift_alias,
-        vendor_id: vendorMatch.vendor_id,
-        vendor_nama: vendorMatch.vendor_nama,
-        vendor_kode: vendorMatch.vendor_kode,
-        is_new_vendor: vendorMatch.status === "baru",
+        shift_nama: shiftMatch.shift_nama || "Shift 1",
+        shift_alias: shiftMatch.shift_alias || "siang",
+        vendor_id: vendorMatch?.vendor_id ?? null,
+        vendor_nama: vendorMatch?.vendor_nama || cleanVendor,
+        vendor_kode: vendorMatch?.vendor_kode ?? null,
+        is_new_vendor: vendorMatch?.status === "baru",
         status,
         alasan,
         sumber: {

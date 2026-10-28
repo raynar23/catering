@@ -11,7 +11,7 @@ export interface KnownShift {
   id: string;
   nama: string;
   label: string;
-  alias: string[];
+  alias: string[] | string;
 }
 
 export interface KnownBagian {
@@ -240,6 +240,20 @@ export function matchVendor(
   };
 }
 
+// Helper to extract clean lowercase aliases from string or array
+function extractShiftAliases(s: KnownShift): string[] {
+  if (Array.isArray(s.alias)) {
+    return s.alias.map((a) => a.toLowerCase().trim()).filter(Boolean);
+  }
+  if (typeof s.alias === "string") {
+    return s.alias
+      .split(/[,;|]/)
+      .map((a) => a.toLowerCase().trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 // Match raw shift text (e.g., "a. Siang", "Shift 2", "Malam") using letter prefixes and aliases
 export function matchShift(
   rawShift: string,
@@ -252,35 +266,53 @@ export function matchShift(
   alasan?: string;
 } {
   const cleaned = normalizeString(rawShift).toLowerCase();
+  if (!cleaned) {
+    return {
+      shift_id: null,
+      shift_nama: "",
+      shift_alias: "",
+      status: "perlu_cek",
+      alasan: "Shift tidak boleh kosong",
+    };
+  }
 
   // Strip prefixes like "a. ", "b. ", "c. ", "1. ", "2. ", "3. "
   const prefixMatch = cleaned.match(/^([a-c1-3])[.)]\s*(.*)$/);
   const letterOrNum = prefixMatch ? prefixMatch[1] : null;
   const coreText = prefixMatch && prefixMatch[2] ? prefixMatch[2].trim() : cleaned;
 
-  // 1. Match by shift letter prefix: a -> Shift 1 (Siang), b -> Shift 2 (Sore), c -> Shift 3 (Malam)
-  if (letterOrNum === "a") {
-    const s1 = knownShifts.find((s) => s.nama === "Shift 1" || s.alias.includes("siang"));
+  // 1. Match by prefix: a/1 -> Shift 1 (Siang), b/2 -> Shift 2 (Sore), c/3 -> Shift 3 (Malam)
+  if (letterOrNum === "a" || letterOrNum === "1") {
+    const s1 = knownShifts.find(
+      (s) => s.nama.toLowerCase() === "shift 1" || extractShiftAliases(s).includes("siang")
+    );
     if (s1) return { shift_id: s1.id, shift_nama: s1.nama, shift_alias: "siang", status: "cocok" };
   }
-  if (letterOrNum === "b") {
-    const s2 = knownShifts.find((s) => s.nama === "Shift 2" || s.alias.includes("sore"));
+  if (letterOrNum === "b" || letterOrNum === "2") {
+    const s2 = knownShifts.find(
+      (s) => s.nama.toLowerCase() === "shift 2" || extractShiftAliases(s).includes("sore")
+    );
     if (s2) return { shift_id: s2.id, shift_nama: s2.nama, shift_alias: "sore", status: "cocok" };
   }
-  if (letterOrNum === "c") {
-    const s3 = knownShifts.find((s) => s.nama === "Shift 3" || s.alias.includes("malam"));
+  if (letterOrNum === "c" || letterOrNum === "3") {
+    const s3 = knownShifts.find(
+      (s) => s.nama.toLowerCase() === "shift 3" || extractShiftAliases(s).includes("malam")
+    );
     if (s3) return { shift_id: s3.id, shift_nama: s3.nama, shift_alias: "malam", status: "cocok" };
   }
 
   // 2. Match by alias keyword inside core text
   for (const s of knownShifts) {
+    const aliases = extractShiftAliases(s);
     if (coreText.includes(s.nama.toLowerCase())) {
-      const alias = s.alias[0] || s.label.toLowerCase();
+      const alias = aliases[0] || (s.nama.toLowerCase().includes("1") ? "siang" : s.nama.toLowerCase().includes("2") ? "sore" : "malam");
       return { shift_id: s.id, shift_nama: s.nama, shift_alias: alias, status: "cocok" };
     }
-    for (const a of s.alias) {
-      if (coreText.includes(a.toLowerCase())) {
-        return { shift_id: s.id, shift_nama: s.nama, shift_alias: a, status: "cocok" };
+    for (const a of aliases) {
+      const matches = a.length === 1 ? new RegExp(`\\b${a}\\b`, "i").test(coreText) : coreText.includes(a);
+      if (matches) {
+        const canonicalAlias = a.includes("siang") ? "siang" : a.includes("sore") ? "sore" : a.includes("malam") ? "malam" : a;
+        return { shift_id: s.id, shift_nama: s.nama, shift_alias: canonicalAlias, status: "cocok" };
       }
     }
   }
@@ -288,7 +320,8 @@ export function matchShift(
   // 3. Fallback based on known label
   for (const s of knownShifts) {
     if (coreText.includes(s.label.toLowerCase())) {
-      const alias = s.alias[0] || s.label.toLowerCase();
+      const aliases = extractShiftAliases(s);
+      const alias = aliases[0] || (s.nama.toLowerCase().includes("1") ? "siang" : s.nama.toLowerCase().includes("2") ? "sore" : "malam");
       return { shift_id: s.id, shift_nama: s.nama, shift_alias: alias, status: "cocok" };
     }
   }
