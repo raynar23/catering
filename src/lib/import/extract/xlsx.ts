@@ -106,14 +106,60 @@ export class XlsxExtractor implements ExtractorInterface {
       });
 
       if (allRows.length > 0) {
-        // Headers are first non-empty row
-        const headers = allRows[0].map((h) => (h !== null && h !== undefined ? String(h).trim() : ""));
-        const dataRows = allRows.slice(1);
+        let headerIdx = -1;
+        const headerRegex = /tanggal|tgl|hari|date|shift|waktu|jam|vendor|catering|suplier|penyedia|rekanan|bagian|divisi|kelompok|porsi|jumlah|total|no\b|nomor/i;
+
+        // Scan first 10 rows for explicit column headers
+        for (let r = 0; r < Math.min(allRows.length, 10); r++) {
+          const row = allRows[r];
+          const matched = row.filter((c) => c !== null && c !== undefined && headerRegex.test(String(c).trim())).length;
+          const distinctNonEmpty = new Set(row.map((c) => String(c ?? "").trim()).filter(Boolean));
+          if (matched >= 2 && distinctNonEmpty.size >= 2) {
+            headerIdx = r;
+            break;
+          }
+        }
+
+        let headers: string[] = [];
+        let dataRows: (string | number | boolean | null)[][] = [];
+
+        if (headerIdx !== -1) {
+          headers = allRows[headerIdx].map((h) => (h !== null && h !== undefined ? String(h).trim() : ""));
+          dataRows = allRows.slice(headerIdx + 1);
+        } else {
+          // If row 0 is a merged title banner, skip it
+          let startRow = 0;
+          const firstNonEmpty = allRows[0].map((c) => String(c ?? "").trim()).filter(Boolean);
+          const uniqueFirst = new Set(firstNonEmpty);
+          if (uniqueFirst.size <= 1 && allRows.length > 1) {
+            startRow = 1;
+          }
+
+          dataRows = allRows.slice(startRow);
+          // Infer column headers from first representative row
+          const sample = dataRows.find((r) => r.filter((c) => c !== null && c !== undefined && String(c).trim() !== "").length >= 2);
+          if (sample) {
+            headers = sample.map((c) => {
+              const s = String(c ?? "").trim();
+              if ((c as any) instanceof Date || /^\d{4}-\d{2}-\d{2}/.test(s)) return "Tanggal";
+              if (/^[a-c1-3][.)]/i.test(s) || /siang|sore|malam|shift/i.test(s)) return "Shift";
+              if (typeof c === "number" || /^\d+$/.test(s)) return "No.";
+              return "Vendor Catering";
+            });
+          } else {
+            headers = ["No.", "Tanggal", "Shift", "Vendor Catering"];
+          }
+        }
+
+        // Filter out completely empty rows
+        const cleanedRows = dataRows.filter((row) =>
+          row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== "")
+        );
 
         results.push({
           sheetName: worksheet.name,
           headers,
-          rows: dataRows,
+          rows: cleanedRows,
         });
       }
     });

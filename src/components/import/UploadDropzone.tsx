@@ -23,7 +23,7 @@ const DOCUMENT_TYPES: { id: DocumentType; label: string }[] = [
 export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
   onAnalyze,
   isAnalyzing,
-  analyzingText = "Mengekstrak dan menganalisis berkas...",
+  analyzingText = "Mengekstrak berkas...",
   error,
   onAiFallbackRequested,
   showAiFallbackOption = false,
@@ -189,15 +189,15 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
             type="button"
             onClick={handleStartAnalysis}
             disabled={!selectedFile || isAnalyzing}
-            className="w-full h-9 px-4 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-[8px] transition-colors flex items-center justify-center gap-2"
+            className="w-full h-10 px-4 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm rounded-[8px] transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs select-none"
           >
             {isAnalyzing ? (
               <>
-                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>{analyzingText}</span>
+                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                <span className="whitespace-nowrap truncate">{analyzingText}</span>
               </>
             ) : (
-              <span>Analisis Berkas</span>
+              <span className="whitespace-nowrap">Analisis Berkas</span>
             )}
           </button>
         </div>
