@@ -121,7 +121,7 @@ export default function AdminImporDataPage() {
   };
 
   return (
-    <PageContainer className="px-3.5 sm:px-5 lg:px-0">
+    <PageContainer scrollable className="px-3.5 sm:px-5 lg:px-0 pb-12">
       <PageHeader
         title="Impor Data Cerdas"
         subtitle="Ekstraksi jadwal catering, daftar vendor, dan rekap porsi dari berkas Excel, CSV, Word, PDF, atau pindaian OCR"

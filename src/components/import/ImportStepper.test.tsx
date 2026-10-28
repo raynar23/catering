@@ -32,4 +32,17 @@ describe("ImportStepper Component", () => {
     // Step 2 active
     expect(html).toContain("bg-primary text-white shadow-xs");
   });
+
+  it("enables step 3 when canNavigateToKonfirmasi is true", () => {
+    const html = renderToString(
+      <ImportStepper
+        currentStep="periksa"
+        canNavigateToPeriksa={true}
+        canNavigateToKonfirmasi={true}
+      />
+    );
+
+    // Step 3 clickable styling
+    expect(html).toContain("bg-primary-50 text-primary border border-primary/30");
+  });
 });

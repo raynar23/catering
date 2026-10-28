@@ -56,6 +56,8 @@ export const ImportStepper: React.FC<ImportStepperProps> = ({
                       ? "text-primary font-semibold cursor-default"
                       : isCompleted
                       ? "text-text hover:text-primary cursor-pointer"
+                      : isClickable
+                      ? "text-text hover:text-primary cursor-pointer font-medium"
                       : "text-text-muted cursor-not-allowed"
                   }`}
                 >
@@ -66,6 +68,8 @@ export const ImportStepper: React.FC<ImportStepperProps> = ({
                         ? "bg-primary text-white shadow-xs"
                         : isCompleted
                         ? "bg-primary/80 text-white"
+                        : isClickable
+                        ? "bg-primary-50 text-primary border border-primary/30"
                         : "bg-border text-text-muted border border-border"
                     }`}
                   >

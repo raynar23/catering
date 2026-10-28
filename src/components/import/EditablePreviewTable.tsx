@@ -136,7 +136,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 max-h-[calc(100vh-140px)]">
+    <div className="flex flex-col gap-4 w-full">
       {/* Metric KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 shrink-0 select-none">
         {/* Total Baris */}
@@ -228,7 +228,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
           <button
             type="button"
             onClick={handleAddRow}
-            className="px-3 py-1.5 border border-primary/30 bg-surface hover:bg-primary-50 text-primary text-xs font-semibold rounded-[6px] transition-colors"
+            className="px-3 py-1.5 border border-primary/30 bg-surface hover:bg-primary-50 text-primary text-xs font-semibold rounded-[6px] transition-colors cursor-pointer"
           >
             + Tambah Baris
           </button>
@@ -236,11 +236,22 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
             <button
               type="button"
               onClick={handleDeleteSelected}
-              className="px-3 py-1.5 bg-danger hover:bg-danger/90 text-white text-xs font-semibold rounded-[6px] transition-colors"
+              className="px-3 py-1.5 bg-danger hover:bg-danger/90 text-white text-xs font-semibold rounded-[6px] transition-colors cursor-pointer"
             >
               Hapus ({selectedIds.size})
             </button>
           )}
+          <button
+            type="button"
+            id="btn-lanjut-konfirmasi-top"
+            onClick={onProceedToConfirmation}
+            disabled={hasErrors || rows.length === 0}
+            title={hasErrors ? "Selesaikan seluruh baris error sebelum melanjutkan" : "Lanjut ke langkah konfirmasi"}
+            className="px-3.5 py-1.5 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-[6px] transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
+          >
+            <span>Lanjut ke Konfirmasi</span>
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
       </div>
 
@@ -305,8 +316,8 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
       </div>
 
       {/* Scrollable Table Container */}
-      <div className="border border-border rounded-lg overflow-hidden bg-surface shadow-xs flex flex-col flex-1 min-h-[280px]">
-        <div className="overflow-y-auto overflow-x-auto flex-1 max-h-[calc(100vh-420px)]">
+      <div className="border border-border rounded-lg overflow-hidden bg-surface shadow-xs flex flex-col">
+        <div className="overflow-y-auto overflow-x-auto max-h-[460px] min-h-[220px]">
           <table className="w-full text-left text-sm border-collapse">
             <thead className="sticky top-0 z-10 bg-bg text-[11px] font-semibold uppercase tracking-wider text-text-muted border-b border-border shadow-xs">
               <tr>
@@ -531,11 +542,13 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
 
           <button
             type="button"
+            id="btn-lanjut-konfirmasi-bottom"
             onClick={onProceedToConfirmation}
             disabled={hasErrors || rows.length === 0}
-            className="px-5 py-2 bg-primary hover:bg-primary-600 active:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
+            className="px-5 py-2 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer flex items-center gap-2"
           >
-            Lanjut ke Konfirmasi
+            <span>Lanjut ke Konfirmasi</span>
+            <span aria-hidden="true">→</span>
           </button>
         </div>
       </div>
