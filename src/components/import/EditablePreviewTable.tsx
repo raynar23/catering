@@ -137,86 +137,90 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
 
   return (
     <div className="flex flex-col gap-4 max-h-[calc(100vh-140px)]">
-      {/* Executive KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 shrink-0">
+      {/* Metric KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 shrink-0 select-none">
         {/* Total Baris */}
-        <div className="p-3.5 bg-surface border border-border border-l-4 border-l-slate-500 rounded-lg shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+        <div className="p-3 sm:p-3.5 bg-surface border border-border rounded-[10px] flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-text-muted">
             Total Baris
-          </span>
-          <div className="flex items-baseline justify-between mt-1.5">
-            <span className="text-2xl font-bold text-text tabular-nums">{summary.total}</span>
-            <span className="text-[11px] text-text-muted">jadwal</span>
-          </div>
+          </p>
+          <p className="text-xl sm:text-2xl font-bold text-text tabular-nums tracking-tight my-1 leading-none">
+            {summary.total}
+          </p>
+          <p className="text-[10px] sm:text-[11px] text-text-muted truncate font-normal">
+            Total baris jadwal
+          </p>
         </div>
 
         {/* Cocok */}
-        <div className="p-3.5 bg-surface border border-border border-l-4 border-l-emerald-600 rounded-lg shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">
+        <div className="p-3 sm:p-3.5 bg-surface border border-border rounded-[10px] flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-text-muted">
             Cocok
-          </span>
-          <div className="flex items-baseline justify-between mt-1.5">
-            <span className="text-2xl font-bold text-emerald-950 tabular-nums">{summary.cocok}</span>
-            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
-              SIAP
-            </span>
-          </div>
+          </p>
+          <p className="text-xl sm:text-2xl font-bold text-primary tabular-nums tracking-tight my-1 leading-none">
+            {summary.cocok}
+          </p>
+          <p className="text-[10px] sm:text-[11px] text-text-muted truncate font-normal">
+            Vendor ada di database
+          </p>
         </div>
 
         {/* Baru */}
-        <div className="p-3.5 bg-surface border border-border border-l-4 border-l-blue-600 rounded-lg shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-blue-800 uppercase tracking-wider">
+        <div className="p-3 sm:p-3.5 bg-surface border border-border rounded-[10px] flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-text-muted">
             Baru
-          </span>
-          <div className="flex items-baseline justify-between mt-1.5">
-            <span className="text-2xl font-bold text-blue-950 tabular-nums">{summary.baru}</span>
-            <span className="text-[10px] font-bold text-blue-800 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded">
-              TAMBAHAN
-            </span>
-          </div>
+          </p>
+          <p className="text-xl sm:text-2xl font-bold text-text tabular-nums tracking-tight my-1 leading-none">
+            {summary.baru}
+          </p>
+          <p className="text-[10px] sm:text-[11px] text-text-muted truncate font-normal">
+            Vendor baru ditambah
+          </p>
         </div>
 
         {/* Perlu Dicek */}
-        <div className="p-3.5 bg-surface border border-border border-l-4 border-l-amber-500 rounded-lg shadow-xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-amber-800 uppercase tracking-wider">
+        <div className="p-3 sm:p-3.5 bg-surface border border-border rounded-[10px] flex flex-col justify-between">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-text-muted">
             Perlu Dicek
-          </span>
-          <div className="flex items-baseline justify-between mt-1.5">
-            <span className="text-2xl font-bold text-amber-950 tabular-nums">{summary.perlu_cek}</span>
-            <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
-              VERIFIKASI
-            </span>
-          </div>
+          </p>
+          <p className="text-xl sm:text-2xl font-bold text-text tabular-nums tracking-tight my-1 leading-none">
+            {summary.perlu_cek}
+          </p>
+          <p className="text-[10px] sm:text-[11px] text-text-muted truncate font-normal">
+            Perlu verifikasi manual
+          </p>
         </div>
 
         {/* Error */}
-        <div className="p-3.5 bg-surface border border-border border-l-4 border-l-rose-600 rounded-lg shadow-xs flex flex-col justify-between col-span-2 sm:col-span-1">
-          <span className="text-[11px] font-semibold text-rose-800 uppercase tracking-wider">
+        <div className="p-3 sm:p-3.5 bg-surface border border-border rounded-[10px] flex flex-col justify-between col-span-2 sm:col-span-1">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-text-muted">
             Error
-          </span>
-          <div className="flex items-baseline justify-between mt-1.5">
-            <span className="text-2xl font-bold text-rose-950 tabular-nums">{summary.error}</span>
-            <span className="text-[10px] font-bold text-rose-800 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">
-              {summary.error > 0 ? "WAJIB FIX" : "BERSIH"}
-            </span>
-          </div>
+          </p>
+          <p className={`text-xl sm:text-2xl font-bold tabular-nums tracking-tight my-1 leading-none ${
+            summary.error > 0 ? "text-danger" : "text-text"
+          }`}>
+            {summary.error}
+          </p>
+          <p className="text-[10px] sm:text-[11px] text-text-muted truncate font-normal">
+            {summary.error > 0 ? "Format perlu diperbaiki" : "Format baris valid"}
+          </p>
         </div>
       </div>
 
       {/* Comparison Toolbar & Filter Row */}
-      <div className="p-3 bg-surface border border-border rounded-lg shadow-xs flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div className="p-3 bg-surface border border-border rounded-[10px] flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="font-semibold text-text-muted uppercase tracking-wider text-[11px] mr-1">
             Status Database:
           </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-900 font-semibold border border-blue-200">
-            Baru: <strong>{summary.baru}</strong>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-bg text-text font-medium border border-border">
+            Baru: <strong className="text-text">{summary.baru}</strong>
           </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-900 font-semibold border border-amber-200">
-            Diubah: <strong>{summary.perlu_cek}</strong>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-bg text-text font-medium border border-border">
+            Diubah: <strong className="text-text">{summary.perlu_cek}</strong>
           </span>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-slate-800 font-semibold border border-slate-200">
-            Sama: <strong>{summary.cocok}</strong>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] bg-bg text-text font-medium border border-border">
+            Sama: <strong className="text-text">{summary.cocok}</strong>
           </span>
         </div>
 
@@ -224,7 +228,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
           <button
             type="button"
             onClick={handleAddRow}
-            className="px-3 py-1.5 border border-primary/40 bg-surface hover:bg-primary-50 text-primary text-xs font-semibold rounded-md transition-colors shadow-xs"
+            className="px-3 py-1.5 border border-primary/30 bg-surface hover:bg-primary-50 text-primary text-xs font-semibold rounded-[6px] transition-colors"
           >
             + Tambah Baris
           </button>
@@ -232,7 +236,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
             <button
               type="button"
               onClick={handleDeleteSelected}
-              className="px-3 py-1.5 bg-danger hover:bg-red-700 text-white text-xs font-semibold rounded-md transition-colors shadow-xs"
+              className="px-3 py-1.5 bg-danger hover:bg-danger/90 text-white text-xs font-semibold rounded-[6px] transition-colors"
             >
               Hapus ({selectedIds.size})
             </button>
