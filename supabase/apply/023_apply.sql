@@ -330,11 +330,11 @@ BEGIN
         ci.bagian_id::text,
         jsonb_build_object(
           'id', ci.id,
-          'porsi', ci.porsi,
-          'karyawan', ci.karyawan
+          'porsi', ci.jumlah_porsi,
+          'karyawan', ci.jumlah_karyawan
         )
       ) FILTER (WHERE ci.id IS NOT NULL), '{}'::jsonb) AS items,
-      COALESCE(sum(ci.porsi), 0) AS total_porsi_periode
+      COALESCE(sum(ci.jumlah_porsi), 0) AS total_porsi_periode
     FROM paged_periods pp
     LEFT JOIN public.catering_items ci ON ci.order_id = pp.order_id
     GROUP BY pp.period_id
@@ -363,7 +363,7 @@ BEGIN
 
   -- Overall totals
   SELECT
-    COALESCE(sum(ci.porsi), 0) INTO v_grand_total
+    COALESCE(sum(ci.jumlah_porsi), 0) INTO v_grand_total
   FROM public.periods p
   JOIN public.catering_orders o ON o.period_id = p.id
   JOIN public.catering_items ci ON ci.order_id = o.id
@@ -382,7 +382,7 @@ BEGIN
   LEFT JOIN (
     SELECT
       ci.bagian_id,
-      sum(ci.porsi) AS total_porsi
+      sum(ci.jumlah_porsi) AS total_porsi
     FROM public.periods p
     JOIN public.catering_orders o ON o.period_id = p.id
     JOIN public.catering_items ci ON ci.order_id = o.id
