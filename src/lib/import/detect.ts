@@ -89,8 +89,13 @@ export function detectDocumentType(
   if (hasVendor) jadwalScore += 0.3;
 
   // Check sample rows for shift names or letters like "a. siang"
-  if (sampleValues.some((v) => v.includes("siang") || v.includes("sore") || v.includes("malam"))) {
-    jadwalScore += 0.2;
+  const sampleHasShifts = sampleValues.some((v) => /siang|sore|malam|shift/i.test(v));
+  const sampleHasDates = sampleValues.some((v) => /^\d{4}-\d{2}-\d{2}/.test(v) || /(jan|feb|mar|apr|mei|jun|jul|agu|sep|okt|nov|des)/i.test(v));
+  if (sampleHasShifts) {
+    jadwalScore += 0.25;
+  }
+  if (sampleHasDates && sampleHasShifts) {
+    jadwalScore += 0.4;
   }
   if (filename.toLowerCase().includes("jadwal")) jadwalScore += 0.25;
 
@@ -103,6 +108,11 @@ export function detectDocumentType(
   if (hasKontak) vendorScore += 0.2;
   if (hasAlamat) vendorScore += 0.2;
   if (filename.toLowerCase().includes("vendor")) vendorScore += 0.3;
+
+  // Suppress vendor score if row content is clearly schedule data
+  if (sampleHasDates && sampleHasShifts) {
+    vendorScore = Math.min(vendorScore, 0.2);
+  }
 
   // 4. Evaluate Bagian signals
   let bagianScore = 0;
