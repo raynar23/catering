@@ -141,7 +141,7 @@ export class XlsxExtractor implements ExtractorInterface {
           if (sample) {
             headers = sample.map((c) => {
               const s = String(c ?? "").trim();
-              if (c instanceof Date || /^\d{4}-\d{2}-\d{2}/.test(s)) return "Tanggal";
+              if ((c as any) instanceof Date || /^\d{4}-\d{2}-\d{2}/.test(s)) return "Tanggal";
               if (/^[a-c1-3][.)]/i.test(s) || /siang|sore|malam|shift/i.test(s)) return "Shift";
               if (typeof c === "number" || /^\d+$/.test(s)) return "No.";
               return "Vendor Catering";

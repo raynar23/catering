@@ -20,7 +20,7 @@ describe("I2: 'Diupdate oleh' Profile Name Resolution Test Suite", () => {
         updated_at: "2026-10-27T10:00:00Z",
         created_at: "2026-10-27T09:00:00Z",
         created_profile: { nama: "PIC Lain" },
-        submitted_profile: null,
+        submitted_profile: null as { nama: string } | null,
         logs: [
           {
             id: "log-1",
@@ -56,7 +56,7 @@ describe("I2: 'Diupdate oleh' Profile Name Resolution Test Suite", () => {
       const draftOrder = {
         id: "ord-draft-1",
         status: "draft",
-        submitted_profile: null,
+        submitted_profile: null as { nama: string } | null,
         created_profile: { nama: pic.nama },
       };
 
