@@ -77,7 +77,7 @@ export function PeriodTable() {
     try {
       const res = await getPeriodList({
         year: selectedYear,
-        month: selectedMonth,
+        month: selectedMonth === 0 ? undefined : selectedMonth,
         shift_id: selectedShift === "all" ? undefined : selectedShift,
         vendor_id: selectedVendor === "all" ? undefined : selectedVendor,
         status: selectedStatus === "all" ? undefined : selectedStatus,
@@ -464,6 +464,7 @@ export function PeriodTable() {
             onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
             className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
+            <option value={0}>Semua Bulan</option>
             {MONTH_OPTIONS.map((m) => (
               <option key={m.value} value={m.value}>
                 {m.label}

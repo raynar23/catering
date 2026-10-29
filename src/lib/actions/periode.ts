@@ -61,8 +61,17 @@ export async function getPeriodList(
 
   const now = new Date();
   const year = filter.year ?? now.getFullYear();
-  const month = filter.month ?? now.getMonth() + 1;
-  const { start, end } = getMonthRange(year, month);
+
+  let start: string;
+  let end: string;
+  if (!filter.month || filter.month === 0) {
+    start = `${year}-01-01`;
+    end = `${year}-12-31`;
+  } else {
+    const range = getMonthRange(year, filter.month);
+    start = range.start;
+    end = range.end;
+  }
 
   // Attempt using v_periode_ringkas view
   const { data: viewData, count: viewCount, error: viewError } = await supabase
@@ -70,7 +79,7 @@ export async function getPeriodList(
     .select("*", { count: "exact" })
     .gte("tanggal", start)
     .lte("tanggal", end)
-    .order("tanggal", { ascending: false })
+    .order("tanggal", { ascending: true })
     .order("shift_urutan", { ascending: true });
 
   if (!viewError && viewData) {
@@ -152,7 +161,7 @@ export async function getPeriodList(
     )
     .gte("tanggal", start)
     .lte("tanggal", end)
-    .order("tanggal", { ascending: false });
+    .order("tanggal", { ascending: true });
 
   if (rawError || !rawPeriods) {
     return { data: [], total: 0 };
