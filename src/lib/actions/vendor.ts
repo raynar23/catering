@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { vendorSchema, VendorFormInput } from "@/lib/validations/vendor";
 import { revalidatePath } from "next/cache";
@@ -56,7 +57,8 @@ export async function parseVendorContact(
 
 // Generate next sequential vendor code (e.g. V006)
 export async function getNextVendorCode(): Promise<string> {
-  const supabase = await createClient();
+  const profile = await getCurrentProfile();
+  const supabase = profile?.role === "admin_ga" ? createAdminClient() : await createClient();
   const { data } = await supabase.from("vendors").select("kode");
 
   let maxNum = 0;
@@ -80,7 +82,8 @@ export async function getVendorList(
   page = 1,
   pageSize = 50
 ): Promise<{ data: VendorRecord[]; total: number }> {
-  const supabase = await createClient();
+  const profile = await getCurrentProfile();
+  const supabase = profile?.role === "admin_ga" ? createAdminClient() : await createClient();
 
   let query = supabase
     .from("vendors")

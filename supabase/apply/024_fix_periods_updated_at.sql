@@ -215,7 +215,29 @@ BEGIN
 END;
 $$;
 
--- 4. Grant execute to authenticated users
+-- 4. Restore current_user_vendor_id alias and grant execute to authenticated role
+CREATE OR REPLACE FUNCTION public.current_user_vendor_id()
+RETURNS uuid AS $$
+  SELECT public.my_vendor_id();
+$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp;
+
+GRANT EXECUTE ON FUNCTION public.current_user_vendor_id() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.my_vendor_id() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
+
+-- 5. Ensure vendors RLS policy uses canonical my_vendor_id
+DROP POLICY IF EXISTS "vendors_select_policy" ON public.vendors;
+CREATE POLICY "vendors_select_policy" ON public.vendors
+  FOR SELECT TO authenticated
+  USING (public.is_admin() OR id = public.my_vendor_id());
+
+DROP POLICY IF EXISTS "vendors_manage_policy" ON public.vendors;
+CREATE POLICY "vendors_manage_policy" ON public.vendors
+  FOR ALL TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- 6. Grant execute to authenticated users
 GRANT EXECUTE ON FUNCTION public.konfirmasi_impor(uuid, jsonb, jsonb) TO authenticated;
 
 COMMIT;

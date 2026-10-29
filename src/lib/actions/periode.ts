@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import {
   periodSchema,
@@ -55,7 +56,8 @@ export interface ActionResult<T = unknown> {
 export async function getPeriodList(
   filter: PeriodFilter = {}
 ): Promise<{ data: PeriodListItem[]; total: number }> {
-  const supabase = await createClient();
+  const profile = await getCurrentProfile();
+  const supabase = profile?.role === "admin_ga" ? createAdminClient() : await createClient();
 
   const now = new Date();
   const year = filter.year ?? now.getFullYear();
@@ -143,7 +145,7 @@ export async function getPeriodList(
         created_by,
         submitted_profile:profiles!catering_orders_submitted_by_fkey (nama),
         created_profile:profiles!catering_orders_created_by_fkey (nama),
-        catering_items (porsi)
+        catering_items (jumlah_porsi)
       )
     `,
       { count: "exact" }
@@ -185,7 +187,7 @@ interface RawPeriodRow {
     created_by: string | null;
     submitted_profile: { nama: string } | null;
     created_profile: { nama: string } | null;
-    catering_items: { porsi: number }[];
+    catering_items: { jumlah_porsi: number }[];
   }[] | null;
 }
 
@@ -199,7 +201,7 @@ interface RawPeriodRow {
       let totalPorsi = 0;
       if (order && order.catering_items) {
         for (const item of order.catering_items) {
-          totalPorsi += item.porsi || 0;
+          totalPorsi += item.jumlah_porsi || 0;
         }
       }
 
