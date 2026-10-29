@@ -3,6 +3,16 @@ import React from "react";
 import Link from "next/link";
 import { AnalysisResult, KonfirmasiOpsi, ParsedRow } from "@/lib/import/types";
 
+import { ShieldCheck, UserCheck } from "lucide-react";
+
+export interface ProvisionedVendorAccount {
+  vendorId: string;
+  nama: string;
+  kode: string;
+  username: string;
+  email: string;
+}
+
 interface ConfirmationPanelProps {
   analysis: AnalysisResult;
   rows: ParsedRow[];
@@ -13,6 +23,7 @@ interface ConfirmationPanelProps {
   isSuccess: boolean;
   error?: string | null;
   onReset: () => void;
+  provisionedUsers?: ProvisionedVendorAccount[];
 }
 
 const getFriendlyFormat = (filename: string, tipe?: string): string => {
@@ -49,6 +60,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
   isSuccess,
   error,
   onReset,
+  provisionedUsers,
 }) => {
   // Count actions to be committed
   const newVendorsCount = rows.filter((r) => r.status === "baru").length;
@@ -72,6 +84,47 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
           </p>
         </div>
 
+        {/* Provisioned Vendor Accounts Card */}
+        {provisionedUsers && provisionedUsers.length > 0 && (
+          <div className="p-4 bg-primary-50/50 dark:bg-primary-950/20 border border-primary/20 rounded-[8px] text-left space-y-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
+              <div>
+                <p className="text-xs font-bold text-text">
+                  {provisionedUsers.length} Akun Login Vendor Baru Telah Dibuat
+                </p>
+                <p className="text-[11px] text-text-muted">
+                  Akun aktif di Manajemen User dengan role Vendor (kredensial login dapat dikelola atau direset oleh Admin).
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              {provisionedUsers.map((u) => (
+                <div key={u.vendorId} className="p-2.5 bg-surface border border-border rounded-[6px] text-xs space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-text">{u.nama}</p>
+                    <span className="text-[10px] bg-bg px-1.5 py-0.2 rounded border border-border text-text-muted font-mono">{u.kode}</span>
+                  </div>
+                  <p className="text-text-muted font-mono text-[11px]">
+                    Username: <strong className="text-text">{u.username}</strong>
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-1">
+              <Link
+                href="/admin/manajemen-user"
+                className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold hover:underline"
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>Lihat dan kelola akun di Manajemen User &rarr;</span>
+              </Link>
+            </div>
+          </div>
+        )}
+
         <div className="p-4 bg-bg rounded-[8px] text-xs space-y-1.5 text-left text-text-muted border border-border">
           <p>
             Kategori Data: <strong className="text-text">{getFriendlyCategory(analysis.jenisDokumen)}</strong>
@@ -86,16 +139,22 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
           <Link
-            href="/admin/periode"
+            href="/admin/master/periode"
             className="px-4 py-2.5 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-sm font-semibold rounded-[8px] transition-colors text-center"
           >
             Lihat Periode Catering
           </Link>
           <Link
-            href="/admin/vendor"
+            href="/admin/master/vendor"
             className="px-4 py-2.5 border border-border bg-surface hover:bg-bg text-text text-sm font-semibold rounded-[8px] transition-colors text-center"
           >
             Lihat Data Vendor
+          </Link>
+          <Link
+            href="/admin/manajemen-user"
+            className="px-4 py-2.5 border border-border bg-surface hover:bg-bg text-text text-sm font-semibold rounded-[8px] transition-colors text-center"
+          >
+            Lihat Manajemen User
           </Link>
         </div>
 

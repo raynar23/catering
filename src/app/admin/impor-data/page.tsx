@@ -1,14 +1,15 @@
 "use client";
 
 // Admin smart document ingestion page with 3-step wizard workflow
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ImportStep, ImportStepper } from "@/components/import/ImportStepper";
 import { UploadDropzone } from "@/components/import/UploadDropzone";
 import { EditablePreviewTable } from "@/components/import/EditablePreviewTable";
-import { ConfirmationPanel } from "@/components/import/ConfirmationPanel";
+import { ConfirmationPanel, ProvisionedVendorAccount } from "@/components/import/ConfirmationPanel";
 import { AiConsentDialog } from "@/components/import/AiConsentDialog";
+import { VendorSecurityConfirmDialog } from "@/components/import/VendorSecurityConfirmDialog";
 import { AnalysisResult, DocumentType, KonfirmasiOpsi, ParsedRow } from "@/lib/import/types";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,10 @@ export default function AdminImporDataPage() {
   const [isConfirming, setIsConfirming] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [provisionedUsers, setProvisionedUsers] = useState<ProvisionedVendorAccount[]>([]);
+
+  // Vendor Security Confirmation modal state
+  const [showVendorSecurityModal, setShowVendorSecurityModal] = useState(false);
 
   // AI Fallback state
   const [showAiModal, setShowAiModal] = useState(false);
@@ -76,6 +81,37 @@ export default function AdminImporDataPage() {
     }
   };
 
+  // Detect unique unmapped vendor names across current rows
+  const newVendors = useMemo(() => {
+    const names = new Set<string>();
+    editableRows.forEach((r) => {
+      if (r.status === "baru") {
+        const vName = (r as any).vendor_nama || (r as any).nama;
+        if (typeof vName === "string" && vName.trim()) {
+          names.add(vName.trim());
+        }
+      } else if ("vendor_nama" in r && (r as any).vendor_nama && !(r as any).vendor_id) {
+        names.add((r as any).vendor_nama.trim());
+      }
+    });
+    return Array.from(names);
+  }, [editableRows]);
+
+  // Proceed from step 2 to 3 with vendor security check
+  const handleProceedToConfirmation = () => {
+    if (newVendors.length > 0 && !options.buat_vendor_baru) {
+      setShowVendorSecurityModal(true);
+      return;
+    }
+    setCurrentStep("konfirmasi");
+  };
+
+  const handleConfirmAutoRegister = () => {
+    setOptions((prev) => ({ ...prev, buat_vendor_baru: true }));
+    setShowVendorSecurityModal(false);
+    setCurrentStep("konfirmasi");
+  };
+
   // Handle confirmation
   const handleConfirm = async () => {
     if (!analysisResult?.batchId) return;
@@ -100,6 +136,10 @@ export default function AdminImporDataPage() {
         throw new Error(json.error || "Gagal mengonfirmasi impor data.");
       }
 
+      if (json.data?.provisionedUsers) {
+        setProvisionedUsers(json.data.provisionedUsers);
+      }
+
       setIsSuccess(true);
     } catch (err: any) {
       setConfirmError(err.message || "Gagal menyimpan data ke sistem.");
@@ -115,6 +155,7 @@ export default function AdminImporDataPage() {
     setEditableRows([]);
     setOptions({ buat_vendor_baru: false, timpa_periode: false });
     setIsSuccess(false);
+    setProvisionedUsers([]);
     setAnalysisError(null);
     setConfirmError(null);
     setPendingFile(null);
@@ -170,6 +211,7 @@ export default function AdminImporDataPage() {
               isSuccess={isSuccess}
               error={confirmError}
               onReset={handleReset}
+              provisionedUsers={provisionedUsers}
             />
           )}
         </div>
@@ -182,11 +224,19 @@ export default function AdminImporDataPage() {
             documentType={analysisResult.jenisDokumen}
             options={options}
             onOptionsChange={setOptions}
-            onProceedToConfirmation={() => setCurrentStep("konfirmasi")}
+            onProceedToConfirmation={handleProceedToConfirmation}
             onReset={handleReset}
           />
         )}
       </div>
+
+      {/* Vendor Security & Multi-tenant Isolation Confirmation Dialog */}
+      <VendorSecurityConfirmDialog
+        isOpen={showVendorSecurityModal}
+        onClose={() => setShowVendorSecurityModal(false)}
+        newVendors={newVendors}
+        onConfirmAutoRegister={handleConfirmAutoRegister}
+      />
 
       {/* AI Fallback Consent Dialog */}
       <AiConsentDialog
