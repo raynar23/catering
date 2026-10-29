@@ -8,19 +8,32 @@ export async function POST(req: NextRequest) {
     const adminClient = createAdminClient();
     let callerUserId: string | null = null;
 
+    const serverSupabase = await createClient();
+    let rpcClient = serverSupabase;
+
     const authHeader = req.headers.get("authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.slice(7).trim();
       const { data: tokenData } = await adminClient.auth.getUser(token);
-      if (tokenData?.user) callerUserId = tokenData.user.id;
+      if (tokenData?.user) {
+        callerUserId = tokenData.user.id;
+        const { createClient: createSupabaseJsClient } = await import("@supabase/supabase-js");
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+        const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+        rpcClient = createSupabaseJsClient(url, anonKey, {
+          global: { headers: { Authorization: `Bearer ${token}` } },
+        }) as any;
+      }
     }
 
     if (!callerUserId) {
-      const serverSupabase = await createClient();
       const {
         data: { user: cookieUser },
       } = await serverSupabase.auth.getUser();
-      if (cookieUser) callerUserId = cookieUser.id;
+      if (cookieUser) {
+        callerUserId = cookieUser.id;
+        rpcClient = serverSupabase;
+      }
     }
 
     if (!callerUserId) {
@@ -53,8 +66,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Execute privileged konfirmasi_impor RPC
-    const { data: rpcRes, error: rpcErr } = await adminClient.rpc("konfirmasi_impor", {
+    // Execute konfirmasi_impor RPC using the caller's authenticated session
+    const { data: rpcRes, error: rpcErr } = await rpcClient.rpc("konfirmasi_impor", {
       p_batch_id: batchId,
       p_baris: rows || null,
       p_opsi: options || {},
