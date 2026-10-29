@@ -280,6 +280,7 @@ export function PeriodTable() {
   const columns: ColumnDef<PeriodListItem>[] = [
     {
       key: "select",
+      sortable: false,
       className: "hidden sm:table-cell",
       header: (
         <div className="flex items-center justify-center">
@@ -310,6 +311,7 @@ export function PeriodTable() {
       key: "tanggal",
       header: "Tanggal",
       width: 95,
+      sortValue: (row) => `${row.tanggal}_${String(row.shift_urutan).padStart(2, "0")}`,
       render: (row) => (
         <div className="min-w-0 pr-1">
           <span className="font-semibold text-text tabular-nums block text-xs">
@@ -325,6 +327,7 @@ export function PeriodTable() {
       key: "shift_nama",
       header: "Shift Kerja",
       className: "hidden sm:table-cell",
+      sortValue: (row) => row.shift_urutan,
       render: (row) => (
         <div>
           <span className="font-medium text-text">{row.shift_nama}</span>
@@ -337,6 +340,7 @@ export function PeriodTable() {
     {
       key: "vendor_nama",
       header: "Vendor",
+      sortValue: (row) => row.vendor_nama,
       render: (row) => (
         <div className="min-w-0 pr-1">
           <div className="font-medium text-text truncate">
@@ -357,6 +361,7 @@ export function PeriodTable() {
       key: "vendor_kontak",
       header: "Kontak Vendor",
       className: "hidden md:table-cell",
+      sortValue: (row) => row.vendor_kontak || "",
       render: (row) => {
         if (!row.vendor_kontak) return "-";
         const link = waLink(
@@ -386,6 +391,7 @@ export function PeriodTable() {
       className: "hidden sm:table-cell",
       align: "right",
       width: 85,
+      sortValue: (row) => row.total_porsi,
       render: (row) => (
         <span className="font-semibold text-text tabular-nums">
           {row.total_porsi > 0 ? row.total_porsi : "-"}
@@ -396,14 +402,22 @@ export function PeriodTable() {
       key: "diupdate_oleh",
       header: "Diupdate Oleh",
       className: "hidden lg:table-cell",
+      sortValue: (row) => row.diupdate_oleh || "",
       render: (row) => row.diupdate_oleh || "-",
     },
     {
       key: "status",
       header: "Status",
       align: "center",
-      width: 76,
-      render: (row) => <StatusBadge status={row.status} />,
+      width: 92,
+      className: "px-1 sm:px-2 overflow-visible",
+      sortValue: (row) => row.status,
+      render: (row) => (
+        <StatusBadge
+          status={row.status}
+          className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px]"
+        />
+      ),
     },
     {
       key: "progres_vendor",
@@ -411,6 +425,7 @@ export function PeriodTable() {
       className: "hidden md:table-cell",
       align: "center",
       width: 110,
+      sortValue: (row) => row.progres_vendor,
       render: (row) => <StatusBadge status={row.progres_vendor} />,
     },
     {
@@ -418,12 +433,13 @@ export function PeriodTable() {
       header: "Aksi",
       align: "right",
       width: 76,
+      sortable: false,
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
           <button
             type="button"
             onClick={() => handleGantiVendor(row)}
-            className="p-1.5 text-text-muted hover:text-accent rounded-[6px] hover:bg-bg transition-colors cursor-pointer"
+            className="hidden sm:inline-flex p-1.5 text-text-muted hover:text-accent rounded-[6px] hover:bg-bg transition-colors cursor-pointer"
             title="Ganti Vendor Periode"
             aria-label="Ganti Vendor Periode"
           >
@@ -584,6 +600,8 @@ export function PeriodTable() {
         data={data}
         keyExtractor={(item) => item.id}
         isLoading={loading}
+        defaultSortKey="tanggal"
+        defaultSortOrder="asc"
         emptyTitle="Belum Ada Jadwal Periode"
         emptyDescription="Tidak ditemukan jadwal catering untuk kriteria filter dan bulan yang dipilih."
       />

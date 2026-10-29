@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { Skeleton } from "./Skeleton";
 import { EmptyState } from "./EmptyState";
 import { formatNumber } from "@/lib/format";
@@ -13,6 +14,8 @@ export interface ColumnDef<T> {
   align?: "left" | "center" | "right";
   width?: string | number;
   className?: string;
+  sortable?: boolean;
+  sortValue?: (row: T) => string | number | boolean | null | undefined;
 }
 
 interface DataTableProps<T> {
@@ -27,10 +30,14 @@ interface DataTableProps<T> {
   minRows?: number;
   page?: number;
   onPageChange?: (page: number) => void;
+  defaultSortKey?: string;
+  defaultSortOrder?: "asc" | "desc";
+  onSortChange?: (key: string, order: "asc" | "desc") => void;
+  tableLayout?: "auto" | "fixed";
   className?: string;
 }
 
-// Adaptive table computing rows dynamically via ResizeObserver for zero page scroll
+// Adaptive table computing rows dynamically via ResizeObserver with interactive column sorting
 export function DataTable<T>({
   columns,
   data,
@@ -43,12 +50,17 @@ export function DataTable<T>({
   minRows = 5,
   page: controlledPage,
   onPageChange,
+  defaultSortKey,
+  defaultSortOrder = "asc",
+  onSortChange,
   tableLayout = "fixed",
   className,
-}: DataTableProps<T> & { tableLayout?: "auto" | "fixed" }) {
+}: DataTableProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [internalPage, setInternalPage] = useState(1);
   const [pageSize, setPageSize] = useState(minRows);
+  const [sortKey, setSortKey] = useState<string | null>(defaultSortKey ?? null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">(defaultSortOrder);
 
   const activePage = controlledPage ?? internalPage;
 
@@ -72,14 +84,51 @@ export function DataTable<T>({
     return () => observer.disconnect();
   }, [rowHeight, minRows]);
 
-  const totalItems = data.length;
+  const handleSort = (key: string) => {
+    let nextOrder: "asc" | "desc" = "asc";
+    if (sortKey === key) {
+      nextOrder = sortOrder === "asc" ? "desc" : "asc";
+    }
+    setSortKey(key);
+    setSortOrder(nextOrder);
+    setInternalPage(1);
+    onSortChange?.(key, nextOrder);
+  };
+
+  const sortedData = useMemo(() => {
+    if (!sortKey) return data;
+    const col = columns.find((c) => c.key === sortKey);
+    return [...data].sort((a, b) => {
+      let valA: unknown = col?.sortValue ? col.sortValue(a) : (a as Record<string, unknown>)[sortKey];
+      let valB: unknown = col?.sortValue ? col.sortValue(b) : (b as Record<string, unknown>)[sortKey];
+
+      if (valA === valB) return 0;
+      if (valA === null || valA === undefined || valA === "") return 1;
+      if (valB === null || valB === undefined || valB === "") return -1;
+
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortOrder === "asc" ? valA - valB : valB - valA;
+      }
+      if (typeof valA === "boolean" && typeof valB === "boolean") {
+        return sortOrder === "asc" ? (valA === valB ? 0 : valA ? 1 : -1) : (valA === valB ? 0 : valA ? -1 : 1);
+      }
+
+      const strA = String(valA);
+      const strB = String(valB);
+      return sortOrder === "asc"
+        ? strA.localeCompare(strB, undefined, { numeric: true, sensitivity: "base" })
+        : strB.localeCompare(strA, undefined, { numeric: true, sensitivity: "base" });
+    });
+  }, [data, sortKey, sortOrder, columns]);
+
+  const totalItems = sortedData.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const validPage = Math.min(Math.max(1, activePage), totalPages);
 
   const paginatedData = useMemo(() => {
     const start = (validPage - 1) * pageSize;
-    return data.slice(start, start + pageSize);
-  }, [data, validPage, pageSize]);
+    return sortedData.slice(start, start + pageSize);
+  }, [sortedData, validPage, pageSize]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -109,20 +158,47 @@ export function DataTable<T>({
         <table className={cn("w-full text-left border-collapse text-xs", isFixed && "table-fixed")}>
           <thead className="sticky top-0 z-10 bg-[#F9F9FB]/95 backdrop-blur-sm border-b border-[#E5E5EA]">
             <tr className="h-10">
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  style={col.width ? { width: col.width } : undefined}
-                  className={cn(
-                    "px-2 sm:px-3.5 text-[11px] font-semibold uppercase tracking-wider text-[#86868B] select-none truncate",
-                    col.align === "right" && "text-right",
-                    col.align === "center" && "text-center",
-                    col.className
-                  )}
-                >
-                  {col.header}
-                </th>
-              ))}
+              {columns.map((col) => {
+                const isSortable = col.sortable ?? (col.key !== "select" && col.key !== "actions");
+                const isCurrentSort = sortKey === col.key;
+                return (
+                  <th
+                    key={col.key}
+                    style={col.width ? { width: col.width } : undefined}
+                    onClick={() => isSortable && handleSort(col.key)}
+                    className={cn(
+                      "px-2 sm:px-3.5 text-[11px] font-semibold uppercase tracking-wider text-[#86868B] select-none",
+                      isSortable && "cursor-pointer hover:text-text hover:bg-black/[0.03] transition-colors",
+                      col.align === "right" && "text-right",
+                      col.align === "center" && "text-center",
+                      col.className
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "inline-flex items-center gap-1 min-w-0 max-w-full",
+                        col.align === "right" && "justify-end w-full",
+                        col.align === "center" && "justify-center w-full"
+                      )}
+                    >
+                      <span className="truncate">{col.header}</span>
+                      {isSortable && (
+                        <span className="shrink-0 text-text-muted">
+                          {isCurrentSort ? (
+                            sortOrder === "asc" ? (
+                              <ArrowUp className="w-3 h-3 text-primary stroke-[2.5]" />
+                            ) : (
+                              <ArrowDown className="w-3 h-3 text-primary stroke-[2.5]" />
+                            )
+                          ) : (
+                            <ArrowUpDown className="w-2.5 h-2.5 opacity-30 hover:opacity-100" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
 
@@ -157,11 +233,13 @@ export function DataTable<T>({
                   >
                     {columns.map((col) => {
                       const value = (row as Record<string, unknown>)[col.key];
+                      const allowOverflow = col.className?.includes("overflow-");
                       return (
                         <td
                           key={`${key}-${col.key}`}
                           className={cn(
-                            "px-2 sm:px-3.5 text-text tabular-nums truncate",
+                            "px-2 sm:px-3.5 text-text tabular-nums",
+                            allowOverflow ? "" : "truncate",
                             col.align === "right" && "text-right",
                             col.align === "center" && "text-center",
                             col.className

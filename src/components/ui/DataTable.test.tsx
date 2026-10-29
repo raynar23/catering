@@ -67,4 +67,38 @@ describe("DataTable", () => {
     expect(html).toContain("animate-pulse");
     expect(html).not.toContain("CC Operator");
   });
+
+  it("sorts rows ascending and descending by column key", () => {
+    const htmlAsc = renderToString(
+      <DataTable
+        columns={COLUMNS}
+        data={SAMPLE_DATA}
+        defaultSortKey="name"
+        defaultSortOrder="asc"
+        keyExtractor={(item) => item.id}
+      />
+    );
+    // In asc alphabetical order, Bengkel comes before CC Operator
+    const bengkelIdxAsc = htmlAsc.indexOf("Bengkel");
+    const ccIdxAsc = htmlAsc.indexOf("CC Operator");
+    expect(bengkelIdxAsc).toBeGreaterThan(-1);
+    expect(ccIdxAsc).toBeGreaterThan(-1);
+    expect(bengkelIdxAsc).toBeLessThan(ccIdxAsc);
+
+    const htmlDesc = renderToString(
+      <DataTable
+        columns={COLUMNS}
+        data={SAMPLE_DATA}
+        defaultSortKey="name"
+        defaultSortOrder="desc"
+        keyExtractor={(item) => item.id}
+      />
+    );
+    // In desc alphabetical order, RTG Operator comes first before Mekanik CC
+    const rtgIdxDesc = htmlDesc.indexOf("RTG Operator");
+    const mekanikIdxDesc = htmlDesc.indexOf("Mekanik CC");
+    expect(rtgIdxDesc).toBeGreaterThan(-1);
+    expect(mekanikIdxDesc).toBeGreaterThan(-1);
+    expect(rtgIdxDesc).toBeLessThan(mekanikIdxDesc);
+  });
 });
