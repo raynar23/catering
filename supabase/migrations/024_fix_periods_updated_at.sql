@@ -1,10 +1,14 @@
--- Migration 024: Fix periods updated_at column and konfirmasi_impor
+-- Migration 024: Fix periods updated_at column and canonical konfirmasi_impor
 
 -- 1. Ensure updated_at column exists on public.periods
 ALTER TABLE public.periods
   ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
 
--- 2. Ensure canonical konfirmasi_impor function works safely
+-- 2. Drop any conflicting overloads
+DROP FUNCTION IF EXISTS public.konfirmasi_impor(uuid);
+DROP FUNCTION IF EXISTS public.konfirmasi_impor(uuid, jsonb);
+
+-- 3. Canonical konfirmasi_impor function
 CREATE OR REPLACE FUNCTION public.konfirmasi_impor(
   p_batch_id uuid,
   p_baris jsonb DEFAULT NULL,
@@ -13,114 +17,141 @@ CREATE OR REPLACE FUNCTION public.konfirmasi_impor(
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, auth
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   v_batch record;
-  v_rows jsonb;
+  v_rows_to_process jsonb;
   v_row jsonb;
-  v_applied_count integer := 0;
-  v_timpa_periode boolean := false;
+  v_jenis text;
+  v_buat_vendor_baru boolean;
+  v_timpa_periode boolean;
+
   v_tgl date;
+  v_shift_alias text;
   v_shift_id uuid;
+  v_vendor_nama text;
   v_vendor_id uuid;
   v_period_id uuid;
   v_order_id uuid;
-  v_order_status public.order_status;
+  v_order_status order_status;
   v_existing_order_vendor_id uuid;
-  v_vendor_nama text;
-  v_vendor_kode text;
+
+  v_applied_count integer := 0;
+  v_new_vendor_code text;
+  v_max_vendor_num integer;
 BEGIN
-  -- Validate caller role
-  IF NOT (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE id = auth.uid() AND role IN ('admin_ga', 'superadmin')
-    )
-    OR auth.role() = 'service_role'
-  ) THEN
-    RAISE EXCEPTION 'Hanya Admin GA yang berhak mengonfirmasi impor data'
-      USING ERRCODE = '42501';
+  -- Strict Admin GA authorization check
+  IF NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Akses ditolak: hanya Admin GA yang dapat mengonfirmasi impor data.';
   END IF;
 
-  -- Fetch import batch
-  SELECT * INTO v_batch
-  FROM public.import_batches
-  WHERE id = p_batch_id
-  FOR UPDATE;
-
+  -- Verify and lock import batch record
+  SELECT * INTO v_batch FROM public.import_batches WHERE id = p_batch_id FOR UPDATE;
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Batch impor tidak ditemukan: %', p_batch_id;
+    RAISE EXCEPTION 'Batch impor tidak ditemukan.';
   END IF;
 
-  IF v_batch.status = 'selesai' THEN
-    RAISE EXCEPTION 'Batch impor ini sudah dikonfirmasi dan selesai sebelumnya';
+  IF v_batch.status <> 'draft' THEN
+    RAISE EXCEPTION 'Batch impor sudah berstatus "%" dan tidak dapat dikonfirmasi ulang.', v_batch.status;
   END IF;
 
-  -- Extract options
+  -- Resolve rows to process (use edited rows if provided, otherwise original parsed rows)
+  v_rows_to_process := COALESCE(p_baris, v_batch.data_parsed);
+  IF v_rows_to_process IS NULL OR jsonb_array_length(v_rows_to_process) = 0 THEN
+    RAISE EXCEPTION 'Tidak ada baris data untuk dikonfirmasi.';
+  END IF;
+
+  v_jenis := COALESCE(v_batch.jenis_dokumen, 'jadwal');
+  v_buat_vendor_baru := COALESCE((p_opsi->>'buat_vendor_baru')::boolean, false);
   v_timpa_periode := COALESCE((p_opsi->>'timpa_periode')::boolean, false);
 
-  -- Determine rows source
-  IF p_baris IS NOT NULL AND jsonb_typeof(p_baris) = 'array' THEN
-    v_rows := p_baris;
-  ELSE
-    SELECT jsonb_agg(data_parse) INTO v_rows
-    FROM public.import_rows
-    WHERE batch_id = p_batch_id;
-  END IF;
+  -- Process rows by document category
+  FOR v_row IN SELECT * FROM jsonb_array_elements(v_rows_to_process) LOOP
+    -- Skip rows explicitly marked as error
+    IF (v_row->>'status') = 'error' THEN
+      CONTINUE;
+    END IF;
 
-  IF v_rows IS NULL OR jsonb_array_length(v_rows) = 0 THEN
-    RAISE EXCEPTION 'Tidak ada baris data valid untuk disimpan';
-  END IF;
+    IF v_jenis = 'vendor' THEN
+      v_vendor_nama := trim(v_row->>'nama');
+      IF v_vendor_nama IS NOT NULL AND v_vendor_nama <> '' THEN
+        INSERT INTO public.vendors (kode, nama, kontak, alamat)
+        VALUES (
+          COALESCE(NULLIF(trim(v_row->>'kode'), ''), 'V' || lpad((SELECT count(*) + 1 FROM public.vendors)::text, 3, '0')),
+          v_vendor_nama,
+          NULLIF(trim(v_row->>'kontak'), ''),
+          NULLIF(trim(v_row->>'alamat'), '')
+        )
+        ON CONFLICT (kode) DO UPDATE SET
+          nama = EXCLUDED.nama,
+          kontak = COALESCE(EXCLUDED.kontak, vendors.kontak),
+          alamat = COALESCE(EXCLUDED.alamat, vendors.alamat),
+          updated_at = now();
+        v_applied_count := v_applied_count + 1;
+      END IF;
 
-  -- Iterate through rows
-  FOR v_row IN SELECT * FROM jsonb_array_elements(v_rows)
-  LOOP
-    -- Only process non-error rows
-    IF COALESCE(v_row->>'status', '') <> 'error' THEN
+    ELSIF v_jenis = 'bagian' THEN
+      IF (v_row->>'nama') IS NOT NULL AND trim(v_row->>'nama') <> '' THEN
+        INSERT INTO public.bagian (kode, nama, kelompok, lokasi_antar, catatan_antar)
+        VALUES (
+          COALESCE(NULLIF(trim(v_row->>'kode'), ''), upper(regexp_replace(trim(v_row->>'nama'), '[^A-Za-z0-9]', '_', 'g'))),
+          trim(v_row->>'nama'),
+          COALESCE(NULLIF(trim(v_row->>'kelompok'), ''), 'Operasional'),
+          NULLIF(trim(v_row->>'lokasi_antar'), ''),
+          NULLIF(trim(v_row->>'catatan_antar'), '')
+        )
+        ON CONFLICT (nama) DO UPDATE SET
+          kode = EXCLUDED.kode,
+          kelompok = EXCLUDED.kelompok,
+          lokasi_antar = COALESCE(EXCLUDED.lokasi_antar, bagian.lokasi_antar),
+          catatan_antar = COALESCE(EXCLUDED.catatan_antar, bagian.catatan_antar),
+          updated_at = now();
+        v_applied_count := v_applied_count + 1;
+      END IF;
+
+    ELSE
+      -- Jadwal catering and rekap harian
       v_tgl := (v_row->>'tanggal')::date;
+      v_shift_alias := lower(trim(COALESCE(v_row->>'shift_alias', '')));
+      v_shift_id := NULLIF(v_row->>'shift_id', '')::uuid;
+      v_vendor_id := NULLIF(v_row->>'vendor_id', '')::uuid;
+      v_vendor_nama := trim(COALESCE(v_row->>'vendor_nama', ''));
 
-      -- Resolve shift_id
-      v_shift_id := NULL;
-      IF v_row ? 'shift_id' AND (v_row->>'shift_id') IS NOT NULL AND (v_row->>'shift_id') <> '' THEN
-        v_shift_id := (v_row->>'shift_id')::uuid;
-      ELSIF v_row ? 'shift_nama' AND (v_row->>'shift_nama') IS NOT NULL THEN
-        SELECT id INTO v_shift_id
-        FROM public.shifts
-        WHERE lower(nama) = lower(v_row->>'shift_nama')
-           OR lower(nama) = lower('Shift ' || (v_row->>'shift_nama'))
-           OR lower(alias) = lower(v_row->>'shift_nama')
+      -- Resolve shift ID if missing
+      IF v_shift_id IS NULL AND v_shift_alias <> '' THEN
+        SELECT id INTO v_shift_id FROM public.shifts
+        WHERE lower(nama) = v_shift_alias
+           OR lower(label) = v_shift_alias
+           OR lower(COALESCE(alias, '')) = v_shift_alias
+           OR lower(nama) LIKE '%' || v_shift_alias || '%'
         LIMIT 1;
       END IF;
 
-      -- Resolve vendor_id
-      v_vendor_id := NULL;
-      IF v_row ? 'vendor_id' AND (v_row->>'vendor_id') IS NOT NULL AND (v_row->>'vendor_id') <> '' THEN
-        v_vendor_id := (v_row->>'vendor_id')::uuid;
-      ELSIF v_row ? 'vendor_nama' AND (v_row->>'vendor_nama') IS NOT NULL THEN
-        SELECT id INTO v_vendor_id
-        FROM public.vendors
-        WHERE lower(nama) = lower(v_row->>'vendor_nama')
-        LIMIT 1;
+      -- Resolve or auto-register vendor
+      IF v_vendor_id IS NULL AND v_vendor_nama <> '' THEN
+        SELECT id INTO v_vendor_id FROM public.vendors WHERE lower(trim(nama)) = lower(v_vendor_nama) LIMIT 1;
 
-        -- Auto-provision vendor if option is active and not found
-        IF v_vendor_id IS NULL AND COALESCE((p_opsi->>'buat_vendor_baru')::boolean, false) THEN
-          v_vendor_nama := trim(v_row->>'vendor_nama');
-          v_vendor_kode := upper(substring(regexp_replace(v_vendor_nama, '[^a-zA-Z0-9]', '', 'g') from 1 for 10));
+        IF v_vendor_id IS NULL THEN
+          IF v_buat_vendor_baru THEN
+            SELECT COALESCE(max(NULLIF(regexp_replace(kode, '[^0-9]', '', 'g'), '')::integer), 0) + 1
+            INTO v_max_vendor_num FROM public.vendors;
+            v_new_vendor_code := 'V' || lpad(v_max_vendor_num::text, 3, '0');
 
-          INSERT INTO public.vendors (kode, nama, aktif)
-          VALUES (v_vendor_kode, v_vendor_nama, true)
-          ON CONFLICT (kode) DO UPDATE SET nama = EXCLUDED.nama
-          RETURNING id INTO v_vendor_id;
+            INSERT INTO public.vendors (kode, nama)
+            VALUES (v_new_vendor_code, v_vendor_nama)
+            RETURNING id INTO v_vendor_id;
+          ELSE
+            RAISE EXCEPTION 'Vendor "%" belum terdaftar. Aktifkan opsi "Buat vendor baru otomatis".', v_vendor_nama;
+          END IF;
         END IF;
       END IF;
 
-      -- Validate mandatory foreign keys
       IF v_tgl IS NULL OR v_shift_id IS NULL OR v_vendor_id IS NULL THEN
-        CONTINUE;
+        RAISE EXCEPTION 'Baris jadwal tidak valid (tanggal, shift, atau vendor tidak ditemukan).';
       END IF;
 
-      -- Upsert / reconcile period
+      -- Check existing period
       SELECT id INTO v_period_id FROM public.periods WHERE tanggal = v_tgl AND shift_id = v_shift_id;
 
       IF v_period_id IS NULL THEN
@@ -133,7 +164,7 @@ BEGIN
 
         IF v_order_id IS NOT NULL AND v_order_status <> 'draft' THEN
           IF v_timpa_periode THEN
-            UPDATE public.periods SET vendor_id = v_vendor_id WHERE id = v_period_id;
+            UPDATE public.periods SET vendor_id = v_vendor_id, updated_at = now() WHERE id = v_period_id;
             UPDATE public.catering_orders SET vendor_id = v_vendor_id, updated_at = now() WHERE id = v_order_id;
 
             INSERT INTO public.order_logs (order_id, actor_id, aksi, catatan, data_baru)
@@ -148,7 +179,7 @@ BEGIN
             CONTINUE;
           END IF;
         ELSE
-          UPDATE public.periods SET vendor_id = v_vendor_id WHERE id = v_period_id;
+          UPDATE public.periods SET vendor_id = v_vendor_id, updated_at = now() WHERE id = v_period_id;
           IF v_order_id IS NOT NULL THEN
             UPDATE public.catering_orders SET vendor_id = v_vendor_id, updated_at = now() WHERE id = v_order_id;
           END IF;
@@ -167,16 +198,21 @@ BEGIN
   -- Finalize import batch status
   UPDATE public.import_batches
   SET status = 'selesai',
+      dikonfirmasi_at = now(),
+      data_parsed = v_rows_to_process,
+      total_baris = v_applied_count,
+      ringkasan = jsonb_set(COALESCE(ringkasan, '{}'::jsonb), '{opsi}', p_opsi),
       updated_at = now()
   WHERE id = p_batch_id;
 
   RETURN jsonb_build_object(
-    'sukses', true,
-    'total_disimpan', v_applied_count,
-    'nomor_batch', v_batch.nomor_batch
+    'success', true,
+    'status', 'selesai',
+    'total_diproses', v_applied_count,
+    'batch_id', p_batch_id
   );
 END;
 $$;
 
--- Grant privileges to authenticated role
+-- Grant execute to authenticated users
 GRANT EXECUTE ON FUNCTION public.konfirmasi_impor(uuid, jsonb, jsonb) TO authenticated;
