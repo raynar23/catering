@@ -1,4 +1,4 @@
-// Unit test for VendorSecurityConfirmDialog security checks and navigation
+// Unit test for minimalist VendorSecurityConfirmDialog
 import { describe, it, expect, vi } from "vitest";
 import React from "react";
 import { renderToString } from "react-dom/server";
@@ -19,7 +19,7 @@ describe("VendorSecurityConfirmDialog Component", () => {
     expect(html).toBe("");
   });
 
-  it("renders security warnings and list of detected unmapped vendors when isOpen is true", () => {
+  it("renders vendor names and concise explanation when isOpen is true", () => {
     const html = renderToString(
       <VendorSecurityConfirmDialog
         isOpen={true}
@@ -29,16 +29,15 @@ describe("VendorSecurityConfirmDialog Component", () => {
       />
     );
 
-    expect(html).toContain("Konfirmasi Keamanan: Mitra Vendor Belum Terdaftar");
-    expect(html).toContain("Keamanan &amp; Multi-Tenant");
-    expect(html).toContain("4 Vendor Baru");
+    expect(html).toContain("Vendor Belum Terdaftar");
+    expect(html).toContain("4 vendor");
     expect(html).toContain("Catering IBU");
     expect(html).toContain("Nikmat Rasa");
     expect(html).toContain("Adhi Hidayah");
     expect(html).toContain("Nurina Catering");
   });
 
-  it("renders Option 1 links pointing to master vendor and user management", () => {
+  it("renders clean manual links and proceed button", () => {
     const html = renderToString(
       <VendorSecurityConfirmDialog
         isOpen={true}
@@ -50,8 +49,8 @@ describe("VendorSecurityConfirmDialog Component", () => {
 
     expect(html).toContain('href="/admin/master/vendor"');
     expect(html).toContain('href="/admin/manajemen-user"');
-    expect(html).toContain("Buka Data Vendor");
-    expect(html).toContain("Buka Manajemen User");
-    expect(html).toContain("Tetap Lanjut &amp; Buat Akun Otomatis");
+    expect(html).toContain("Data Vendor");
+    expect(html).toContain("Manajemen User");
+    expect(html).toContain("Lanjut &amp; Buat Akun Otomatis");
   });
 });
