@@ -470,15 +470,15 @@ export function PeriodTable() {
   ];
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+    <div className="flex-1 min-h-0 flex flex-col">
       {/* Filters and Actions Bar */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 py-2 sm:py-3 select-none shrink-0">
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 py-2 sm:py-3 px-1 sm:px-0.5 select-none shrink-0">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 p-0.5">
           {/* Month Selector */}
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(parseInt(e.target.value, 10))}
-            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer"
           >
             <option value={0}>Semua Bulan</option>
             {MONTH_OPTIONS.map((m) => (
@@ -492,7 +492,7 @@ export function PeriodTable() {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(parseInt(e.target.value, 10))}
-            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 tabular-nums"
+            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all tabular-nums cursor-pointer"
           >
             <option value={2025}>2025</option>
             <option value={2026}>2026</option>
@@ -503,7 +503,7 @@ export function PeriodTable() {
           <select
             value={selectedShift}
             onChange={(e) => setSelectedShift(e.target.value)}
-            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer"
           >
             <option value="all">Semua Shift</option>
             {shifts.map((s) => (
@@ -517,7 +517,7 @@ export function PeriodTable() {
           <select
             value={selectedVendor}
             onChange={(e) => setSelectedVendor(e.target.value)}
-            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer"
           >
             <option value="all">Semua Vendor</option>
             {vendors.map((v) => (
@@ -531,7 +531,7 @@ export function PeriodTable() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="col-span-2 sm:col-span-1 h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="col-span-2 sm:col-span-1 h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer"
           >
             <option value="all">Semua Status</option>
             <option value="belum_input">Belum Input</option>
@@ -549,7 +549,7 @@ export function PeriodTable() {
               setSelectedShiftToEdit(shifts[0] ?? null);
               setShiftDialogOpen(true);
             }}
-            className="h-8.5 px-3 rounded-[8px] border border-border bg-surface hover:bg-bg text-text text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="h-8.5 px-3 rounded-[8px] border border-border bg-surface hover:bg-bg text-text text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
           >
             <Settings2 className="w-3.5 h-3.5 text-text-muted" />
             <span>Kelola Shift</span>
@@ -558,7 +558,7 @@ export function PeriodTable() {
           <button
             type="button"
             onClick={handleAddPeriod}
-            className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Jadwal</span>
