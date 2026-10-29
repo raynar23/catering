@@ -225,13 +225,13 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-border">
+        {/* Action Buttons: stacked comfortably on mobile, side-by-side on desktop */}
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4 pt-4 border-t border-border">
           <button
             type="button"
             onClick={onBackToPeriksa}
             disabled={isConfirming}
-            className="px-4 py-2 border border-border hover:bg-bg text-text text-sm font-medium rounded-[8px] transition-colors"
+            className="w-full sm:w-auto px-5 py-2.5 sm:py-2 border border-border hover:bg-bg text-text text-sm font-medium rounded-lg transition-colors text-center cursor-pointer disabled:opacity-50"
           >
             Kembali ke Periksa
           </button>
@@ -240,7 +240,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({
             type="button"
             onClick={onConfirm}
             disabled={isConfirming}
-            className="px-6 py-2.5 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-[8px] transition-colors flex items-center gap-2"
+            className="w-full sm:w-auto px-6 py-2.5 sm:py-2.5 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer min-h-[42px]"
           >
             {isConfirming ? (
               <>

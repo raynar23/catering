@@ -94,11 +94,11 @@ export const VendorSecurityConfirmDialog: React.FC<VendorSecurityConfirmDialogPr
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-border bg-bg/40 flex items-center justify-end gap-3">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-border bg-bg/40 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-border hover:bg-bg text-text text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 sm:py-2 border border-border hover:bg-bg text-text text-xs font-semibold rounded-lg transition-colors cursor-pointer text-center"
           >
             Batal
           </button>
@@ -106,7 +106,7 @@ export const VendorSecurityConfirmDialog: React.FC<VendorSecurityConfirmDialogPr
           <button
             type="button"
             onClick={onConfirmAutoRegister}
-            className="px-4 py-2 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs"
+            className="w-full sm:w-auto px-4 py-2.5 sm:py-2 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer shadow-xs text-center"
           >
             Lanjut &amp; Buat Akun Otomatis
           </button>

@@ -9,6 +9,10 @@ ALTER TABLE public.import_batches
 CREATE INDEX IF NOT EXISTS idx_import_batches_jenis ON public.import_batches (jenis_dokumen);
 CREATE INDEX IF NOT EXISTS idx_import_batches_mesin ON public.import_batches (mesin);
 
+-- Ensure updated_at column exists on public.periods
+ALTER TABLE public.periods
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
+
 -- Drop legacy function overloads with 1 parameter or invalid signatures
 DROP FUNCTION IF EXISTS public.konfirmasi_impor(uuid);
 DROP FUNCTION IF EXISTS public.konfirmasi_impor(uuid, jsonb);
@@ -170,7 +174,7 @@ BEGIN
 
         IF v_order_id IS NOT NULL AND v_order_status <> 'draft' THEN
           IF v_timpa_periode THEN
-            UPDATE public.periods SET vendor_id = v_vendor_id, updated_at = now() WHERE id = v_period_id;
+            UPDATE public.periods SET vendor_id = v_vendor_id WHERE id = v_period_id;
             UPDATE public.catering_orders SET vendor_id = v_vendor_id, updated_at = now() WHERE id = v_order_id;
 
             INSERT INTO public.order_logs (order_id, actor_id, aksi, catatan, data_baru)
@@ -185,7 +189,7 @@ BEGIN
             CONTINUE;
           END IF;
         ELSE
-          UPDATE public.periods SET vendor_id = v_vendor_id, updated_at = now() WHERE id = v_period_id;
+          UPDATE public.periods SET vendor_id = v_vendor_id WHERE id = v_period_id;
           IF v_order_id IS NOT NULL THEN
             UPDATE public.catering_orders SET vendor_id = v_vendor_id, updated_at = now() WHERE id = v_order_id;
           END IF;

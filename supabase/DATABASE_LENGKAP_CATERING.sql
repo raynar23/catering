@@ -100,6 +100,7 @@ create table periods (
   vendor_id uuid not null references vendors(id) on delete restrict,
   keterangan text,
   created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
   unique (tanggal, shift_id)
 );
 
@@ -2188,7 +2189,7 @@ begin
 
         if v_order_id is not null and v_order_status <> 'draft' then
           if v_timpa_periode then
-            update periods set vendor_id = v_vendor_id, updated_at = now() where id = v_period_id;
+            update periods set vendor_id = v_vendor_id where id = v_period_id;
             update catering_orders set vendor_id = v_vendor_id, updated_at = now() where id = v_order_id;
 
             insert into order_logs (order_id, actor_id, aksi, catatan, data_baru)
@@ -2204,7 +2205,7 @@ begin
             continue;
           end if;
         else
-          update periods set vendor_id = v_vendor_id, updated_at = now() where id = v_period_id;
+          update periods set vendor_id = v_vendor_id where id = v_period_id;
           if v_order_id is not null then
             update catering_orders set vendor_id = v_vendor_id, updated_at = now() where id = v_order_id;
           end if;

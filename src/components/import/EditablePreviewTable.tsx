@@ -523,18 +523,18 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
       </div>
 
       {/* Navigation Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-border shrink-0">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 pt-2 border-t border-border shrink-0">
         <button
           type="button"
           onClick={onReset}
-          className="px-4 py-2 border border-border hover:bg-bg text-text text-sm font-medium rounded-lg transition-colors cursor-pointer"
+          className="w-full sm:w-auto px-4 py-2 border border-border hover:bg-bg text-text text-sm font-medium rounded-lg transition-colors cursor-pointer text-center"
         >
           Unggah Ulang
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           {hasErrors && (
-            <span className="text-xs text-danger font-semibold bg-danger-soft border border-danger/30 px-3 py-1.5 rounded-md">
+            <span className="text-xs text-danger font-semibold bg-danger-soft border border-danger/30 px-3 py-1.5 rounded-md text-center">
               Terdapat {summary.error} baris Error. Selesaikan atau hapus seluruh baris Error sebelum melanjutkan.
             </span>
           )}
@@ -544,7 +544,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
             id="btn-lanjut-konfirmasi-bottom"
             onClick={onProceedToConfirmation}
             disabled={hasErrors || rows.length === 0}
-            className="px-5 py-2 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 sm:py-2 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors shadow-xs cursor-pointer text-center"
           >
             Lanjut ke Konfirmasi
           </button>
