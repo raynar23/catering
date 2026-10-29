@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Clock, Eye, AlertCircle, Filter } from "lucide-react";
+import { Search, Clock, Eye, AlertCircle, Filter, FileSpreadsheet } from "lucide-react";
 import { VendorPermintaanRow } from "@/lib/actions/vendor-portal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { VendorDetailInspector } from "./VendorDetailInspector";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, formatDate } from "@/lib/format";
+import { exportToExcel } from "@/lib/export/client-excel";
 
 interface PermintaanTableProps {
   initialRows: VendorPermintaanRow[];
@@ -41,6 +42,41 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
 
     return true;
   });
+
+  // Export displayed rows to Excel
+  const handleExportToExcel = async () => {
+    await exportToExcel({
+      filename: `permintaan_pesanan_vendor_${new Date().toISOString().split("T")[0]}`,
+      sheetName: "Permintaan Vendor",
+      title: "DAFTAR PERMINTAAN PESANAN CATERING",
+      subtitle: `Diekspor pada: ${new Date().toLocaleString("id-ID")} | Total: ${filteredRows.length} Permintaan`,
+      columns: [
+        { header: "Tanggal", key: "tanggal", width: 14 },
+        { header: "Shift", key: "shift", width: 18 },
+        { header: "Batas Jam Tiba", key: "jamTiba", width: 16 },
+        { header: "Total Porsi", key: "totalPorsi", width: 14 },
+        { header: "Status Respon", key: "respon", width: 18 },
+        { header: "Status Pengiriman", key: "pengiriman", width: 20 },
+        { header: "Rincian Bagian & Alokasi", key: "rincian", width: 45 },
+        { header: "Catatan GA", key: "catatan", width: 30 },
+      ],
+      data: filteredRows.map((r) => ({
+        tanggal: r.tanggal,
+        shift: `${r.shiftNama} (${r.shiftLabel})`,
+        jamTiba: r.batasTiba || "-",
+        totalPorsi: r.totalPorsi,
+        respon:
+          r.responVendor === "disanggupi"
+            ? "Disanggupi"
+            : r.responVendor === "tidak_sanggup"
+            ? "Tidak Sanggup"
+            : "Menunggu Respon",
+        pengiriman: r.progresVendor || "Belum Dikirim",
+        rincian: r.items.map((it) => `${it.bagianNama}: ${it.jumlahPorsi} porsi`).join(", "),
+        catatan: r.catatanGa || "-",
+      })),
+    });
+  };
 
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-4">
@@ -92,8 +128,19 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
           </div>
         </div>
 
-        <div className="text-[12px] text-text-muted shrink-0 text-right">
-          Menampilkan <strong className="text-text">{filteredRows.length}</strong> data
+        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+          <div className="text-[12px] text-text-muted">
+            Menampilkan <strong className="text-text">{filteredRows.length}</strong> data
+          </div>
+          <button
+            type="button"
+            onClick={handleExportToExcel}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-[8px] transition-colors cursor-pointer min-h-[38px]"
+            title="Ekspor data saat ini ke Excel"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Ekspor Excel</span>
+          </button>
         </div>
       </div>
 

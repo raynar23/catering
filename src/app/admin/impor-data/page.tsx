@@ -8,12 +8,15 @@ import { ImportStep, ImportStepper } from "@/components/import/ImportStepper";
 import { UploadDropzone } from "@/components/import/UploadDropzone";
 import { EditablePreviewTable } from "@/components/import/EditablePreviewTable";
 import { ConfirmationPanel, ProvisionedVendorAccount } from "@/components/import/ConfirmationPanel";
+import { ImportHistoryTable } from "@/components/import/ImportHistoryTable";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { AiConsentDialog } from "@/components/import/AiConsentDialog";
 import { VendorSecurityConfirmDialog } from "@/components/import/VendorSecurityConfirmDialog";
 import { AnalysisResult, DocumentType, KonfirmasiOpsi, ParsedRow } from "@/lib/import/types";
 import { cn } from "@/lib/utils";
 
 export default function AdminImporDataPage() {
+  const [mainTab, setMainTab] = useState<"unggah" | "riwayat">("unggah");
   const [currentStep, setCurrentStep] = useState<ImportStep>("unggah");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzingText, setAnalyzingText] = useState("Mengekstrak berkas...");
@@ -163,19 +166,36 @@ export default function AdminImporDataPage() {
 
   return (
     <PageContainer scrollable className="px-3.5 sm:px-5 lg:px-0 pb-12">
-      <PageHeader
-        title="Impor Data Cerdas"
-        subtitle="Ekstraksi jadwal catering, daftar vendor, dan rekap porsi dari berkas Excel, CSV, Word, PDF, atau pindaian OCR"
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <PageHeader
+          title="Impor Data Cerdas"
+          subtitle="Ekstraksi jadwal catering, daftar vendor, dan rekap porsi dari berkas Excel, CSV, Word, PDF, atau pindaian OCR"
+        />
+        <div className="shrink-0 pb-2 sm:pb-0">
+          <SegmentedControl
+            options={[
+              { value: "unggah", label: "Unggah Berkas Baru" },
+              { value: "riwayat", label: "Riwayat Impor" },
+            ]}
+            value={mainTab}
+            onChange={(val) => setMainTab(val as "unggah" | "riwayat")}
+          />
+        </div>
+      </div>
 
-      <div className="mt-6 flex-1 min-h-0 flex flex-col">
-        {/* Responsive layout wrapper for stepper and content panels */}
-        <div
-          className={cn(
-            "w-full transition-all duration-200",
-            currentStep === "periksa" ? "w-full" : "max-w-2xl mx-auto"
-          )}
-        >
+      {mainTab === "riwayat" ? (
+        <div className="mt-4 flex-1 min-h-0 flex flex-col">
+          <ImportHistoryTable />
+        </div>
+      ) : (
+        <div className="mt-6 flex-1 min-h-0 flex flex-col">
+          {/* Responsive layout wrapper for stepper and content panels */}
+          <div
+            className={cn(
+              "w-full transition-all duration-200",
+              currentStep === "periksa" ? "w-full" : "max-w-2xl mx-auto"
+            )}
+          >
           <ImportStepper
             currentStep={currentStep}
             onStepClick={(step) => setCurrentStep(step)}
@@ -229,6 +249,7 @@ export default function AdminImporDataPage() {
           />
         )}
       </div>
+      )}
 
       {/* Vendor Security & Multi-tenant Isolation Confirmation Dialog */}
       <VendorSecurityConfirmDialog

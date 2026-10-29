@@ -388,8 +388,8 @@ export async function deleteSelectedPeriodsAction(ids: string[]): Promise<Action
     return { success: false, error: "Tidak ada jadwal periode yang dipilih" };
   }
 
-  if (ids.length > 100) {
-    return { success: false, error: "Batas maksimal penghapusan adalah 100 periode per panggilan" };
+  if (ids.length > 5000) {
+    return { success: false, error: "Batas maksimal penghapusan adalah 5.000 periode per panggilan" };
   }
 
   const supabase = await createClient();

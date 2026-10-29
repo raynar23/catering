@@ -29,7 +29,9 @@ import {
   MessageSquare,
   CheckSquare,
   X,
+  FileSpreadsheet,
 } from "lucide-react";
+import { exportToExcel } from "@/lib/export/client-excel";
 
 export function PeriodTable() {
   const { toast } = useToast();
@@ -277,11 +279,65 @@ export function PeriodTable() {
     }
   };
 
+  const handleExportToExcel = () => {
+    if (data.length === 0) {
+      toast({
+        title: "Data Kosong",
+        description: "Tidak ada jadwal periode yang tersedia untuk diekspor",
+        variant: "default",
+      });
+      return;
+    }
+
+    const monthLabel =
+      selectedMonth === 0
+        ? "Semua Bulan"
+        : MONTH_OPTIONS.find((m) => m.value === selectedMonth)?.label || `Bulan ${selectedMonth}`;
+    const filename = `Jadwal_Periode_Catering_${selectedYear}_${selectedMonth || "Semua"}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+    exportToExcel({
+      filename,
+      title: "JADWAL OPERASIONAL & PERIODE CATERING",
+      subtitle: `PT Terminal Petikemas Surabaya | Tahun: ${selectedYear} (${monthLabel}) | Total: ${data.length} Jadwal`,
+      columns: [
+        { header: "Tanggal", key: "tanggal", width: 14, format: (r) => formatDate(r.tanggal) },
+        {
+          header: "Shift Kerja",
+          key: "shift_nama",
+          width: 18,
+          format: (r) =>
+            `${r.shift_nama} (${formatTimeShort(r.shift_jam_mulai)} - ${formatTimeShort(r.shift_jam_selesai)})`,
+        },
+        { header: "Kode Vendor", key: "vendor_kode", width: 12 },
+        { header: "Nama Vendor", key: "vendor_nama", width: 25 },
+        { header: "Kontak Vendor", key: "vendor_kontak", width: 16 },
+        {
+          header: "Total Porsi",
+          key: "total_porsi",
+          width: 12,
+          align: "right",
+          format: (r) => (r.total_porsi > 0 ? r.total_porsi : 0),
+        },
+        { header: "Status Pesanan", key: "status", width: 14 },
+        { header: "Progres Vendor", key: "progres_vendor", width: 14 },
+        { header: "Diupdate Oleh", key: "diupdate_oleh", width: 18, format: (r) => r.diupdate_oleh || "-" },
+        { header: "Keterangan", key: "keterangan", width: 25, format: (r) => r.keterangan || "-" },
+      ],
+      data,
+    });
+
+    toast({
+      title: "Ekspor Berhasil",
+      description: `Jadwal periode ${monthLabel} ${selectedYear} berhasil diunduh ke Excel`,
+      variant: "success",
+    });
+  };
+
   const columns: ColumnDef<PeriodListItem>[] = [
     {
       key: "select",
       sortable: false,
-      className: "hidden sm:table-cell",
+      className: "px-1 sm:px-2 text-center",
       header: (
         <div className="flex items-center justify-center">
           <input
@@ -289,11 +345,11 @@ export function PeriodTable() {
             aria-label="Pilih semua baris pada tabel"
             checked={data.length > 0 && data.every((row) => selectedPeriodIds.has(row.id))}
             onChange={handleToggleSelectAll}
-            className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-[#003366]"
+            className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-[#003366]"
           />
         </div>
       ),
-      width: 44,
+      width: 38,
       align: "center",
       render: (row) => (
         <div className="flex items-center justify-center">
@@ -302,7 +358,7 @@ export function PeriodTable() {
             aria-label={`Pilih periode ${row.tanggal}`}
             checked={selectedPeriodIds.has(row.id)}
             onChange={() => handleToggleSelectOne(row.id)}
-            className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-[#003366]"
+            className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-[#003366]"
           />
         </div>
       ),
@@ -545,6 +601,17 @@ export function PeriodTable() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
+            onClick={handleExportToExcel}
+            className="h-8.5 px-3 rounded-[8px] border border-[#003366]/30 bg-[#003366]/5 hover:bg-[#003366]/10 text-primary text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Unduh jadwal periode catering ke Excel"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-primary" />
+            <span className="hidden sm:inline">Ekspor Excel</span>
+            <span className="sm:hidden">Ekspor</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => {
               setSelectedShiftToEdit(shifts[0] ?? null);
               setShiftDialogOpen(true);
@@ -569,15 +636,22 @@ export function PeriodTable() {
       {/* Floating Selection Action Bar */}
       {selectedPeriodIds.size > 0 && (
         <div className="mb-2.5 px-4 py-2 rounded-[8px] bg-[#003366]/10 border border-[#003366]/20 flex items-center justify-between gap-3 text-xs animate-in fade-in duration-150 select-none">
-          <div className="flex items-center gap-2 text-[#003366] dark:text-[#58A6FF] font-medium">
+          <div className="flex items-center gap-2 text-[#003366] dark:text-[#58A6FF] font-medium flex-wrap">
             <CheckSquare className="w-4 h-4 shrink-0" />
             <span>
-              <strong className="font-semibold">{selectedPeriodIds.size}</strong> jadwal periode terpilih
+              <strong className="font-semibold">{selectedPeriodIds.size}</strong> dari {data.length} jadwal terpilih
             </span>
             <button
               type="button"
+              onClick={handleToggleSelectAll}
+              className="text-primary hover:underline text-[11px] font-semibold cursor-pointer ml-1"
+            >
+              {selectedPeriodIds.size === data.length ? "Batal Semua" : `Pilih Semua (${data.length})`}
+            </button>
+            <button
+              type="button"
               onClick={() => setSelectedPeriodIds(new Set())}
-              className="text-text-muted hover:text-text underline text-[11px] ml-2 cursor-pointer flex items-center gap-1"
+              className="text-text-muted hover:text-text underline text-[11px] ml-1 cursor-pointer flex items-center gap-1"
             >
               <X className="w-3 h-3" />
               <span>Batal</span>

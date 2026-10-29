@@ -14,6 +14,7 @@ import {
 } from "@/lib/actions/bagian";
 import { useToast } from "@/components/ui/Toast";
 import { Pencil, Trash2 } from "lucide-react";
+import { exportToExcel } from "@/lib/export/client-excel";
 
 export function BagianTable() {
   const { toast } = useToast();
@@ -202,6 +203,39 @@ export function BagianTable() {
     },
   ];
 
+  const handleExportToExcel = () => {
+    if (data.length === 0) {
+      toast({
+        title: "Data Kosong",
+        description: "Tidak ada data bagian yang tersedia untuk diekspor",
+        variant: "default",
+      });
+      return;
+    }
+
+    exportToExcel({
+      filename: `Data_Bagian_TPS_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      title: "DATA BAGIAN & UNIT KERJA OPERASIONAL",
+      subtitle: `PT Terminal Petikemas Surabaya | Total: ${data.length} Bagian`,
+      columns: [
+        { header: "Kode", key: "kode", width: 12 },
+        { header: "Nama Bagian", key: "nama", width: 28 },
+        { header: "Kelompok", key: "kelompok", width: 18, format: (r) => r.kelompok || "-" },
+        { header: "Lokasi Pengantaran", key: "lokasi_antar", width: 22, format: (r) => r.lokasi_antar || "-" },
+        { header: "Catatan Antar", key: "catatan_antar", width: 25, format: (r) => r.catatan_antar || "-" },
+        { header: "Urutan", key: "urutan", width: 10, align: "right" },
+        { header: "Status", key: "aktif", width: 14, format: (r) => (r.aktif ? "Aktif" : "Nonaktif") },
+      ],
+      data,
+    });
+
+    toast({
+      title: "Ekspor Berhasil",
+      description: "Data bagian operasional berhasil diunduh ke Excel",
+      variant: "success",
+    });
+  };
+
   return (
     <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
       <MasterToolbar
@@ -211,6 +245,7 @@ export function BagianTable() {
         onStatusFilterChange={setStatusFilter}
         addButtonLabel="Tambah Bagian"
         onAddClick={handleAdd}
+        onExportClick={handleExportToExcel}
         searchPlaceholder="Cari nama, kode, kelompok..."
       />
 

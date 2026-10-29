@@ -11,7 +11,8 @@ import { UserDeactivateDialog } from "./UserDeactivateDialog";
 import { UserRecord, fetchUsersApi } from "@/lib/api/users";
 import { formatDate } from "@/lib/format";
 import { useToast } from "@/components/ui/Toast";
-import { Plus, Pencil, KeyRound, Power } from "lucide-react";
+import { Plus, Pencil, KeyRound, Power, FileSpreadsheet } from "lucide-react";
+import { exportToExcel } from "@/lib/export/client-excel";
 
 interface UserTableProps {
   currentUserId: string;
@@ -254,6 +255,39 @@ export function UserTable({ currentUserId }: UserTableProps) {
     { value: "inactive", label: "Nonaktif" },
   ];
 
+  const handleExportToExcel = () => {
+    if (filteredData.length === 0) {
+      toast({
+        title: "Data Kosong",
+        description: "Tidak ada data pengguna yang tersedia untuk diekspor",
+        variant: "default",
+      });
+      return;
+    }
+
+    exportToExcel({
+      filename: `Data_Pengguna_Sistem_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      title: "DATA PENGGUNA SISTEM PENGELOLAAN CATERING",
+      subtitle: `PT Terminal Petikemas Surabaya | Total: ${filteredData.length} Akun`,
+      columns: [
+        { header: "Nama Lengkap", key: "nama", width: 25 },
+        { header: "Username", key: "username", width: 18 },
+        { header: "Peran / Role", key: "role", width: 14, format: (r) => (r.role === "admin_ga" ? "Admin GA" : "Vendor") },
+        { header: "Vendor Mitra", key: "vendor", width: 24, format: (r) => (r.vendors ? `${r.vendors.nama} (${r.vendors.kode})` : "-") },
+        { header: "No. HP / WA", key: "no_hp", width: 16, format: (r) => r.no_hp || "-" },
+        { header: "Status", key: "aktif", width: 12, format: (r) => (r.aktif ? "Aktif" : "Nonaktif") },
+        { header: "Tanggal Dibuat", key: "created_at", width: 16, format: (r) => formatDate(r.created_at) },
+      ],
+      data: filteredData,
+    });
+
+    toast({
+      title: "Ekspor Berhasil",
+      description: "Data pengguna berhasil diunduh ke Excel",
+      variant: "success",
+    });
+  };
+
   return (
     <div className="flex-1 min-h-0 flex flex-col">
       {/* Metric Strip */}
@@ -283,14 +317,27 @@ export function UserTable({ currentUserId }: UserTableProps) {
           />
         </div>
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="h-9 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Tambah Pengguna</span>
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={handleExportToExcel}
+            className="h-9 px-3 rounded-[8px] border border-[#003366]/30 bg-[#003366]/5 hover:bg-[#003366]/10 text-primary text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            title="Unduh data pengguna ke Excel"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-primary" />
+            <span className="hidden sm:inline">Ekspor Excel</span>
+            <span className="sm:hidden">Ekspor</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="h-9 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Pengguna</span>
+          </button>
+        </div>
       </div>
 
       {/* Data Table */}

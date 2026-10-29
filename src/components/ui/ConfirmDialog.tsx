@@ -14,6 +14,7 @@ interface ConfirmDialogProps {
   variant?: "primary" | "danger" | "warning";
   onConfirm: () => void | Promise<void>;
   isProcessing?: boolean;
+  children?: React.ReactNode;
 }
 
 const BUTTON_VARIANTS = {
@@ -33,6 +34,7 @@ export function ConfirmDialog({
   variant = "primary",
   onConfirm,
   isProcessing = false,
+  children,
 }: ConfirmDialogProps) {
   const [internalLoading, setInternalLoading] = useState(false);
   const loading = isProcessing || internalLoading;
@@ -54,6 +56,7 @@ export function ConfirmDialog({
       description={description}
       maxWidth="sm"
     >
+      {children}
       <div className="flex items-center justify-end gap-3 mt-4 pt-3 border-t border-border">
         <button
           type="button"

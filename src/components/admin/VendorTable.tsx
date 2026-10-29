@@ -15,6 +15,7 @@ import {
 import { waLink } from "@/lib/whatsapp";
 import { useToast } from "@/components/ui/Toast";
 import { Pencil, Trash2, MessageSquare } from "lucide-react";
+import { exportToExcel } from "@/lib/export/client-excel";
 
 export function VendorTable() {
   const { toast } = useToast();
@@ -241,6 +242,37 @@ export function VendorTable() {
     },
   ];
 
+  const handleExportToExcel = () => {
+    if (data.length === 0) {
+      toast({
+        title: "Data Kosong",
+        description: "Tidak ada data vendor yang tersedia untuk diekspor",
+        variant: "default",
+      });
+      return;
+    }
+
+    exportToExcel({
+      filename: `Data_Vendor_Catering_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      title: "DATA MITRA REKANAN VENDOR CATERING",
+      subtitle: `PT Terminal Petikemas Surabaya | Total: ${data.length} Rekanan`,
+      columns: [
+        { header: "Kode", key: "kode", width: 12 },
+        { header: "Nama Vendor", key: "nama", width: 28 },
+        { header: "Urutan Rotasi", key: "urutan_rotasi", width: 14, align: "right" },
+        { header: "No. WhatsApp", key: "no_wa", width: 18, format: (r) => r.no_wa || "-" },
+        { header: "Status", key: "aktif", width: 14, format: (r) => (r.aktif ? "Aktif" : "Nonaktif") },
+      ],
+      data,
+    });
+
+    toast({
+      title: "Ekspor Berhasil",
+      description: "Data rekanan vendor berhasil diunduh ke Excel",
+      variant: "success",
+    });
+  };
+
   return (
     <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
       <MasterToolbar
@@ -250,6 +282,7 @@ export function VendorTable() {
         onStatusFilterChange={setStatusFilter}
         addButtonLabel="Tambah Vendor"
         onAddClick={handleAdd}
+        onExportClick={handleExportToExcel}
         searchPlaceholder="Cari kode, nama, kontak..."
       />
 

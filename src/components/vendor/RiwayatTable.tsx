@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, Clock, Eye, Filter } from "lucide-react";
+import { Search, Clock, Eye, Filter, FileSpreadsheet } from "lucide-react";
 import { VendorPermintaanRow } from "@/lib/actions/vendor-portal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { VendorDetailInspector } from "./VendorDetailInspector";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, formatDate } from "@/lib/format";
+import { exportToExcel } from "@/lib/export/client-excel";
 
 interface RiwayatTableProps {
   initialRows: VendorPermintaanRow[];
@@ -45,6 +46,32 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
     return true;
   });
 
+  const handleExportToExcel = () => {
+    if (filteredRows.length === 0) return;
+
+    exportToExcel({
+      filename: `Riwayat_Pesanan_Vendor_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      title: "RIWAYAT PESANAN CATERING REKANAN VENDOR",
+      subtitle: `PT Terminal Petikemas Surabaya | Total: ${filteredRows.length} Pesanan`,
+      columns: [
+        { header: "Tanggal", key: "tanggal", width: 14, format: (r) => formatDate(r.tanggal) },
+        { header: "Shift", key: "shiftNama", width: 14 },
+        { header: "Total Porsi", key: "totalPorsi", width: 12, align: "right" },
+        { header: "Respon Vendor", key: "responVendor", width: 16, format: (r) => r.responVendor },
+        { header: "Progres Pengiriman", key: "progresVendor", width: 18, format: (r) => r.progresVendor },
+        { header: "Catatan GA", key: "catatanGa", width: 24, format: (r) => r.catatanGa || "-" },
+        { header: "Catatan Vendor", key: "catatanVendor", width: 24, format: (r) => r.catatanVendor || "-" },
+        {
+          header: "Rincian Porsi Per Bagian",
+          key: "items",
+          width: 35,
+          format: (r) => r.items.map((it) => `${it.bagianNama}: ${it.jumlahPorsi} porsi`).join(", "),
+        },
+      ],
+      data: filteredRows,
+    });
+  };
+
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-4">
       {/* Filters Toolbar */}
@@ -61,8 +88,21 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
             />
           </div>
 
-          <div className="text-[12px] text-text-muted shrink-0 text-right sm:text-left">
-            Menampilkan <strong className="text-text">{filteredRows.length}</strong> dari {initialRows.length} data
+          <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-start">
+            <div className="text-[12px] text-text-muted">
+              Menampilkan <strong className="text-text">{filteredRows.length}</strong> dari {initialRows.length} data
+            </div>
+
+            <button
+              type="button"
+              onClick={handleExportToExcel}
+              className="h-8.5 px-3 rounded-[8px] border border-[#003366]/30 bg-[#003366]/5 hover:bg-[#003366]/10 text-primary text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Unduh riwayat pesanan ke Excel"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-primary" />
+              <span className="hidden sm:inline">Ekspor Excel</span>
+              <span className="sm:hidden">Ekspor</span>
+            </button>
           </div>
         </div>
 
