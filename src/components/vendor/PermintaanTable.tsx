@@ -128,18 +128,19 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-          <div className="text-[12px] text-text-muted">
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0">
+          <div className="text-[12px] text-text-muted whitespace-nowrap">
             Menampilkan <strong className="text-text">{filteredRows.length}</strong> data
           </div>
           <button
             type="button"
             onClick={handleExportToExcel}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-[12px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-[8px] transition-colors cursor-pointer min-h-[38px]"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap shrink-0"
             title="Ekspor data saat ini ke Excel"
           >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>Ekspor Excel</span>
+            <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
+            <span className="hidden sm:inline whitespace-nowrap">Ekspor Excel</span>
+            <span className="sm:hidden whitespace-nowrap">Ekspor</span>
           </button>
         </div>
       </div>

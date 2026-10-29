@@ -89,19 +89,19 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
           </div>
 
           <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-start">
-            <div className="text-[12px] text-text-muted">
+            <div className="text-[12px] text-text-muted whitespace-nowrap">
               Menampilkan <strong className="text-text">{filteredRows.length}</strong> dari {initialRows.length} data
             </div>
 
             <button
               type="button"
               onClick={handleExportToExcel}
-              className="h-8.5 px-3 rounded-[8px] border border-[#003366]/30 bg-[#003366]/5 hover:bg-[#003366]/10 text-primary text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap shrink-0"
               title="Unduh riwayat pesanan ke Excel"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5 text-primary" />
-              <span className="hidden sm:inline">Ekspor Excel</span>
-              <span className="sm:hidden">Ekspor</span>
+              <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
+              <span className="hidden sm:inline whitespace-nowrap">Ekspor Excel</span>
+              <span className="sm:hidden whitespace-nowrap">Ekspor</span>
             </button>
           </div>
         </div>

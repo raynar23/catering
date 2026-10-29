@@ -309,48 +309,60 @@ export function ImportHistoryTable() {
   return (
     <div className="flex-1 min-h-0 flex flex-col">
       {/* Toolbar Filters & Action */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 py-2.5 select-none shrink-0">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 py-2 select-none shrink-0">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 min-w-0">
-          <div className="relative flex-1 max-w-xs">
+          <div className="relative flex-1 sm:max-w-xs">
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari berkas, nomor batch..."
-              className="h-8.5 pl-8 pr-3 w-full rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+              className="h-8.5 pl-8 pr-3 w-full rounded-[8px] border border-[#D1D1D6] bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
             />
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-border bg-surface text-xs text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer"
-          >
-            <option value="all">Semua Status</option>
-            <option value="selesai">Selesai</option>
-            <option value="draft">Draft</option>
-          </select>
+          <div className="flex items-center gap-2">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-8.5 pl-2.5 pr-8 rounded-[8px] border border-[#D1D1D6] bg-surface text-xs text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer flex-1 sm:flex-none whitespace-nowrap"
+            >
+              <option value="all">Semua Status</option>
+              <option value="selesai">Selesai</option>
+              <option value="draft">Draft</option>
+            </select>
 
-          <button
-            type="button"
-            onClick={loadData}
-            disabled={loading}
-            className="h-8.5 px-3 rounded-[8px] border border-border bg-surface hover:bg-bg text-text text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-            title="Segarkan data riwayat"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 text-text-muted ${loading ? "animate-spin" : ""}`} />
-            <span>Segarkan</span>
-          </button>
+            <button
+              type="button"
+              onClick={loadData}
+              disabled={loading}
+              className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+              title="Segarkan data riwayat"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-text-muted ${loading ? "animate-spin" : ""}`} />
+              <span className="whitespace-nowrap">Segarkan</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleExportHistoryToExcel}
+              className="sm:hidden h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+              title="Ekspor ke Excel"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
+              <span className="whitespace-nowrap">Ekspor</span>
+            </button>
+          </div>
         </div>
 
         <button
           type="button"
           onClick={handleExportHistoryToExcel}
-          className="h-8.5 px-3.5 rounded-[8px] border border-[#003366]/30 bg-[#003366]/5 hover:bg-[#003366]/10 text-primary text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          className="hidden sm:inline-flex h-8.5 px-3.5 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium items-center justify-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
         >
-          <FileSpreadsheet className="w-4 h-4 text-primary" />
-          <span>Ekspor Riwayat Excel</span>
+          <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
+          <span className="whitespace-nowrap">Ekspor Riwayat Excel</span>
         </button>
       </div>
 
@@ -361,6 +373,7 @@ export function ImportHistoryTable() {
         isLoading={loading}
         defaultSortKey="created_at"
         defaultSortOrder="desc"
+        minRows={10}
         emptyTitle="Belum Ada Riwayat Impor"
         emptyDescription="Seluruh berkas dokumen yang diunggah dan dikonfirmasi akan tercatat otomatis di sini."
       />

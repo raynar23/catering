@@ -67,21 +67,21 @@ export function MasterToolbar({
               <button
                 type="button"
                 onClick={onExportClick}
-                className="h-8 px-2.5 rounded-[8px] border border-[#003366]/30 bg-[#003366]/5 hover:bg-[#003366]/10 text-primary text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0"
+                className="h-8.5 px-2.5 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap"
                 title="Ekspor data ke Excel"
               >
-                <FileSpreadsheet className="w-3.5 h-3.5" />
-                <span>Ekspor</span>
+                <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
+                <span className="whitespace-nowrap">Ekspor</span>
               </button>
             )}
 
             <button
               type="button"
               onClick={onAddClick}
-              className="h-8 px-3 rounded-[8px] bg-primary hover:bg-[#007BB8] active:bg-[#006CA2] text-white text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.08)] active:scale-[0.98]"
+              className="h-8.5 px-3 rounded-[8px] bg-primary hover:bg-[#007BB8] active:bg-[#006CA2] text-white text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.08)] active:scale-[0.98] whitespace-nowrap"
             >
-              <Plus className="w-4 h-4" />
-              <span>Tambah</span>
+              <Plus className="w-3.5 h-3.5" />
+              <span className="whitespace-nowrap">Tambah</span>
             </button>
           </div>
         </div>
@@ -92,21 +92,21 @@ export function MasterToolbar({
           <button
             type="button"
             onClick={onExportClick}
-            className="h-8.5 px-3 rounded-[8px] border border-[#003366]/30 bg-[#003366]/5 hover:bg-[#003366]/10 text-primary text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
+            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap"
             title="Unduh data ke berkas Excel"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-primary" />
-            <span>Ekspor Excel</span>
+            <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
+            <span className="whitespace-nowrap">Ekspor Excel</span>
           </button>
         )}
 
         <button
           type="button"
           onClick={onAddClick}
-          className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#007BB8] active:bg-[#006CA2] text-white text-xs font-semibold items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.08)] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#007BB8] active:bg-[#006CA2] text-white text-xs font-semibold items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.08)] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
-          <span>{addButtonLabel}</span>
+          <span className="whitespace-nowrap">{addButtonLabel}</span>
         </button>
       </div>
     </div>

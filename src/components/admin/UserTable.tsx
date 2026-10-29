@@ -317,25 +317,26 @@ export function UserTable({ currentUserId }: UserTableProps) {
           />
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             type="button"
             onClick={handleExportToExcel}
-            className="h-9 px-3 rounded-[8px] border border-[#003366]/30 bg-[#003366]/5 hover:bg-[#003366]/10 text-primary text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            className="h-8.5 px-2.5 sm:px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap shrink-0"
             title="Unduh data pengguna ke Excel"
           >
-            <FileSpreadsheet className="w-4 h-4 text-primary" />
-            <span className="hidden sm:inline">Ekspor Excel</span>
-            <span className="sm:hidden">Ekspor</span>
+            <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
+            <span className="hidden sm:inline whitespace-nowrap">Ekspor Excel</span>
+            <span className="sm:hidden whitespace-nowrap">Ekspor</span>
           </button>
 
           <button
             type="button"
             onClick={handleAdd}
-            className="h-9 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="h-8.5 px-3 sm:px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-[0_1px_2px_rgba(0,0,0,0.08)] whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" />
-            <span>Tambah Pengguna</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline whitespace-nowrap">Tambah Pengguna</span>
+            <span className="sm:hidden whitespace-nowrap">+ Pengguna</span>
           </button>
         </div>
       </div>
