@@ -1,5 +1,6 @@
 // Privileged server route handler for executing konfirmasi_impor RPC
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -187,6 +188,13 @@ export async function POST(req: NextRequest) {
         }
       }
     }
+
+    // Invalidate client router cache across master data and operational modules
+    revalidatePath("/admin/master/vendor");
+    revalidatePath("/admin/master/periode");
+    revalidatePath("/admin/manajemen-user");
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/rekapitulasi");
 
     return NextResponse.json({
       success: true,
