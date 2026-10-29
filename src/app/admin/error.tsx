@@ -22,17 +22,39 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
           <AlertCircle className="w-5 h-5" />
         </div>
         <h2 className="text-sm font-bold text-text mb-1">Gagal Memuat Halaman</h2>
-        <p className="text-xs text-text-muted mb-4 leading-relaxed">
-          Terjadi kendala saat memuat data pada modul admin ini. Silakan muat ulang komponen.
+        <p className="text-xs text-text-muted mb-3 leading-relaxed">
+          Terjadi kendala saat memuat data pada modul admin ini. Silakan muat ulang atau kembali ke dashboard.
         </p>
-        <button
-          type="button"
-          onClick={() => reset()}
-          className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>Muat Ulang</span>
-        </button>
+
+        {error?.message && (
+          <div className="mb-4 p-2.5 rounded-[8px] bg-red-500/10 border border-red-500/20 text-left">
+            <p className="text-[11px] font-mono text-danger break-words">
+              {error.message}
+            </p>
+            {error.digest && (
+              <p className="text-[10px] font-mono text-text-muted mt-1">
+                ID: {error.digest}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => reset()}
+            className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Muat Ulang</span>
+          </button>
+          <a
+            href="/admin/dashboard"
+            className="h-8.5 px-3.5 rounded-[8px] border border-border bg-surface hover:bg-bg text-text text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+          >
+            <span>Dashboard</span>
+          </a>
+        </div>
       </div>
     </div>
   );
