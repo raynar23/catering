@@ -47,18 +47,18 @@ export function VendorDetailInspector({
 
       <div className="relative z-10 w-full max-w-2xl bg-surface h-full shadow-2xl flex flex-col border-l border-border animate-in slide-in-from-right duration-200">
         {/* Drawer Header */}
-        <div className="p-4 sm:p-5 border-b border-border flex items-start justify-between gap-4 shrink-0 bg-surface">
+        <div className="p-3.5 sm:p-5 border-b border-border flex items-start justify-between gap-3 shrink-0 bg-surface">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-base sm:text-lg font-bold text-text">
                 Rincian Permintaan Catering
               </h2>
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-[5px] bg-[#007AFF]/10 text-[#0066CC] border border-[#007AFF]/25">
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-[5px] bg-[#E8F2FA] text-[#0B5A94] border border-[#BBD9EE]">
                 {orderInfo.shiftNama} ({orderInfo.shiftLabel})
               </span>
             </div>
-            <p className="text-[13px] text-text-muted mt-0.5">
-              Tanggal Pelaksanaan: <span className="font-medium text-text">{orderInfo.tanggal}</span>
+            <p className="text-xs sm:text-[13px] text-text-muted mt-0.5">
+              Tanggal Pelaksanaan: <span className="font-semibold text-text">{orderInfo.tanggal}</span>
             </p>
           </div>
 
@@ -137,22 +137,22 @@ export function VendorDetailInspector({
             <div className="border border-border rounded-[8px] overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px] text-left border-collapse">
-                  <thead className="bg-[#F8FAFC] text-text-muted font-semibold border-b border-border text-[12px]">
+                  <thead className="bg-[#F8FAFC] text-text-muted font-semibold border-b border-border text-[11px] sm:text-[12px]">
                     <tr>
-                      <th className="py-2.5 px-3 w-10 text-center">No</th>
-                      <th className="py-2.5 px-3">Nama Bagian</th>
-                      <th className="py-2.5 px-3">Lokasi Antar</th>
-                      <th className="py-2.5 px-3 text-right">Karyawan</th>
-                      <th className="py-2.5 px-3 text-right">Porsi</th>
+                      <th className="py-2.5 px-2.5 sm:px-3 w-8 sm:w-10 text-center">No</th>
+                      <th className="py-2.5 px-2.5 sm:px-3">Nama Bagian</th>
+                      <th className="py-2.5 px-2.5 sm:px-3">Lokasi Antar</th>
+                      <th className="py-2.5 px-3 text-right hidden sm:table-cell">Karyawan</th>
+                      <th className="py-2.5 px-2.5 sm:px-3 text-right">Porsi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {orderInfo.items.map((it, idx) => (
                       <tr key={it.id} className="hover:bg-black/[0.02]">
-                        <td className="py-2.5 px-3 text-center text-text-muted font-mono text-[11px]">
+                        <td className="py-2.5 px-2.5 sm:px-3 text-center text-text-muted font-mono text-[11px]">
                           {idx + 1}
                         </td>
-                        <td className="py-2.5 px-3 font-medium text-text">
+                        <td className="py-2.5 px-2.5 sm:px-3 font-medium text-text">
                           <div>
                             {it.bagianNama}
                             {it.pendingRevision && (
@@ -167,32 +167,35 @@ export function VendorDetailInspector({
                             )}
                           </div>
                         </td>
-                        <td className="py-2.5 px-3 text-text-muted">
-                          <span className="flex items-center gap-1">
+                        <td className="py-2.5 px-2.5 sm:px-3 text-text-muted">
+                          <span className="flex items-center gap-1 text-xs sm:text-[13px]">
                             <MapPin className="w-3.5 h-3.5 text-text-muted shrink-0" />
                             {it.lokasiAntar}
                           </span>
                           {it.catatanAntar && it.catatanAntar !== "-" && (
-                            <span className="block text-[11px] text-text-muted/80 mt-0.5 italic">
+                            <span className="block text-[10.5px] sm:text-[11px] text-text-muted/80 mt-0.5 italic">
                               {it.catatanAntar}
                             </span>
                           )}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-mono text-text-muted">
+                        <td className="py-2.5 px-3 text-right font-mono text-text-muted hidden sm:table-cell">
                           {formatNumber(it.jumlahKaryawan)}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-mono font-bold text-text">
+                        <td className="py-2.5 px-2.5 sm:px-3 text-right font-mono font-bold text-text">
                           {formatNumber(it.jumlahPorsi)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-[#F8FAFC] border-t border-border font-bold text-[13px]">
+                  <tfoot className="bg-[#F8FAFC] border-t border-border font-bold text-xs sm:text-[13px]">
                     <tr>
-                      <td colSpan={4} className="py-2.5 px-3 text-right text-text">
+                      <td colSpan={3} className="py-2.5 px-3 text-right text-text sm:hidden">
                         Total Porsi
                       </td>
-                      <td className="py-2.5 px-3 text-right font-mono text-primary text-[14px]">
+                      <td colSpan={4} className="py-2.5 px-3 text-right text-text hidden sm:table-cell">
+                        Total Porsi
+                      </td>
+                      <td className="py-2.5 px-2.5 sm:px-3 text-right font-mono text-primary text-[13px] sm:text-[14px]">
                         {formatNumber(orderInfo.totalPorsi)}
                       </td>
                     </tr>
