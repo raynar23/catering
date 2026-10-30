@@ -108,7 +108,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "nama",
       header: "Nama Pengguna",
-      width: 185,
+      width: 240,
       render: (row: UserRecord) => {
         const initials = row.nama
           .split(" ")
@@ -147,7 +147,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "role",
       header: "Role",
-      width: 85,
+      width: 90,
       align: "center",
       render: (row: UserRecord) => <StatusBadge status={row.role} />,
     },
@@ -182,7 +182,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "status",
       header: "Status",
-      width: 85,
+      width: 90,
       align: "center",
       render: (row: UserRecord) => (
         <StatusBadge status={row.aktif ? "aktif" : "nonaktif"} />
@@ -201,7 +201,8 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "aksi",
       header: "Aksi",
-      width: 88,
+      width: 95,
+      sortable: false,
       align: "right",
       render: (row: UserRecord) => {
         return (
@@ -349,7 +350,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
         data={filteredData}
         keyExtractor={(row) => row.id}
         isLoading={loading}
-        tableClassName="min-w-[460px] sm:min-w-full"
+        tableClassName="min-w-[515px] sm:min-w-full"
         emptyTitle="Tidak Ada Pengguna"
         emptyDescription={
           search || roleFilter !== "all" || statusFilter !== "all"

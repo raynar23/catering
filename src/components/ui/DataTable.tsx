@@ -161,7 +161,7 @@ export function DataTable<T>({
           <thead className="sticky top-0 z-10 bg-[#F9F9FB] border-b border-[#E5E5EA]">
             <tr className="h-10">
               {columns.map((col) => {
-                const isSortable = col.sortable ?? (col.key !== "select" && col.key !== "actions");
+                const isSortable = col.sortable ?? (col.key !== "select" && col.key !== "actions" && col.key !== "aksi");
                 const isCurrentSort = sortKey === col.key;
                 return (
                   <th
@@ -183,7 +183,7 @@ export function DataTable<T>({
                         col.align === "center" && "justify-center w-full"
                       )}
                     >
-                      <span className="truncate">{col.header}</span>
+                      <span className="whitespace-nowrap">{col.header}</span>
                       {isSortable && (
                         <span className="shrink-0 text-text-muted">
                           {isCurrentSort ? (
