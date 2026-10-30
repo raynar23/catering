@@ -70,12 +70,20 @@ export function detectDocumentType(
   const combinedText = [...allHeaders, ...sampleValues].join(" ");
 
   // 1. Evaluate Rekap Harian signals
-  // Look for 1-15, 16-31, porsi, rekapitulasi, or multiple shift subcolumns
+  // Look for 1-15, 16-31, porsi, rekapitulasi, jatah makan, or multiple shift subcolumns
   let rekapScore = 0;
-  if (combinedText.includes("rekapitulasi") || combinedText.includes("rekap harian")) rekapScore += 0.5;
-  if (combinedText.includes("porsi") || combinedText.includes("jatah makan")) rekapScore += 0.3;
+  const isExplicitRekap =
+    combinedText.includes("rekapitulasi") ||
+    combinedText.includes("rekap harian") ||
+    combinedText.includes("jatah makan") ||
+    filename.toLowerCase().includes("rekap") ||
+    filename.toLowerCase().includes("nasi kotak");
+
+  if (isExplicitRekap) rekapScore += 0.6;
+  if (combinedText.includes("rekapitulasi") || combinedText.includes("rekap harian")) rekapScore += 0.3;
+  if (combinedText.includes("porsi") || combinedText.includes("jatah makan")) rekapScore += 0.2;
   if (allHeaders.some((h) => h.includes("shift 3") || h.includes("shift 1") || h.includes("shift 2"))) rekapScore += 0.3;
-  if (filename.toLowerCase().includes("rekap") || filename.toLowerCase().includes("update")) rekapScore += 0.3;
+  if (filename.toLowerCase().includes("rekap") || filename.toLowerCase().includes("update")) rekapScore += 0.2;
 
   // 2. Evaluate Jadwal signals
   // Look for tanggal + shift + vendor
@@ -97,7 +105,12 @@ export function detectDocumentType(
   if (sampleHasDates && sampleHasShifts) {
     jadwalScore += 0.4;
   }
-  if (filename.toLowerCase().includes("jadwal")) jadwalScore += 0.25;
+  if (filename.toLowerCase().includes("jadwal")) jadwalScore += 0.35;
+
+  // If document is explicitly a portion recapitulation matrix, suppress jadwalScore
+  if (isExplicitRekap && !filename.toLowerCase().includes("jadwal")) {
+    jadwalScore = Math.min(jadwalScore, 0.4);
+  }
 
   // 3. Evaluate Vendor signals
   let vendorScore = 0;

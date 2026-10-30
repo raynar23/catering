@@ -17,11 +17,13 @@ const DEFAULT_BAGIAN_MAP: Record<string, string> = {
   "mek cc": "MEK_CC",
   "mek rtg": "MEK_RTG",
   "cc operator": "CC_OP",
+  "operator cc": "CC_OP",
   "rtg operator": "RTG_OP",
-  cc: "CC_OP",
-  rtg: "RTG_OP",
+  "operator rtg": "RTG_OP",
+  "gudang cfs": "CFS",
+  "petugas cfs": "CFS",
+  "area gudang cfs": "CFS",
   cfs: "CFS",
-  gudang: "CFS",
 };
 
 /**
@@ -29,9 +31,9 @@ const DEFAULT_BAGIAN_MAP: Record<string, string> = {
  */
 function cleanBagianLabel(raw: string): string {
   const norm = normalizeString(raw).toLowerCase();
-  // Strip annotations like "Mengikuti update jadwal manning", "(manning)", etc.
   return norm
     .replace(/mengikuti update.*/gi, "")
+    .replace(/mangikuti update.*/gi, "")
     .replace(/\(.*\)/g, "")
     .trim();
 }
@@ -48,18 +50,63 @@ function parsePorsiValue(val: any): number {
 }
 
 /**
- * Parses daily matrix table with shift columns (3, 1, 2) across calendar dates
+ * Checks if a row contains numeric calendar day markers
+ */
+function hasDateNumbers(row: (string | number | boolean | Date | null)[]): boolean {
+  if (!row) return false;
+  let count = 0;
+  for (const c of row) {
+    const s = String(c ?? "").trim();
+    if (/^\d+$/.test(s)) {
+      const n = parseInt(s, 10);
+      if (n >= 1 && n <= 31) count++;
+    }
+  }
+  return count >= 2;
+}
+
+/**
+ * Checks if a row contains shift indicators across columns
+ */
+function isShiftRow(row: (string | number | boolean | Date | null)[]): boolean {
+  if (!row || row.length <= 1) return false;
+  const cells = row.slice(1).map((c) => String(c ?? "").trim().toLowerCase());
+
+  // Explicit strings like "shift 1", "shift 2", "shift 3"
+  const explicitShifts = cells.filter(
+    (c) => c.includes("shift 1") || c.includes("shift 2") || c.includes("shift 3")
+  );
+  if (explicitShifts.length >= 2) return true;
+
+  // Repeating 3, 1, 2 or 1, 2, 3 pattern across at least 3 triads
+  let tripletMatches = 0;
+  for (let i = 0; i < cells.length - 2; i++) {
+    const a = cells[i],
+      b = cells[i + 1],
+      c = cells[i + 2];
+    if (
+      (a === "3" && b === "1" && c === "2") ||
+      (a === "1" && b === "2" && c === "3") ||
+      (a.includes("malam") && b.includes("siang") && c.includes("sore"))
+    ) {
+      tripletMatches++;
+    }
+  }
+  return tripletMatches >= 3;
+}
+
+/**
+ * Parses daily matrix table with shift columns across calendar dates
  */
 export function parseRekapHarian(
   tables: RawTableData[],
   options: ParseRekapOptions = {}
 ): RekapHarianParsedRow[] {
-  const year = options.year || 2026;
-  const month = options.month || 10;
+  let year = options.year || 2026;
+  let month = options.month || 10;
   const results: RekapHarianParsedRow[] = [];
   let seq = 1;
 
-  // Sort department keys by descending length so specific terms are tested before short acronyms
   const sortedDeptKeys = Object.keys(DEFAULT_BAGIAN_MAP).sort(
     (a, b) => b.length - a.length
   );
@@ -67,144 +114,235 @@ export function parseRekapHarian(
   for (const table of tables) {
     const sheetName = table.sheetName || "Rekap Harian";
 
-    // Locate header row containing dates or shift indicators
-    let shiftHeaderRowIdx = -1;
-    let dateHeaderRowIdx = -1;
+    // Extract year and month from sheet title or top rows if available
+    for (let r = 0; r < Math.min(table.rows.length, 5); r++) {
+      const rowText = table.rows[r].join(" ").toLowerCase();
+      const yearMatch = rowText.match(/20\d{2}/);
+      if (yearMatch) {
+        year = parseInt(yearMatch[0], 10);
+      }
+      if (rowText.includes("januari") || rowText.includes("jan")) month = 1;
+      else if (rowText.includes("februari") || rowText.includes("feb")) month = 2;
+      else if (rowText.includes("maret") || rowText.includes("mar")) month = 3;
+      else if (rowText.includes("april") || rowText.includes("apr")) month = 4;
+      else if (rowText.includes("mei") || rowText.includes("may")) month = 5;
+      else if (rowText.includes("juni") || rowText.includes("jun")) month = 6;
+      else if (rowText.includes("juli") || rowText.includes("jul")) month = 7;
+      else if (rowText.includes("agustus") || rowText.includes("agu")) month = 8;
+      else if (rowText.includes("september") || rowText.includes("sep")) month = 9;
+      else if (rowText.includes("oktober") || rowText.includes("okt")) month = 10;
+      else if (rowText.includes("november") || rowText.includes("nov")) month = 11;
+      else if (rowText.includes("desember") || rowText.includes("des")) month = 12;
+    }
 
-    for (let r = 0; r < Math.min(table.rows.length, 10); r++) {
-      const rowStr = table.rows[r].join(" ").toLowerCase();
-      if (rowStr.includes("shift 3") || rowStr.includes("shift 1") || rowStr.includes("shift 2")) {
-        shiftHeaderRowIdx = r;
-        dateHeaderRowIdx = r > 0 ? r - 1 : r;
-        break;
+    // Locate shift rows
+    const shiftRowIndices: number[] = [];
+    for (let r = 0; r < table.rows.length; r++) {
+      if (isShiftRow(table.rows[r])) {
+        // Must either be preceded by date numbers or have explicit shift keywords
+        const hasExplicitWords = table.rows[r].some((c) =>
+          /shift\s*[1-3]/i.test(String(c ?? ""))
+        );
+        if (hasExplicitWords || (r > 0 && hasDateNumbers(table.rows[r - 1]))) {
+          shiftRowIndices.push(r);
+        }
       }
     }
 
-    if (shiftHeaderRowIdx === -1) {
+    if (shiftRowIndices.length === 0) {
       continue;
     }
 
-    const shiftRow = table.rows[shiftHeaderRowIdx];
-    const dateRow = table.rows[dateHeaderRowIdx];
-
-    interface MatrixCol {
-      colIdx: number;
-      dateStr: string;
+    // Map by dateStr__shiftNama across all blocks
+    interface PeriodAggregate {
+      tanggal: string;
       shiftNama: string;
       urutanShift: UrutanShift;
+      shiftId: string | null;
+      vendorId: string | null;
+      vendorNama: string;
+      totalPorsi: number;
+      items: Record<string, number>;
+      firstSheet: string;
+      firstColIdx: number;
     }
 
-    const matrixCols: MatrixCol[] = [];
-    let currentDate = 1;
+    const aggregateMap = new Map<string, PeriodAggregate>();
 
-    for (let c = 1; c < shiftRow.length; c++) {
-      const shiftVal = normalizeString(String(shiftRow[c] ?? "")).toLowerCase();
-      const dateVal = dateRow ? normalizeString(String(dateRow[c] ?? "")) : "";
+    for (let bIdx = 0; bIdx < shiftRowIndices.length; bIdx++) {
+      const shiftRowIdx = shiftRowIndices[bIdx];
+      const dateRowIdx = shiftRowIdx > 0 ? shiftRowIdx - 1 : shiftRowIdx;
+      const endRowIdx =
+        bIdx < shiftRowIndices.length - 1
+          ? shiftRowIndices[bIdx + 1] - 1
+          : table.rows.length - 1;
 
-      const parsedDayNum = parseInt(dateVal, 10);
-      if (!isNaN(parsedDayNum) && parsedDayNum >= 1 && parsedDayNum <= 31) {
-        currentDate = parsedDayNum;
+      const shiftRow = table.rows[shiftRowIdx];
+      const dateRow = table.rows[dateRowIdx];
+
+      interface ColMeta {
+        colIdx: number;
+        dateStr: string;
+        shiftNama: string;
+        urutanShift: UrutanShift;
       }
 
-      let shiftNama = "";
-      let urutan: UrutanShift = 0;
+      const activeCols: ColMeta[] = [];
+      let currentDate = 1;
 
-      if (shiftVal.includes("3") || shiftVal.includes("malam")) {
-        shiftNama = "Shift 3";
-        urutan = 2;
-      } else if (shiftVal.includes("1") || shiftVal.includes("siang")) {
-        shiftNama = "Shift 1";
-        urutan = 0;
-      } else if (shiftVal.includes("2") || shiftVal.includes("sore")) {
-        shiftNama = "Shift 2";
-        urutan = 1;
-      }
+      for (let c = 1; c < shiftRow.length; c++) {
+        const dVal = dateRow ? dateRow[c] : null;
+        if (dVal !== null && dVal !== undefined) {
+          const parsed = parseInt(String(dVal).trim(), 10);
+          if (!isNaN(parsed) && parsed >= 1 && parsed <= 31) {
+            currentDate = parsed;
+          }
+        }
 
-      if (shiftNama) {
-        const dayPadded = String(currentDate).padStart(2, "0");
-        const monthPadded = String(month).padStart(2, "0");
-        const dateIso = `${year}-${monthPadded}-${dayPadded}`;
+        const shiftVal = normalizeString(String(shiftRow[c] ?? "")).toLowerCase();
+        let shiftNama = "";
+        let urutan: UrutanShift = 0;
 
-        matrixCols.push({
-          colIdx: c,
-          dateStr: dateIso,
-          shiftNama,
-          urutanShift: urutan,
-        });
-      }
-    }
+        if (shiftVal === "3" || shiftVal.includes("3") || shiftVal.includes("malam")) {
+          shiftNama = "Shift 3";
+          urutan = 2;
+        } else if (shiftVal === "1" || shiftVal.includes("1") || shiftVal.includes("siang")) {
+          shiftNama = "Shift 1";
+          urutan = 0;
+        } else if (shiftVal === "2" || shiftVal.includes("2") || shiftVal.includes("sore")) {
+          shiftNama = "Shift 2";
+          urutan = 1;
+        }
 
-    interface BagianRowData {
-      bagianKode: string;
-      values: Map<number, number>;
-    }
+        if (shiftNama) {
+          const dayPadded = String(currentDate).padStart(2, "0");
+          const monthPadded = String(month).padStart(2, "0");
+          const dateIso = `${year}-${monthPadded}-${dayPadded}`;
 
-    const departmentRows: BagianRowData[] = [];
+          activeCols.push({
+            colIdx: c,
+            dateStr: dateIso,
+            shiftNama,
+            urutanShift: urutan,
+          });
 
-    for (let r = shiftHeaderRowIdx + 1; r < table.rows.length; r++) {
-      const row = table.rows[r];
-      if (!row || row.length === 0) continue;
+          const aggKey = `${dateIso}__${shiftNama}`;
+          if (!aggregateMap.has(aggKey)) {
+            // Match shift ID
+            const matchedShift = (options.knownShifts || []).find(
+              (s) =>
+                s.nama.toLowerCase() === shiftNama.toLowerCase() ||
+                s.label.toLowerCase() === shiftNama.toLowerCase()
+            );
 
-      const label = cleanBagianLabel(String(row[0] ?? ""));
-      if (!label) continue;
+            // Compute assigned vendor from TPS rotation
+            const vendorName = getNamaVendorRotasi(dateIso, urutan);
+            const matchedVendor = (options.knownVendors || []).find(
+              (v) => v.nama.toLowerCase() === vendorName.toLowerCase()
+            );
 
-      // Find matching department code prioritizing longer keys
-      let matchedCode: string | null = null;
-      for (const key of sortedDeptKeys) {
-        if (label.includes(key)) {
-          matchedCode = DEFAULT_BAGIAN_MAP[key];
-          break;
+            aggregateMap.set(aggKey, {
+              tanggal: dateIso,
+              shiftNama,
+              urutanShift: urutan,
+              shiftId: matchedShift?.id || null,
+              vendorId: matchedVendor?.id || null,
+              vendorNama: vendorName,
+              totalPorsi: 0,
+              items: {},
+              firstSheet: sheetName,
+              firstColIdx: c,
+            });
+          }
         }
       }
 
-      if (matchedCode) {
-        const valMap = new Map<number, number>();
-        for (const col of matrixCols) {
+      // Parse data rows in this block
+      for (let r = shiftRowIdx + 1; r <= endRowIdx; r++) {
+        const row = table.rows[r];
+        if (!row || row.length === 0) continue;
+
+        // Clean labels across first two cells
+        const label0 = String(row[0] ?? "");
+        const label1 = String(row[1] ?? "");
+        const fullLabel = `${label0} ${label1}`.trim();
+        const cleaned = cleanBagianLabel(fullLabel);
+        if (!cleaned) continue;
+
+        const isSummaryOrHeader =
+          cleaned.includes("total") ||
+          cleaned.includes("jumlah") ||
+          cleaned.includes("pos security") ||
+          cleaned.includes("ruang") ||
+          cleaned.includes("tambahan") ||
+          cleaned.startsWith("pt ");
+
+        // Match department code or ID
+        let matchedCode: string | null = null;
+        let matchedBagianId: string | null = null;
+
+        if (options.knownBagian && options.knownBagian.length > 0) {
+          for (const kb of options.knownBagian) {
+            const kbNama = cleanBagianLabel(kb.nama);
+            const kbKode = kb.kode.toLowerCase();
+            if (cleaned.includes(kbNama) || cleaned.includes(kbKode)) {
+              matchedCode = kb.kode;
+              matchedBagianId = kb.id;
+              break;
+            }
+          }
+        }
+
+        if (!matchedCode) {
+          for (const key of sortedDeptKeys) {
+            if (cleaned.includes(key)) {
+              matchedCode = DEFAULT_BAGIAN_MAP[key];
+              break;
+            }
+          }
+        }
+
+        for (const col of activeCols) {
           const val = parsePorsiValue(row[col.colIdx]);
-          valMap.set(col.colIdx, val);
+          const agg = aggregateMap.get(`${col.dateStr}__${col.shiftNama}`);
+          if (agg) {
+            if (val > 0 && !isSummaryOrHeader) {
+              agg.totalPorsi += val;
+            }
+            if (matchedCode && !cleaned.includes("total") && !cleaned.includes("jumlah")) {
+              const targetKey = matchedCode;
+              agg.items[targetKey] = (agg.items[targetKey] || 0) + val;
+            }
+          }
         }
-        departmentRows.push({ bagianKode: matchedCode, values: valMap });
       }
     }
 
-    // Pivot back to rows per date + shift
-    const periodMap = new Map<string, MatrixCol>();
-    for (const col of matrixCols) {
-      const key = `${col.dateStr}__${col.shiftNama}`;
-      if (!periodMap.has(key)) {
-        periodMap.set(key, col);
-      }
-    }
-
-    for (const col of periodMap.values()) {
-      const items: Record<string, number> = {};
-      let totalPorsi = 0;
-
-      for (const dept of departmentRows) {
-        const porsi = dept.values.get(col.colIdx) || 0;
-        items[dept.bagianKode] = porsi;
-        totalPorsi += porsi;
-      }
-
-      const expectedVendor = getNamaVendorRotasi(col.dateStr, col.urutanShift);
-
+    // Convert aggregate map into parsed rows
+    for (const agg of aggregateMap.values()) {
       results.push({
         id: `rekap-${seq++}`,
-        tanggal: col.dateStr,
-        shift_id: null,
-        shift_nama: col.shiftNama,
-        vendor_id: null,
-        vendor_nama: expectedVendor,
-        items,
-        total_porsi: totalPorsi,
+        tanggal: agg.tanggal,
+        shift_id: agg.shiftId,
+        shift_nama: agg.shiftNama,
+        vendor_id: agg.vendorId,
+        vendor_nama: agg.vendorNama,
+        items: agg.items,
+        total_porsi: agg.totalPorsi,
         status: "cocok",
         sumber: {
-          sheet: sheetName,
-          cell: `C${col.colIdx}`,
+          sheet: agg.firstSheet,
+          cell: `C${agg.firstColIdx}`,
         },
       });
     }
   }
 
-  return results;
+  // Sort by date ascending and shift urutan
+  return results.sort((a, b) => {
+    if (a.tanggal !== b.tanggal) return a.tanggal.localeCompare(b.tanggal);
+    const uA = a.shift_nama.includes("3") ? 2 : a.shift_nama.includes("2") ? 1 : 0;
+    const uB = b.shift_nama.includes("3") ? 2 : b.shift_nama.includes("2") ? 1 : 0;
+    return uA - uB;
+  });
 }

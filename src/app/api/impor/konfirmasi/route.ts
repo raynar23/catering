@@ -67,10 +67,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const hasRekapItems =
+      Array.isArray(rows) &&
+      rows.some((r: any) => r.items && Object.keys(r.items).length > 0);
+
+    // Sanitize items out of RPC payload if present to avoid legacy type checks
+    const sanitizedRows = hasRekapItems
+      ? rows.map((r: any) => {
+          const { items: _items, total_porsi: _tp, ...rest } = r;
+          return rest;
+        })
+      : rows;
+
     // Execute konfirmasi_impor RPC using the caller's authenticated session
     const { data: rpcRes, error: rpcErr } = await rpcClient.rpc("konfirmasi_impor", {
       p_batch_id: batchId,
-      p_baris: rows || null,
+      p_baris: sanitizedRows || null,
       p_opsi: options || {},
     });
 
@@ -79,6 +91,113 @@ export async function POST(req: NextRequest) {
         { success: false, error: rpcErr.message },
         { status: 400 }
       );
+    }
+
+    // If rekap items are present, insert orders with status 'final' and populate catering_items
+    if (hasRekapItems && Array.isArray(rows)) {
+      const { data: allBagian } = await adminClient
+        .from("bagian")
+        .select("id, kode, nama");
+
+      const bagianMap = new Map<string, string>();
+      for (const b of allBagian || []) {
+        bagianMap.set(b.id, b.id);
+        bagianMap.set(b.kode.toLowerCase(), b.id);
+        bagianMap.set(b.nama.toLowerCase(), b.id);
+      }
+
+      const { data: allShifts } = await adminClient
+        .from("shifts")
+        .select("id, nama, label, alias");
+
+      const shiftMap = new Map<string, string>();
+      for (const s of allShifts || []) {
+        shiftMap.set(s.id, s.id);
+        shiftMap.set(s.nama.toLowerCase(), s.id);
+        shiftMap.set(s.label.toLowerCase(), s.id);
+        if (s.alias) shiftMap.set(s.alias.toLowerCase(), s.id);
+      }
+
+      for (const row of rows) {
+        if (!row.items || Object.keys(row.items).length === 0 || row.status === "error") {
+          continue;
+        }
+
+        const tgl = row.tanggal;
+        let shiftId = row.shift_id;
+        if (!shiftId && row.shift_nama) {
+          shiftId = shiftMap.get(row.shift_nama.toLowerCase());
+        }
+
+        if (!tgl || !shiftId) continue;
+
+        // Find the period created by konfirmasi_impor
+        const { data: period } = await adminClient
+          .from("periods")
+          .select("id, vendor_id")
+          .eq("tanggal", tgl)
+          .eq("shift_id", shiftId)
+          .maybeSingle();
+
+        if (!period) continue;
+
+        // Upsert order with status 'final'
+        const { data: existingOrder } = await adminClient
+          .from("catering_orders")
+          .select("id")
+          .eq("period_id", period.id)
+          .maybeSingle();
+
+        let orderId = existingOrder?.id;
+
+        if (orderId) {
+          await adminClient
+            .from("catering_orders")
+            .update({
+              status: "final",
+              vendor_id: period.vendor_id,
+              catatan: "Diimpor dari rekapitulasi porsi harian",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", orderId);
+        } else {
+          const { data: createdOrder } = await adminClient
+            .from("catering_orders")
+            .insert({
+              period_id: period.id,
+              vendor_id: period.vendor_id,
+              status: "final",
+              created_by: callerUserId,
+              catatan: "Diimpor dari rekapitulasi porsi harian",
+            })
+            .select("id")
+            .single();
+
+          orderId = createdOrder?.id;
+        }
+
+        if (orderId) {
+          // Upsert items into catering_items
+          for (const [key, porsi] of Object.entries(row.items as Record<string, number>)) {
+            const bagianId = bagianMap.get(key.toLowerCase()) || bagianMap.get(key);
+            if (!bagianId || porsi <= 0) continue;
+
+            await adminClient
+              .from("catering_items")
+              .upsert(
+                {
+                  order_id: orderId,
+                  bagian_id: bagianId,
+                  jumlah_porsi: porsi,
+                  jumlah_karyawan: porsi,
+                  keterangan: "Diimpor dari rekap harian",
+                  updated_at: new Date().toISOString(),
+                },
+                { onConflict: "order_id,bagian_id" }
+              );
+          }
+        }
+      }
     }
 
     // Provision vendor portal accounts if new vendors were registered
