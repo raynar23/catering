@@ -146,7 +146,17 @@ export async function getRekapHarianAction(
     });
 
     if (!rpcRes.error && rpcRes.data) {
-      return { success: true, data: rpcRes.data as RekapHarianData };
+      const raw = rpcRes.data as any;
+      const data: RekapHarianData = {
+        columns: raw.columns ?? [],
+        rows: raw.rows ?? [],
+        summary_totals: raw.summary_totals ?? raw.totals ?? {},
+        grand_total: Number(raw.grand_total ?? 0),
+        total_rows: Number(raw.total_rows ?? 0),
+        page: Number(raw.page ?? 1),
+        page_size: Number(raw.page_size ?? 20),
+      };
+      return { success: true, data };
     }
 
     // Fallback: Query directly from v_rekap if RPC is not yet registered
@@ -184,7 +194,45 @@ export async function getRekapRingkasanAction(
     });
 
     if (!rpcRes.error && rpcRes.data) {
-      return { success: true, data: rpcRes.data as RekapRingkasanData };
+      const raw = rpcRes.data as any;
+      const totalPorsi = Number(raw.metrics?.total_porsi ?? raw.total_porsi ?? 0);
+      const data: RekapRingkasanData = {
+        metrics: {
+          total_porsi: totalPorsi,
+          rata_rata_porsi_per_hari: Number(raw.metrics?.rata_rata_porsi_per_hari ?? raw.avg_porsi_per_hari ?? 0),
+          total_hari_operasional: Number(raw.metrics?.total_hari_operasional ?? raw.total_hari ?? 0),
+          total_periode: Number(raw.metrics?.total_periode ?? raw.total_periode ?? 0),
+        },
+        per_bagian: (raw.per_bagian ?? []).map((b: any) => ({
+          bagian_id: b.bagian_id,
+          bagian_nama: b.bagian_nama,
+          bagian_kelompok: b.bagian_kelompok ?? "-",
+          total_porsi: Number(b.total_porsi || 0),
+          persentase: Number(b.persentase ?? (totalPorsi > 0 ? Math.round((Number(b.total_porsi || 0) / totalPorsi) * 1000) / 10 : 0)),
+        })),
+        per_shift: (raw.per_shift ?? []).map((s: any) => ({
+          shift_id: s.shift_id,
+          shift_nama: s.shift_nama,
+          shift_label: s.shift_label ?? "",
+          urutan_laporan: Number(s.urutan_laporan ?? 0),
+          total_porsi: Number(s.total_porsi || 0),
+          persentase: Number(s.persentase ?? (totalPorsi > 0 ? Math.round((Number(s.total_porsi || 0) / totalPorsi) * 1000) / 10 : 0)),
+        })),
+        per_vendor: (raw.per_vendor ?? []).map((v: any) => ({
+          vendor_id: v.vendor_id,
+          vendor_nama: v.vendor_nama,
+          vendor_kode: v.vendor_kode ?? "",
+          total_porsi: Number(v.total_porsi || 0),
+          persentase: Number(v.persentase ?? (totalPorsi > 0 ? Math.round((Number(v.total_porsi || 0) / totalPorsi) * 1000) / 10 : 0)),
+        })),
+        per_bulan: (raw.per_bulan ?? []).map((m: any) => ({
+          bulan_key: m.bulan_key ?? m.bulan ?? "",
+          total_porsi: Number(m.total_porsi || 0),
+          hari_count: Number(m.hari_count ?? 0),
+          persentase: Number(m.persentase ?? (totalPorsi > 0 ? Math.round((Number(m.total_porsi || 0) / totalPorsi) * 1000) / 10 : 0)),
+        })),
+      };
+      return { success: true, data };
     }
 
     // Fallback: Aggregate directly from v_rekap

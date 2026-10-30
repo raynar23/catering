@@ -35,7 +35,7 @@ export function RekapRingkasanPanel({
     );
   }
 
-  if (!data || data.metrics.total_porsi === 0) {
+  if (!data || !data.metrics || (data.metrics.total_porsi ?? 0) === 0) {
     return (
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center bg-surface border border-border rounded-[10px] p-8 text-center select-none">
         <p className="text-sm font-semibold text-text">Tidak Ada Data Ringkasan</p>
@@ -46,7 +46,11 @@ export function RekapRingkasanPanel({
     );
   }
 
-  const { metrics, per_bagian, per_shift, per_vendor, per_bulan } = data;
+  const metrics = data.metrics;
+  const per_bagian = data.per_bagian ?? [];
+  const per_shift = data.per_shift ?? [];
+  const per_vendor = data.per_vendor ?? [];
+  const per_bulan = data.per_bulan ?? [];
 
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-y-auto select-none scrollbar-thin pb-2">
