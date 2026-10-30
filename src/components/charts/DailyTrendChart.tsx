@@ -81,11 +81,11 @@ export function DailyTrendChart({
 
         <div className="flex items-center gap-3 text-[11px] shrink-0">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-primary rounded-full inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
             <span className="text-text-muted">Periode Ini</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-0.5 border-t border-dashed border-[#94A3B8] inline-block" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#94A3B8] shrink-0" />
             <span className="text-text-muted">Periode Lalu</span>
           </div>
         </div>
@@ -222,13 +222,19 @@ export function DailyTrendChart({
             >
               <p className="font-semibold text-text mb-1">{points.coords[hoveredIdx].data.label}</p>
               <div className="flex items-center justify-between gap-3 text-[11px]">
-                <span className="text-primary font-medium">Periode Ini:</span>
+                <span className="flex items-center gap-1.5 text-text font-medium">
+                  <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                  Periode Ini:
+                </span>
                 <span className="font-bold text-text tabular-nums">
                   {formatNumber(points.coords[hoveredIdx].data.porsi_saat_ini)} porsi
                 </span>
               </div>
               <div className="flex items-center justify-between gap-3 text-[11px]">
-                <span className="text-text-muted">Periode Lalu:</span>
+                <span className="flex items-center gap-1.5 text-text-muted">
+                  <span className="w-2 h-2 rounded-full bg-[#94A3B8] shrink-0" />
+                  Periode Lalu:
+                </span>
                 <span className="font-medium text-text-muted tabular-nums">
                   {formatNumber(points.coords[hoveredIdx].data.porsi_sebelumnya)} porsi
                 </span>
