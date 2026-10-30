@@ -53,34 +53,33 @@ export function MasterToolbar({
           className="h-8.5 px-3 w-full sm:max-w-xs rounded-[8px] border border-[#D1D1D6] bg-white text-xs text-text placeholder:text-[#8A8A90] shadow-[0_1px_2px_rgba(0,0,0,0.02)] focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all"
         />
 
-        <div className="flex items-center justify-between gap-2 sm:contents">
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2 sm:contents">
           {onStatusFilterChange && (
-            <div className="overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none">
-              <SegmentedControl
-                options={statusOptions}
-                value={statusFilter}
-                onChange={onStatusFilterChange}
-              />
-            </div>
+            <SegmentedControl
+              options={statusOptions}
+              value={statusFilter}
+              onChange={onStatusFilterChange}
+              className="shrink-0"
+            />
           )}
 
-          <div className="flex items-center gap-1.5 sm:hidden">
+          <div className="flex items-center gap-1.5 shrink-0 sm:hidden">
             {onExportClick && (
               <button
                 type="button"
                 onClick={onExportClick}
-                className="h-8.5 px-2.5 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap"
+                className="h-8 px-2 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-[11px] font-medium flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap"
                 title="Ekspor data (Excel / PDF)"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
-                <span className="whitespace-nowrap">{exportButtonLabel || "Ekspor"}</span>
+                <span className="whitespace-nowrap">Ekspor</span>
               </button>
             )}
 
             <button
               type="button"
               onClick={onAddClick}
-              className="h-8.5 px-3 rounded-[8px] bg-primary hover:bg-[#007BB8] active:bg-[#006CA2] text-white text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.08)] active:scale-[0.98] whitespace-nowrap"
+              className="h-8 px-2.5 rounded-[8px] bg-primary hover:bg-[#007BB8] active:bg-[#006CA2] text-white text-[11px] font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.08)] active:scale-[0.98] whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5" />
               <span className="whitespace-nowrap">Tambah</span>
