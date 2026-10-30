@@ -349,7 +349,7 @@ export function PeriodTable() {
           />
         </div>
       ),
-      width: 38,
+      width: 36,
       align: "center",
       render: (row) => (
         <div className="flex items-center justify-center">
@@ -370,7 +370,7 @@ export function PeriodTable() {
       sortValue: (row) => `${row.tanggal}_${String(row.shift_urutan).padStart(2, "0")}`,
       render: (row) => (
         <div className="min-w-0 pr-1">
-          <span className="font-semibold text-text tabular-nums block text-xs">
+          <span className="font-semibold text-text tabular-nums block text-xs whitespace-nowrap">
             {formatDate(row.tanggal)}
           </span>
           <span className="text-[10px] text-text-muted sm:hidden block truncate">
@@ -383,6 +383,7 @@ export function PeriodTable() {
       key: "shift_nama",
       header: "Shift Kerja",
       className: "hidden sm:table-cell",
+      width: 140,
       sortValue: (row) => row.shift_urutan,
       render: (row) => (
         <div>
@@ -396,10 +397,11 @@ export function PeriodTable() {
     {
       key: "vendor_nama",
       header: "Vendor",
+      width: 175,
       sortValue: (row) => row.vendor_nama,
       render: (row) => (
         <div className="min-w-0 pr-1">
-          <div className="font-medium text-text truncate">
+          <div className="font-medium text-text truncate" title={row.vendor_nama}>
             {row.vendor_nama}
             <span className="text-[10px] text-primary ml-1 font-semibold tabular-nums sm:hidden">
               ({row.vendor_kode})
@@ -465,7 +467,7 @@ export function PeriodTable() {
       key: "status",
       header: "Status",
       align: "center",
-      width: 92,
+      width: 95,
       className: "px-1 sm:px-2 overflow-visible",
       sortValue: (row) => row.status,
       render: (row) => (
@@ -683,6 +685,7 @@ export function PeriodTable() {
         defaultSortOrder="asc"
         emptyTitle="Belum Ada Jadwal Periode"
         emptyDescription="Tidak ditemukan jadwal catering untuk kriteria filter dan bulan yang dipilih."
+        tableClassName="min-w-[500px] md:min-w-[900px] lg:min-w-full"
       />
 
       <PeriodDialog

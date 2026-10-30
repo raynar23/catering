@@ -35,6 +35,7 @@ interface DataTableProps<T> {
   onSortChange?: (key: string, order: "asc" | "desc") => void;
   tableLayout?: "auto" | "fixed";
   className?: string;
+  tableClassName?: string;
 }
 
 // Adaptive table computing rows dynamically via ResizeObserver with interactive column sorting
@@ -55,6 +56,7 @@ export function DataTable<T>({
   onSortChange,
   tableLayout = "fixed",
   className,
+  tableClassName,
 }: DataTableProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [internalPage, setInternalPage] = useState(1);
@@ -154,8 +156,8 @@ export function DataTable<T>({
         className
       )}
     >
-      <div className={cn("flex-1 min-h-0", isFixed ? "overflow-y-auto overflow-x-auto sm:overflow-x-hidden" : "overflow-auto")}>
-        <table className={cn("min-w-full w-full text-left border-collapse text-xs", isFixed && "table-fixed")}>
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
+        <table className={cn("min-w-full w-full text-left border-collapse text-xs", isFixed && "table-fixed", tableClassName)}>
           <thead className="sticky top-0 z-10 bg-[#F9F9FB]/95 backdrop-blur-sm border-b border-[#E5E5EA]">
             <tr className="h-10">
               {columns.map((col) => {
@@ -260,7 +262,7 @@ export function DataTable<T>({
       </div>
 
       <div className="h-11 border-t border-[#E5E5EA] px-2.5 sm:px-4 flex items-center justify-between gap-2 text-xs text-[#86868B] shrink-0 bg-[#FAFAFC] select-none">
-        <span className="tabular-nums font-medium truncate max-w-[130px] sm:max-w-none text-[10px] sm:text-xs">
+        <span className="tabular-nums font-medium text-[10px] sm:text-xs whitespace-nowrap">
           {summaryText}
         </span>
 
