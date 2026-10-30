@@ -131,6 +131,7 @@ export function VendorTable() {
     {
       key: "nama",
       header: "Nama Vendor",
+      width: 175,
       render: (row) => (
         <div className="min-w-0 pr-1">
           <span className="font-semibold text-text block truncate">{row.nama}</span>
@@ -319,6 +320,7 @@ export function VendorTable() {
         data={data}
         keyExtractor={(item) => item.id}
         isLoading={loading}
+        tableClassName="min-w-[360px] sm:min-w-full"
         emptyTitle="Belum Ada Data Vendor"
         emptyDescription="Silakan tambahkan data rekanan vendor catering untuk memulai."
       />

@@ -108,6 +108,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "nama",
       header: "Nama Pengguna",
+      width: 185,
       render: (row: UserRecord) => {
         const initials = row.nama
           .split(" ")
@@ -121,8 +122,8 @@ export function UserTable({ currentUserId }: UserTableProps) {
             <div className="w-7 h-7 rounded-full bg-[#E5E5EA] text-[#1D1D1F] font-semibold text-[11px] flex items-center justify-center shrink-0 border border-black/[0.06] shadow-xs">
               {initials || "US"}
             </div>
-            <div className="min-w-0 pr-1">
-              <div className="font-medium text-text truncate flex items-center gap-1.5">
+            <div className="min-w-0 pr-1 flex-1">
+              <div className="font-medium text-text truncate flex items-center gap-1.5" title={row.nama}>
                 <span>{row.nama}</span>
                 {isSelf && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded-[4px] bg-black/[0.05] text-[#1D1D1F] font-medium leading-none">
@@ -146,7 +147,8 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "role",
       header: "Role",
-      width: 80,
+      width: 85,
+      align: "center",
       render: (row: UserRecord) => <StatusBadge status={row.role} />,
     },
     {
@@ -180,7 +182,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "status",
       header: "Status",
-      width: 76,
+      width: 85,
       align: "center",
       render: (row: UserRecord) => (
         <StatusBadge status={row.aktif ? "aktif" : "nonaktif"} />
@@ -199,7 +201,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
     {
       key: "aksi",
       header: "Aksi",
-      width: 80,
+      width: 88,
       align: "right",
       render: (row: UserRecord) => {
         return (
@@ -294,14 +296,14 @@ export function UserTable({ currentUserId }: UserTableProps) {
       <UserMetricStrip users={data} loading={loading} />
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 py-3 select-none">
-        <div className="flex flex-1 flex-wrap items-center gap-2.5">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 py-1.5 sm:py-3 select-none">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari nama, username, vendor..."
-            className="h-9 px-3 w-full sm:w-64 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
+            className="h-8.5 px-3 w-full sm:w-64 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
           <SegmentedControl
@@ -342,20 +344,19 @@ export function UserTable({ currentUserId }: UserTableProps) {
       </div>
 
       {/* Data Table */}
-      <div className="flex-1 min-h-0 bg-surface border border-border rounded-[10px] overflow-hidden flex flex-col">
-        <DataTable<UserRecord>
-          columns={columns}
-          data={filteredData}
-          keyExtractor={(row) => row.id}
-          isLoading={loading}
-          emptyTitle="Tidak Ada Pengguna"
-          emptyDescription={
-            search || roleFilter !== "all" || statusFilter !== "all"
-              ? "Tidak ada pengguna yang cocok dengan kriteria pencarian"
-              : "Belum ada akun pengguna terdaftar"
-          }
-        />
-      </div>
+      <DataTable<UserRecord>
+        columns={columns}
+        data={filteredData}
+        keyExtractor={(row) => row.id}
+        isLoading={loading}
+        tableClassName="min-w-[460px] sm:min-w-full"
+        emptyTitle="Tidak Ada Pengguna"
+        emptyDescription={
+          search || roleFilter !== "all" || statusFilter !== "all"
+            ? "Tidak ada pengguna yang cocok dengan kriteria pencarian"
+            : "Belum ada akun pengguna terdaftar"
+        }
+      />
 
       {/* Dialog Tambah / Ubah */}
       <UserDialog

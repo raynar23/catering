@@ -400,7 +400,7 @@ export function ImportHistoryTable() {
         minRows={10}
         emptyTitle="Belum Ada Riwayat Impor"
         emptyDescription="Seluruh berkas dokumen yang diunggah dan dikonfirmasi akan tercatat otomatis di sini."
-        tableClassName="min-w-[320px] sm:min-w-full"
+        tableClassName="min-w-[350px] sm:min-w-full"
       />
 
       <ConfirmDialog

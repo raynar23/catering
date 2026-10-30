@@ -120,6 +120,7 @@ export function BagianTable() {
     {
       key: "nama",
       header: "Nama Bagian",
+      width: 175,
       render: (row) => (
         <div className="min-w-0 pr-1">
           <div className="font-semibold text-text truncate">
@@ -282,6 +283,7 @@ export function BagianTable() {
         data={data}
         keyExtractor={(item) => item.id}
         isLoading={loading}
+        tableClassName="min-w-[340px] sm:min-w-full"
         emptyTitle="Belum Ada Data Bagian"
         emptyDescription="Silakan tambahkan data bagian operasional baru untuk memulai."
       />

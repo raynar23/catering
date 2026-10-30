@@ -80,8 +80,8 @@ export function ChronologyView({ data }: ChronologyViewProps) {
 
       {/* Chronological Logs Table */}
       <div className="flex-1 min-h-0 flex flex-col bg-surface border border-border rounded-[10px] overflow-hidden shadow-xs">
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-          <table className="w-full table-fixed text-left border-collapse text-xs">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
+          <table className="w-full table-fixed text-left border-collapse text-xs min-w-[340px] sm:min-w-full">
             <thead className="sticky top-0 z-10 bg-slate-50 border-b border-border text-[11px] font-semibold text-muted uppercase tracking-wider">
               <tr>
                 <th className="px-2.5 sm:px-3 py-2.5 w-[38%] sm:w-44">Waktu & Aktor</th>

@@ -177,8 +177,8 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
 
       {/* Table */}
       <div className="bg-surface border border-border rounded-[10px] flex-1 min-h-0 flex flex-col overflow-hidden shadow-xs">
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-          <table className="w-full text-xs text-left border-collapse table-fixed">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
+          <table className="w-full text-xs text-left border-collapse table-fixed min-w-[440px] sm:min-w-full">
             <thead className="bg-[#F8FAFC] text-text-muted font-semibold border-b border-border text-[11px] sticky top-0 z-10">
               <tr>
                 <th className="py-2.5 px-3">

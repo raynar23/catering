@@ -52,9 +52,9 @@ export function RekapHarianTable({
 
   return (
     <div className="flex-1 min-h-0 flex flex-col bg-surface border border-border rounded-[10px] overflow-hidden select-none">
-      {/* MOBILE VIEW (< md): 3-column table with accordion breakdown for 5 bagian & 0 horizontal scroll */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden md:hidden">
-        <table className="w-full table-fixed text-xs text-left border-collapse">
+      {/* MOBILE VIEW (< md): 3-column table with accordion breakdown for 5 bagian */}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto md:hidden">
+        <table className="w-full table-fixed text-xs text-left border-collapse min-w-[340px]">
           <thead className="bg-[#F2F2F7] sticky top-0 z-20 border-b border-border text-text-muted font-semibold text-[11px]">
             <tr>
               <th className="py-2.5 px-2.5 w-[34%]">Tanggal & Shift</th>

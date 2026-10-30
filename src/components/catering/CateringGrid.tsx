@@ -207,9 +207,9 @@ export function CateringGrid({
           )}
         </div>
 
-        {/* Mobile Single-Shift Table (w-full, fits 100% viewport width) */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          <table className="w-full text-left border-collapse">
+        {/* Mobile Single-Shift Table */}
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[340px]">
             <thead className="sticky top-0 z-10 bg-[#F9F9FB] border-b border-black/[0.08] text-[11px] font-semibold text-[#86868B] uppercase tracking-wider shadow-2xs">
               <tr>
                 <th className="px-3 py-2">Nama Bagian</th>
