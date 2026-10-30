@@ -266,36 +266,38 @@ export function KetersediaanQueue({
                 </div>
 
                 {/* Actions row */}
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-border flex-wrap">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2 border-t border-border">
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedOrder(order);
                       setInspectorOpen(true);
                     }}
-                    className="min-h-[44px] px-3 py-2 bg-surface hover:bg-black/5 text-text border border-border rounded-[8px] text-[12px] font-medium flex items-center gap-1.5 cursor-pointer"
+                    className="h-9 sm:min-h-[44px] px-3 py-1.5 bg-surface hover:bg-black/5 text-text border border-border rounded-[8px] text-xs sm:text-[12px] font-medium flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Eye className="w-4 h-4 text-text-muted" />
                     Lihat Rincian Bagian
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => handleOpenOrderResponse(order, false)}
-                    className="min-h-[44px] px-4 py-2 bg-surface hover:bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF] rounded-[8px] text-[12px] font-medium flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    Tidak Sanggup
-                  </button>
+                  <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenOrderResponse(order, false)}
+                      className="h-9 sm:min-h-[44px] px-3 sm:px-4 py-1.5 bg-surface hover:bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF] rounded-[8px] text-xs sm:text-[12px] font-medium flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <XCircle className="w-4 h-4 shrink-0" />
+                      <span>Tidak Sanggup</span>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => handleOpenOrderResponse(order, true)}
-                    className="min-h-[44px] px-4 py-2 bg-[#1E8E3E] hover:bg-[#167031] text-white rounded-[8px] text-[12px] font-medium flex items-center gap-1.5 cursor-pointer shadow-xs"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    Sanggupi Pesanan
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenOrderResponse(order, true)}
+                      className="h-9 sm:min-h-[44px] px-3 sm:px-4 py-1.5 bg-[#1E8E3E] hover:bg-[#167031] text-white rounded-[8px] text-xs sm:text-[12px] font-medium flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>Sanggupi Pesanan</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
@@ -353,23 +355,23 @@ export function KetersediaanQueue({
               </div>
 
               {/* Actions row */}
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+              <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center sm:justify-end pt-2 border-t border-border">
                 <button
                   type="button"
                   onClick={() => handleOpenRevisionResponse(rev, false)}
-                  className="min-h-[44px] px-4 py-2 bg-surface hover:bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF] rounded-[8px] text-[12px] font-medium flex items-center gap-1.5 cursor-pointer"
+                  className="h-9 sm:min-h-[44px] px-3 sm:px-4 py-1.5 bg-surface hover:bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF] rounded-[8px] text-xs sm:text-[12px] font-medium flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <XCircle className="w-4 h-4" />
-                  Tidak Sanggup
+                  <XCircle className="w-4 h-4 shrink-0" />
+                  <span>Tidak Sanggup</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => handleOpenRevisionResponse(rev, true)}
-                  className="min-h-[44px] px-4 py-2 bg-[#1E8E3E] hover:bg-[#167031] text-white rounded-[8px] text-[12px] font-medium flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="h-9 sm:min-h-[44px] px-3 sm:px-4 py-1.5 bg-[#1E8E3E] hover:bg-[#167031] text-white rounded-[8px] text-xs sm:text-[12px] font-medium flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
-                  Sanggupi Revisi
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Sanggupi Revisi</span>
                 </button>
               </div>
             </div>
