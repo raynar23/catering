@@ -166,18 +166,16 @@ export default function AdminImporDataPage() {
 
   return (
     <PageContainer
-      scrollable={mainTab === "unggah" && currentStep !== "periksa"}
+      scrollable={true}
       className={cn(
         "px-3.5 sm:px-5 lg:px-0",
         mainTab === "riwayat" ? "flex-1 min-h-0 pb-2 sm:pb-3" : "pb-12"
       )}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-        <PageHeader
-          title="Impor Data Cerdas"
-          subtitle="Ekstraksi jadwal catering, daftar vendor, dan rekap porsi dari berkas Excel, CSV, Word, PDF, atau pindaian OCR"
-        />
-        <div className="shrink-0 pb-1 sm:pb-0">
+      <PageHeader
+        title="Impor Data Otomatis"
+        subtitle="Ekstraksi jadwal catering, daftar vendor, dan rekap porsi dari berkas Excel, CSV, Word, PDF, atau pindaian OCR"
+        actions={
           <SegmentedControl
             options={[
               { value: "unggah", label: "Unggah Berkas Baru" },
@@ -186,8 +184,8 @@ export default function AdminImporDataPage() {
             value={mainTab}
             onChange={(val) => setMainTab(val as "unggah" | "riwayat")}
           />
-        </div>
-      </div>
+        }
+      />
 
       {mainTab === "riwayat" ? (
         <div className="mt-2.5 flex-1 min-h-0 flex flex-col">
