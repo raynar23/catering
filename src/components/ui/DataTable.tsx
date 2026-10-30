@@ -261,8 +261,8 @@ export function DataTable<T>({
         </table>
       </div>
 
-      <div className="h-11 border-t border-[#E5E5EA] px-2.5 sm:px-4 flex items-center justify-between gap-2 text-xs text-[#86868B] shrink-0 bg-[#FAFAFC] select-none">
-        <span className="tabular-nums font-medium text-[10px] sm:text-xs whitespace-nowrap">
+      <div className="h-10 sm:h-11 border-t border-[#E5E5EA] px-2 sm:px-4 flex items-center justify-between gap-1.5 sm:gap-2 text-xs text-[#86868B] shrink-0 bg-[#FAFAFC] select-none flex-nowrap">
+        <span className="tabular-nums font-medium text-[10px] sm:text-xs whitespace-nowrap truncate mr-1">
           {summaryText}
         </span>
 
@@ -271,18 +271,18 @@ export function DataTable<T>({
             type="button"
             disabled={validPage <= 1 || isLoading}
             onClick={() => handlePageChange(validPage - 1)}
-            className="h-7 px-2 sm:px-3 rounded-[6px] border border-[#D1D1D6] bg-white text-[11px] sm:text-xs font-medium text-text hover:bg-black/[0.03] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+            className="h-6.5 sm:h-7 px-1.5 sm:px-2.5 rounded-[5px] sm:rounded-[6px] border border-[#D1D1D6] bg-white text-[10px] sm:text-xs font-medium text-text hover:bg-black/[0.03] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap"
           >
             Sebelumnya
           </button>
-          <span className="px-2 py-0.5 text-text font-semibold tabular-nums text-[10px] sm:text-[11px] bg-[#E5E5EA]/70 rounded-[5px]">
+          <span className="px-1.5 py-0.5 text-text font-semibold tabular-nums text-[9px] sm:text-[11px] bg-[#E5E5EA]/70 rounded-[4px] sm:rounded-[5px] whitespace-nowrap">
             {pageText}
           </span>
           <button
             type="button"
             disabled={validPage >= totalPages || isLoading}
             onClick={() => handlePageChange(validPage + 1)}
-            className="h-7 px-2 sm:px-3 rounded-[6px] border border-[#D1D1D6] bg-white text-[11px] sm:text-xs font-medium text-text hover:bg-black/[0.03] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+            className="h-6.5 sm:h-7 px-1.5 sm:px-2.5 rounded-[5px] sm:rounded-[6px] border border-[#D1D1D6] bg-white text-[10px] sm:text-xs font-medium text-text hover:bg-black/[0.03] disabled:opacity-40 disabled:pointer-events-none transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap"
           >
             Berikutnya
           </button>
