@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { FileSpreadsheet, FileText } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { generateExportFilename } from "@/lib/rekap";
 
@@ -113,39 +114,49 @@ export function ExportDialog({
         </p>
 
         {/* Format Selection Cards */}
-        <div className="mt-4 space-y-2">
-          <label className="text-[12px] font-semibold text-[#1D1D1F] tracking-tight">Pilih Format Berkas</label>
-          <div className="grid grid-cols-2 gap-2.5">
+        <div className="mt-4 space-y-1.5">
+          <label className="text-[12px] font-semibold text-[#1D1D1F] tracking-tight">
+            Pilih Format Berkas
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button
               type="button"
               disabled={isExporting}
               onClick={() => setFormatType("excel")}
-              className={`p-3 rounded-[10px] border text-left transition-all cursor-pointer ${
+              className={`h-10 px-3.5 rounded-[8px] border flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
                 formatType === "excel"
-                  ? "border-primary bg-primary/5 text-primary shadow-xs ring-1 ring-primary/20"
-                  : "border-[#E5E5EA] bg-[#F5F5F7]/60 text-text hover:bg-[#E5E5EA]/40"
+                  ? "border-primary bg-primary/5 text-primary font-semibold shadow-xs ring-1 ring-primary/20"
+                  : "border-[#E5E5EA] bg-[#F5F5F7]/60 text-text hover:bg-[#E5E5EA]/40 font-medium"
               }`}
             >
-              <p className="text-xs font-semibold">Microsoft Excel (.xlsx)</p>
-              <p className="text-[11px] text-[#86868B] mt-1 leading-snug">
-                Format matriks split 1-15 & 16-akhir, multi-sheet, dan rumus SUM dinamis.
-              </p>
+              <FileSpreadsheet
+                className={`w-4 h-4 shrink-0 ${
+                  formatType === "excel" ? "text-primary" : "text-[#48484A]"
+                }`}
+              />
+              <span className="text-xs whitespace-nowrap">
+                Microsoft Excel (.xlsx)
+              </span>
             </button>
 
             <button
               type="button"
               disabled={isExporting}
               onClick={() => setFormatType("pdf")}
-              className={`p-3 rounded-[10px] border text-left transition-all cursor-pointer ${
+              className={`h-10 px-3.5 rounded-[8px] border flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
                 formatType === "pdf"
-                  ? "border-primary bg-primary/5 text-primary shadow-xs ring-1 ring-primary/20"
-                  : "border-[#E5E5EA] bg-[#F5F5F7]/60 text-text hover:bg-[#E5E5EA]/40"
+                  ? "border-primary bg-primary/5 text-primary font-semibold shadow-xs ring-1 ring-primary/20"
+                  : "border-[#E5E5EA] bg-[#F5F5F7]/60 text-text hover:bg-[#E5E5EA]/40 font-medium"
               }`}
             >
-              <p className="text-xs font-semibold">Dokumen PDF (.pdf)</p>
-              <p className="text-[11px] text-[#86868B] mt-1 leading-snug">
-                A4 Landscape ber-kop resmi, rincian per bagian, dan tabel ringkasan shift & vendor.
-              </p>
+              <FileText
+                className={`w-4 h-4 shrink-0 ${
+                  formatType === "pdf" ? "text-primary" : "text-[#48484A]"
+                }`}
+              />
+              <span className="text-xs whitespace-nowrap">
+                Dokumen PDF (.pdf)
+              </span>
             </button>
           </div>
         </div>
