@@ -215,9 +215,9 @@ export function ProgresWorkflowCard({ orders: initialOrders }: ProgresWorkflowCa
                   return (
                     <div key={step.key} className="flex flex-col items-center text-center">
                       <div
-                        className={`w-full py-2 px-1 rounded-[6px] border text-[11px] sm:text-[12px] font-semibold transition-all flex items-center justify-center gap-1 ${stepBg}`}
+                        className={`w-full py-1.5 sm:py-2 px-0.5 sm:px-1 rounded-[6px] border text-[10px] sm:text-[12px] font-semibold transition-all flex items-center justify-center gap-0.5 sm:gap-1 ${stepBg}`}
                       >
-                        {isDone && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+                        {isDone && <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />}
                         <span className="truncate">{step.label}</span>
                       </div>
                     </div>
@@ -227,25 +227,25 @@ export function ProgresWorkflowCard({ orders: initialOrders }: ProgresWorkflowCa
             </div>
 
             {/* Action Row */}
-            <div className="flex items-center justify-between pt-2 border-t border-border flex-wrap gap-2">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between pt-2 border-t border-border gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setSelectedOrder(order);
                   setInspectorOpen(true);
                 }}
-                className="min-h-[44px] px-3 py-2 bg-surface hover:bg-black/5 text-text border border-border rounded-[8px] text-[12px] font-medium flex items-center gap-1.5 cursor-pointer"
+                className="h-9 sm:min-h-[44px] px-3 py-1.5 bg-surface hover:bg-black/5 text-text border border-border rounded-[8px] text-xs sm:text-[12px] font-medium flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Eye className="w-4 h-4 text-text-muted" />
+                <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-text-muted" />
                 Rincian Bagian ({order.items.length})
               </button>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-end gap-2">
                 {!isFinished && order.nextStep.next && (
                   <button
                     type="button"
                     onClick={() => handleOpenConfirm(order)}
-                    className="min-h-[44px] px-4 py-2 bg-[#0B5A94] hover:bg-[#084572] text-white rounded-[8px] text-[13px] font-medium flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                    className="w-full sm:w-auto h-9 sm:min-h-[44px] px-4 py-1.5 bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white rounded-[8px] text-xs sm:text-[13px] font-medium flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-colors"
                   >
                     <span>{order.nextStep.nextLabel}</span>
                     <ChevronRight className="w-4 h-4" />
