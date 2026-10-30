@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export interface SegmentedOption {
   value: string;
-  label: string;
+  label: React.ReactNode;
 }
 
 interface SegmentedControlProps {
@@ -43,7 +43,7 @@ export function SegmentedControl({
             aria-checked={isSelected}
             onClick={() => onChange(option.value)}
             className={cn(
-              "px-1.5 sm:px-3 py-1 text-[11px] sm:text-xs font-medium transition-all duration-150 cursor-pointer select-none whitespace-nowrap",
+              "px-1.5 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium transition-all duration-150 cursor-pointer select-none whitespace-nowrap",
               isSelected
                 ? "bg-white text-text font-semibold rounded-[6px] shadow-[0_1px_2.5px_rgba(0,0,0,0.12),0_0.5px_1px_rgba(0,0,0,0.06)]"
                 : "text-text-muted hover:text-text rounded-[6px]"

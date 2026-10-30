@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
-import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { SegmentedControl, SegmentedOption } from "@/components/ui/SegmentedControl";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { UserMetricStrip } from "./UserMetricStrip";
 import { UserDialog } from "./UserDialog";
@@ -246,14 +246,38 @@ export function UserTable({ currentUserId }: UserTableProps) {
     },
   ];
 
-  const roleOptions = [
-    { value: "all", label: "Semua Role" },
-    { value: "admin_ga", label: "Admin GA" },
+  const roleOptions: SegmentedOption[] = [
+    {
+      value: "all",
+      label: (
+        <>
+          <span className="hidden sm:inline">Semua Role</span>
+          <span className="sm:hidden">Semua</span>
+        </>
+      ),
+    },
+    {
+      value: "admin_ga",
+      label: (
+        <>
+          <span className="hidden sm:inline">Admin GA</span>
+          <span className="sm:hidden">Admin</span>
+        </>
+      ),
+    },
     { value: "vendor", label: "Vendor" },
   ];
 
-  const statusOptions = [
-    { value: "all", label: "Semua Status" },
+  const statusOptions: SegmentedOption[] = [
+    {
+      value: "all",
+      label: (
+        <>
+          <span className="hidden sm:inline">Semua Status</span>
+          <span className="sm:hidden">Semua</span>
+        </>
+      ),
+    },
     { value: "active", label: "Aktif" },
     { value: "inactive", label: "Nonaktif" },
   ];
@@ -297,8 +321,8 @@ export function UserTable({ currentUserId }: UserTableProps) {
       <UserMetricStrip users={data} loading={loading} />
 
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 py-1.5 sm:py-3 select-none">
-        <div className="flex flex-1 flex-wrap items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 py-1.5 sm:py-2.5 select-none">
+        <div className="flex flex-1 flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2">
           <input
             type="text"
             value={search}
@@ -307,17 +331,21 @@ export function UserTable({ currentUserId }: UserTableProps) {
             className="h-8.5 px-3 w-full sm:w-64 rounded-[8px] border border-border bg-surface text-xs text-text placeholder:text-placeholder focus:outline-none focus:ring-2 focus:ring-primary"
           />
 
-          <SegmentedControl
-            options={roleOptions}
-            value={roleFilter}
-            onChange={setRoleFilter}
-          />
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap w-full sm:w-auto overflow-x-auto shrink-0">
+            <SegmentedControl
+              options={roleOptions}
+              value={roleFilter}
+              onChange={setRoleFilter}
+              className="flex-1 sm:flex-none justify-center"
+            />
 
-          <SegmentedControl
-            options={statusOptions}
-            value={statusFilter}
-            onChange={setStatusFilter}
-          />
+            <SegmentedControl
+              options={statusOptions}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              className="flex-1 sm:flex-none justify-center"
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
