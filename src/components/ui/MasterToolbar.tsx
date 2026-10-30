@@ -13,6 +13,7 @@ interface MasterToolbarProps {
   addButtonLabel: string;
   onAddClick: () => void;
   onExportClick?: () => void;
+  exportButtonLabel?: string;
   searchPlaceholder?: string;
   className?: string;
 }
@@ -26,6 +27,7 @@ export function MasterToolbar({
   addButtonLabel,
   onAddClick,
   onExportClick,
+  exportButtonLabel = "Ekspor Data",
   searchPlaceholder = "Cari data...",
   className,
 }: MasterToolbarProps) {
@@ -68,10 +70,10 @@ export function MasterToolbar({
                 type="button"
                 onClick={onExportClick}
                 className="h-8.5 px-2.5 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center justify-center gap-1 transition-all cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap"
-                title="Ekspor data ke Excel"
+                title="Ekspor data (Excel / PDF)"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
-                <span className="whitespace-nowrap">Ekspor</span>
+                <span className="whitespace-nowrap">{exportButtonLabel || "Ekspor"}</span>
               </button>
             )}
 
@@ -93,10 +95,10 @@ export function MasterToolbar({
             type="button"
             onClick={onExportClick}
             className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap"
-            title="Unduh data ke berkas Excel"
+            title="Ekspor data (Excel / PDF)"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
-            <span className="whitespace-nowrap">Ekspor Excel</span>
+            <span className="whitespace-nowrap">{exportButtonLabel || "Ekspor Data"}</span>
           </button>
         )}
 

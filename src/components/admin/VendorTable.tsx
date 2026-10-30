@@ -16,6 +16,8 @@ import { waLink } from "@/lib/whatsapp";
 import { useToast } from "@/components/ui/Toast";
 import { Pencil, Trash2, MessageSquare } from "lucide-react";
 import { exportToExcel } from "@/lib/export/client-excel";
+import { exportTableToPdf } from "@/lib/export/client-pdf";
+import { MasterExportDialog } from "@/components/ui/MasterExportDialog";
 
 export function VendorTable() {
   const { toast } = useToast();
@@ -23,6 +25,7 @@ export function VendorTable() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<VendorRecord | null>(null);
@@ -242,7 +245,7 @@ export function VendorTable() {
     },
   ];
 
-  const handleExportToExcel = () => {
+  const handleOpenExport = () => {
     if (data.length === 0) {
       toast({
         title: "Data Kosong",
@@ -251,26 +254,51 @@ export function VendorTable() {
       });
       return;
     }
+    setExportDialogOpen(true);
+  };
 
-    exportToExcel({
-      filename: `Data_Vendor_Catering_${new Date().toISOString().slice(0, 10)}.xlsx`,
-      title: "DATA MITRA REKANAN VENDOR CATERING",
-      subtitle: `PT Terminal Petikemas Surabaya | Total: ${data.length} Rekanan`,
-      columns: [
-        { header: "Kode", key: "kode", width: 12 },
-        { header: "Nama Vendor", key: "nama", width: 28 },
-        { header: "Urutan Rotasi", key: "urutan_rotasi", width: 14, align: "right" },
-        { header: "No. WhatsApp", key: "no_wa", width: 18, format: (r) => r.no_wa || "-" },
-        { header: "Status", key: "aktif", width: 14, format: (r) => (r.aktif ? "Aktif" : "Nonaktif") },
-      ],
-      data,
-    });
+  const handleExportConfirm = async (format: "excel" | "pdf", catatan?: string) => {
+    const exportColumns = [
+      { header: "Kode", key: "kode", width: 12 },
+      { header: "Nama Vendor", key: "nama", width: 28 },
+      { header: "Urutan Rotasi", key: "urutan_rotasi", width: 14, align: "center" as const },
+      { header: "No. WhatsApp", key: "no_wa", width: 18, format: (r: VendorRecord) => r.no_wa || "-" },
+      { header: "Status", key: "aktif", width: 14, align: "center" as const, format: (r: VendorRecord) => (r.aktif ? "Aktif" : "Nonaktif") },
+    ];
 
-    toast({
-      title: "Ekspor Berhasil",
-      description: "Data rekanan vendor berhasil diunduh ke Excel",
-      variant: "success",
-    });
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    if (format === "excel") {
+      await exportToExcel({
+        filename: `Data_Vendor_Catering_${dateStr}.xlsx`,
+        title: "DATA MITRA REKANAN VENDOR CATERING",
+        subtitle: `PT Terminal Petikemas Surabaya | Total: ${data.length} Rekanan`,
+        columns: exportColumns,
+        data,
+      });
+
+      toast({
+        title: "Ekspor Berhasil",
+        description: "Data rekanan vendor berhasil diunduh ke Excel (.xlsx)",
+        variant: "success",
+      });
+    } else {
+      await exportTableToPdf({
+        filename: `Data_Vendor_Catering_${dateStr}.pdf`,
+        title: "DATA MITRA REKANAN VENDOR CATERING",
+        subtitle: `PT Terminal Petikemas Surabaya | Total: ${data.length} Rekanan`,
+        columns: exportColumns,
+        data,
+        catatan,
+        orientation: "landscape",
+      });
+
+      toast({
+        title: "Ekspor Berhasil",
+        description: "Data rekanan vendor berhasil diunduh ke PDF (.pdf)",
+        variant: "success",
+      });
+    }
   };
 
   return (
@@ -282,7 +310,7 @@ export function VendorTable() {
         onStatusFilterChange={setStatusFilter}
         addButtonLabel="Tambah Vendor"
         onAddClick={handleAdd}
-        onExportClick={handleExportToExcel}
+        onExportClick={handleOpenExport}
         searchPlaceholder="Cari kode, nama, kontak..."
       />
 
@@ -293,6 +321,14 @@ export function VendorTable() {
         isLoading={loading}
         emptyTitle="Belum Ada Data Vendor"
         emptyDescription="Silakan tambahkan data rekanan vendor catering untuk memulai."
+      />
+
+      <MasterExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        title="Ekspor Data Rekanan Vendor"
+        subtitle={`PT Terminal Petikemas Surabaya • Total: ${data.length} Rekanan`}
+        onExport={handleExportConfirm}
       />
 
       <VendorDialog

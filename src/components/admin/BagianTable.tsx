@@ -15,6 +15,8 @@ import {
 import { useToast } from "@/components/ui/Toast";
 import { Pencil, Trash2 } from "lucide-react";
 import { exportToExcel } from "@/lib/export/client-excel";
+import { exportTableToPdf } from "@/lib/export/client-pdf";
+import { MasterExportDialog } from "@/components/ui/MasterExportDialog";
 
 export function BagianTable() {
   const { toast } = useToast();
@@ -22,6 +24,7 @@ export function BagianTable() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedBagian, setSelectedBagian] = useState<BagianRecord | null>(null);
@@ -203,7 +206,7 @@ export function BagianTable() {
     },
   ];
 
-  const handleExportToExcel = () => {
+  const handleOpenExport = () => {
     if (data.length === 0) {
       toast({
         title: "Data Kosong",
@@ -212,28 +215,53 @@ export function BagianTable() {
       });
       return;
     }
+    setExportDialogOpen(true);
+  };
 
-    exportToExcel({
-      filename: `Data_Bagian_TPS_${new Date().toISOString().slice(0, 10)}.xlsx`,
-      title: "DATA BAGIAN & UNIT KERJA OPERASIONAL",
-      subtitle: `PT Terminal Petikemas Surabaya | Total: ${data.length} Bagian`,
-      columns: [
-        { header: "Kode", key: "kode", width: 12 },
-        { header: "Nama Bagian", key: "nama", width: 28 },
-        { header: "Kelompok", key: "kelompok", width: 18, format: (r) => r.kelompok || "-" },
-        { header: "Lokasi Pengantaran", key: "lokasi_antar", width: 22, format: (r) => r.lokasi_antar || "-" },
-        { header: "Catatan Antar", key: "catatan_antar", width: 25, format: (r) => r.catatan_antar || "-" },
-        { header: "Urutan", key: "urutan", width: 10, align: "right" },
-        { header: "Status", key: "aktif", width: 14, format: (r) => (r.aktif ? "Aktif" : "Nonaktif") },
-      ],
-      data,
-    });
+  const handleExportConfirm = async (format: "excel" | "pdf", catatan?: string) => {
+    const exportColumns = [
+      { header: "Kode", key: "kode", width: 12 },
+      { header: "Nama Bagian", key: "nama", width: 28 },
+      { header: "Kelompok", key: "kelompok", width: 18, format: (r: BagianRecord) => r.kelompok || "-" },
+      { header: "Lokasi Pengantaran", key: "lokasi_antar", width: 22, format: (r: BagianRecord) => r.lokasi_antar || "-" },
+      { header: "Catatan Antar", key: "catatan_antar", width: 25, format: (r: BagianRecord) => r.catatan_antar || "-" },
+      { header: "Urutan", key: "urutan", width: 10, align: "center" as const },
+      { header: "Status", key: "aktif", width: 14, align: "center" as const, format: (r: BagianRecord) => (r.aktif ? "Aktif" : "Nonaktif") },
+    ];
 
-    toast({
-      title: "Ekspor Berhasil",
-      description: "Data bagian operasional berhasil diunduh ke Excel",
-      variant: "success",
-    });
+    const dateStr = new Date().toISOString().slice(0, 10);
+
+    if (format === "excel") {
+      await exportToExcel({
+        filename: `Data_Bagian_TPS_${dateStr}.xlsx`,
+        title: "DATA BAGIAN & UNIT KERJA OPERASIONAL",
+        subtitle: `PT Terminal Petikemas Surabaya | Total: ${data.length} Bagian`,
+        columns: exportColumns,
+        data,
+      });
+
+      toast({
+        title: "Ekspor Berhasil",
+        description: "Data bagian operasional berhasil diunduh ke Excel (.xlsx)",
+        variant: "success",
+      });
+    } else {
+      await exportTableToPdf({
+        filename: `Data_Bagian_TPS_${dateStr}.pdf`,
+        title: "DATA BAGIAN & UNIT KERJA OPERASIONAL",
+        subtitle: `PT Terminal Petikemas Surabaya | Total: ${data.length} Bagian`,
+        columns: exportColumns,
+        data,
+        catatan,
+        orientation: "landscape",
+      });
+
+      toast({
+        title: "Ekspor Berhasil",
+        description: "Data bagian operasional berhasil diunduh ke PDF (.pdf)",
+        variant: "success",
+      });
+    }
   };
 
   return (
@@ -245,7 +273,7 @@ export function BagianTable() {
         onStatusFilterChange={setStatusFilter}
         addButtonLabel="Tambah Bagian"
         onAddClick={handleAdd}
-        onExportClick={handleExportToExcel}
+        onExportClick={handleOpenExport}
         searchPlaceholder="Cari nama, kode, kelompok..."
       />
 
@@ -256,6 +284,14 @@ export function BagianTable() {
         isLoading={loading}
         emptyTitle="Belum Ada Data Bagian"
         emptyDescription="Silakan tambahkan data bagian operasional baru untuk memulai."
+      />
+
+      <MasterExportDialog
+        open={exportDialogOpen}
+        onClose={() => setExportDialogOpen(false)}
+        title="Ekspor Data Bagian Operasional"
+        subtitle={`PT Terminal Petikemas Surabaya • Total: ${data.length} Bagian`}
+        onExport={handleExportConfirm}
       />
 
       <BagianDialog
