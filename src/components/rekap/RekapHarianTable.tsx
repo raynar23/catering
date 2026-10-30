@@ -115,7 +115,7 @@ export function RekapHarianTable({
                         </div>
                         <div className="grid grid-cols-2 gap-1.5 bg-white p-2 rounded-[6px] border border-border/60">
                           {columns.map((col) => {
-                            const qty = row.items[col.id];
+                            const qty = row.items?.[col.id];
                             return (
                               <div
                                 key={col.id}
@@ -197,7 +197,7 @@ export function RekapHarianTable({
                   </span>
                 </td>
                 {columns.map((col) => {
-                  const qty = row.items[col.id];
+                  const qty = row.items?.[col.id];
                   return (
                     <td key={col.id} className="py-2 px-3 text-right tabular-nums whitespace-nowrap">
                       {qty !== undefined && qty > 0 ? (
@@ -225,7 +225,7 @@ export function RekapHarianTable({
                 Total Keseluruhan Rentang
               </td>
               {columns.map((col) => {
-                const total = data.summary_totals[col.id] || 0;
+                const total = data?.summary_totals?.[col.id] || 0;
                 return (
                   <td key={col.id} className="py-2.5 px-3 text-right tabular-nums whitespace-nowrap">
                     {total > 0 ? formatNumber(total) : "-"}

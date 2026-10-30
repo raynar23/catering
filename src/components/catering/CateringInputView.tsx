@@ -146,7 +146,7 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
 
   // Save draft for an isolated shift
   const handleSaveShiftDraft = async (shiftId: string) => {
-    const shift = state.shifts[shiftId];
+    const shift = state?.shifts?.[shiftId];
     if (!shift || !shift.periodId) {
       toast({
         title: "Penyimpanan gagal",
@@ -214,7 +214,7 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
   // Submit order to vendor
   const handleConfirmKirimVendor = async (catatan: string) => {
     if (!kirimShiftId) return;
-    const shift = state.shifts[kirimShiftId];
+    const shift = state?.shifts?.[kirimShiftId];
     if (!shift || !shift.periodId) return;
 
     try {
@@ -300,9 +300,9 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
     }
   };
 
-  const activeKirimShift = kirimShiftId ? state.shifts[kirimShiftId] : null;
+  const activeKirimShift = kirimShiftId ? state?.shifts?.[kirimShiftId] : null;
   const missingBagianForKirim = activeKirimShift
-    ? getMissingBagian(state.bagianList, activeKirimShift?.cells)
+    ? getMissingBagian(state?.bagianList || [], activeKirimShift?.cells)
     : [];
   const totalsForKirim = activeKirimShift
     ? calculateShiftTotals(activeKirimShift?.cells)

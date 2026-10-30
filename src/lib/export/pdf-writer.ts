@@ -99,7 +99,7 @@ export async function generatePdfReport(options: PdfReportOptions): Promise<Buff
     `${r.shift_nama} (${r.shift_label})`,
     `${r.vendor_nama} (${r.vendor_kode})`,
     ...columns.map((col) => {
-      const val = r.items[col.id];
+      const val = r.items?.[col.id];
       return val && val > 0 ? formatNumber(val) : "-";
     }),
     formatNumber(r.total_porsi),
@@ -111,7 +111,7 @@ export async function generatePdfReport(options: PdfReportOptions): Promise<Buff
       "",
       "",
       ...columns.map((col) => {
-        const val = summaryTotals[col.id];
+        const val = summaryTotals?.[col.id];
         return val && val > 0 ? formatNumber(val) : "-";
       }),
       formatNumber(grandTotal),

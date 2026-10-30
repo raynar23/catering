@@ -42,7 +42,13 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
         <div className="flex items-center justify-center gap-2">
           <button
             type="button"
-            onClick={() => reset()}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.location.reload();
+              } else {
+                reset();
+              }
+            }}
             className="h-8.5 px-3.5 rounded-[8px] bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
           >
             <RefreshCw className="w-3.5 h-3.5" />
