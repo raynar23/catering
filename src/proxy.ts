@@ -11,16 +11,31 @@ export async function proxy(request: NextRequest) {
   let isActive = false;
 
   if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, aktif')
-      .eq('id', user.id)
-      .single();
+    const cachedRole = request.cookies.get('tps_user_role')?.value;
+    if (cachedRole && cachedRole.startsWith(`${user.id}:`)) {
+      const parts = cachedRole.split(':');
+      role = parts[1] as AppRole;
+      isActive = parts[2] === '1';
+    } else {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, aktif')
+        .eq('id', user.id)
+        .single();
 
-    if (profile) {
-      role = profile.role as AppRole;
-      isActive = profile.aktif;
+      if (profile) {
+        role = profile.role as AppRole;
+        isActive = profile.aktif;
+        response.cookies.set('tps_user_role', `${user.id}:${role}:${isActive ? '1' : '0'}`, {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 3600 * 8,
+        });
+      }
     }
+  } else if (request.cookies.has('tps_user_role')) {
+    response.cookies.delete('tps_user_role');
   }
 
   const decision = decideRoute({

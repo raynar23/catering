@@ -184,6 +184,7 @@ export function Sidebar({
                     <Link
                       key={item.href}
                       href={item.href}
+                      prefetch={true}
                       onClick={onItemClick}
                       title={item.title}
                       aria-label={item.title}
@@ -213,6 +214,7 @@ export function Sidebar({
                   <Link
                     key={item.href}
                     href={item.href}
+                    prefetch={true}
                     onClick={onItemClick}
                     className={cn(
                       "flex items-center gap-2.5 px-2.5 py-1.5 rounded-[7px] text-[13px] font-medium transition-all duration-150 cursor-pointer select-none",

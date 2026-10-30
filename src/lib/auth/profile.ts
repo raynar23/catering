@@ -1,7 +1,9 @@
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { Profile } from '@/lib/types';
 
-export async function getCurrentProfile(): Promise<Profile | null> {
+// Cached current profile lookup memoized per request lifecycle
+export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -22,4 +24,4 @@ export async function getCurrentProfile(): Promise<Profile | null> {
   }
 
   return profile as Profile;
-}
+});

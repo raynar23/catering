@@ -6,7 +6,12 @@ import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
-import { getImportBatchesAction, deleteImportBatchAction, ImportBatchRecord } from "@/lib/actions/impor";
+import {
+  getImportBatchesAction,
+  getBatchRowsAction,
+  deleteImportBatchAction,
+  ImportBatchRecord,
+} from "@/lib/actions/impor";
 import { exportToExcel } from "@/lib/export/client-excel";
 import { formatDate } from "@/lib/format";
 
@@ -105,17 +110,22 @@ export function ImportHistoryTable() {
     });
   };
 
-  const handleExportSingleBatchRows = (batch: ImportBatchRecord) => {
-    if (!batch.data_parsed || batch.data_parsed.length === 0) {
-      toast({
-        title: "Data Baris Kosong",
-        description: "Tidak ada rincian data baris tersimpan untuk batch ini",
-        variant: "default",
-      });
-      return;
+  const handleExportSingleBatchRows = async (batch: ImportBatchRecord) => {
+    let rows = (batch.data_parsed as any[]) || [];
+
+    if (rows.length === 0) {
+      const res = await getBatchRowsAction(batch.id);
+      if (!res.success || !res.rows || res.rows.length === 0) {
+        toast({
+          title: "Data Baris Kosong",
+          description: "Tidak ada rincian data baris tersimpan untuk batch ini",
+          variant: "default",
+        });
+        return;
+      }
+      rows = res.rows as any[];
     }
 
-    const rows = batch.data_parsed as any[];
     const isJadwal = batch.jenis_dokumen === "jadwal" || ("tanggal" in (rows[0] || {}));
 
     if (isJadwal) {
@@ -183,7 +193,8 @@ export function ImportHistoryTable() {
     {
       key: "nomor_batch",
       header: "Nomor Batch",
-      width: 140,
+      className: "hidden sm:table-cell",
+      width: 135,
       render: (row) => (
         <div className="font-mono text-xs font-semibold text-primary truncate">
           {row.nomor_batch}
@@ -191,9 +202,28 @@ export function ImportHistoryTable() {
       ),
     },
     {
+      key: "nama_file",
+      header: "Berkas & Batch",
+      render: (row) => (
+        <div className="min-w-0 pr-1 py-0.5">
+          <div className="font-mono text-xs font-semibold text-primary truncate sm:hidden">
+            {row.nomor_batch}
+          </div>
+          <span className="font-medium text-text block truncate text-xs" title={row.nama_file}>
+            {row.nama_file}
+          </span>
+          <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-0.5 truncate tabular-nums">
+            <span>{Math.round(row.ukuran_bytes / 1024)} KB · {row.tipe_file.toUpperCase()}</span>
+            <span className="sm:hidden">• {formatDate(row.created_at)}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
       key: "created_at",
       header: "Waktu Unggah",
-      width: 140,
+      className: "hidden sm:table-cell",
+      width: 130,
       render: (row) => (
         <div>
           <span className="font-medium text-text block text-xs">
@@ -206,24 +236,10 @@ export function ImportHistoryTable() {
       ),
     },
     {
-      key: "nama_file",
-      header: "Nama Berkas",
-      render: (row) => (
-        <div className="min-w-0 pr-2">
-          <span className="font-medium text-text block truncate text-xs" title={row.nama_file}>
-            {row.nama_file}
-          </span>
-          <span className="text-[10px] text-text-muted">
-            {Math.round(row.ukuran_bytes / 1024)} KB · {row.tipe_file.toUpperCase()}
-          </span>
-        </div>
-      ),
-    },
-    {
       key: "jenis_dokumen",
-      header: "Jenis Dokumen",
+      header: "Jenis",
       className: "hidden md:table-cell",
-      width: 120,
+      width: 110,
       render: (row) => (
         <span className="capitalize text-xs font-medium text-text">
           {row.jenis_dokumen === "jadwal"
@@ -236,11 +252,11 @@ export function ImportHistoryTable() {
     },
     {
       key: "total_baris",
-      header: "Total Data",
+      header: "Total",
       align: "right",
-      width: 90,
+      width: 78,
       render: (row) => (
-        <span className="font-semibold text-text tabular-nums">
+        <span className="font-semibold text-text tabular-nums text-xs">
           {row.total_baris} baris
         </span>
       ),
@@ -249,7 +265,7 @@ export function ImportHistoryTable() {
       key: "status",
       header: "Status",
       align: "center",
-      width: 100,
+      width: 88,
       render: (row) => {
         const isSelesai = row.status === "selesai" || row.status === "dikonfirmasi";
         return (
@@ -264,7 +280,7 @@ export function ImportHistoryTable() {
       key: "diimpor_oleh_nama",
       header: "Petugas",
       className: "hidden lg:table-cell",
-      width: 130,
+      width: 120,
       render: (row) => (
         <span className="text-xs text-text-muted truncate block">
           {row.diimpor_oleh_nama}
@@ -275,7 +291,7 @@ export function ImportHistoryTable() {
       key: "actions",
       header: "Aksi",
       align: "right",
-      width: 80,
+      width: 70,
       sortable: false,
       render: (row) => (
         <div className="flex items-center justify-end gap-1">

@@ -48,7 +48,6 @@ export async function getImportBatchesAction(): Promise<{
       mesin,
       status,
       total_baris,
-      data_parsed,
       diimpor_oleh,
       dikonfirmasi_at,
       catatan,
@@ -72,7 +71,7 @@ export async function getImportBatchesAction(): Promise<{
     mesin: b.mesin || "heuristik",
     status: b.status,
     total_baris: b.total_baris || 0,
-    data_parsed: b.data_parsed || [],
+    data_parsed: [],
     diimpor_oleh: b.diimpor_oleh,
     diimpor_oleh_nama: b.profiles?.nama || "Admin GA",
     dikonfirmasi_at: b.dikonfirmasi_at,
@@ -82,6 +81,26 @@ export async function getImportBatchesAction(): Promise<{
   }));
 
   return { success: true, data: mapped };
+}
+
+// Fetch parsed rows for a specific batch on demand for row-level excel export
+export async function getBatchRowsAction(batchId: string): Promise<{
+  success: boolean;
+  rows?: unknown[];
+  error?: string;
+}> {
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
+    .from("import_batches")
+    .select("data_parsed")
+    .eq("id", batchId)
+    .single();
+
+  if (error || !data) {
+    return { success: false, error: error?.message || "Data baris tidak ditemukan" };
+  }
+
+  return { success: true, rows: (data.data_parsed as unknown[]) || [] };
 }
 
 // Delete an import batch and optionally purge associated imported periods

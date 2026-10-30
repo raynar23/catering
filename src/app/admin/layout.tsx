@@ -14,7 +14,10 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const profile = await getCurrentProfile();
+  const [profile, pendingCount] = await Promise.all([
+    getCurrentProfile(),
+    getPendingRevisionsCount(),
+  ]);
 
   if (!profile || !profile.aktif) {
     redirect("/login");
@@ -23,8 +26,6 @@ export default async function AdminLayout({
   if (profile.role !== "admin_ga") {
     redirect("/vendor/dashboard");
   }
-
-  const pendingCount = await getPendingRevisionsCount();
 
   return (
     <AppShell profile={profile} badges={{ pendingCount }}>

@@ -154,8 +154,8 @@ export function DataTable<T>({
         className
       )}
     >
-      <div className={cn("flex-1 min-h-0", isFixed ? "overflow-y-auto overflow-x-hidden" : "overflow-auto")}>
-        <table className={cn("w-full text-left border-collapse text-xs", isFixed && "table-fixed")}>
+      <div className={cn("flex-1 min-h-0", isFixed ? "overflow-y-auto overflow-x-auto sm:overflow-x-hidden" : "overflow-auto")}>
+        <table className={cn("min-w-full w-full text-left border-collapse text-xs", isFixed && "table-fixed")}>
           <thead className="sticky top-0 z-10 bg-[#F9F9FB]/95 backdrop-blur-sm border-b border-[#E5E5EA]">
             <tr className="h-10">
               {columns.map((col) => {
