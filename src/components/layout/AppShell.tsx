@@ -121,7 +121,7 @@ function AppShellInner({
           notificationCount={notificationCount}
           notificationItems={notificationItems}
         />
-        <main className="flex-1 min-h-0 flex flex-col overflow-hidden px-2.5 py-2.5 sm:px-4 sm:py-3.5 lg:p-6">
+        <main className="flex-1 min-h-0 flex flex-col overflow-hidden px-2.5 sm:px-4 lg:px-6 pt-1 sm:pt-1.5 lg:pt-2.5 pb-2.5 sm:pb-3.5 lg:pb-6">
           {children}
         </main>
       </div>

@@ -25,7 +25,7 @@ export default async function AdminVerifikasiPage() {
         title="Verifikasi Data"
         subtitle="Persetujuan pengajuan revisi porsi dan penanganan tindak lanjut respons mitra vendor"
       />
-      <div className="flex-1 min-h-0 flex flex-col mt-3">
+      <div className="flex-1 min-h-0 flex flex-col mt-2.5 sm:mt-3">
         <VerifikasiView
           initialRevisions={revisions}
           initialVendorResponses={vendorResponses}

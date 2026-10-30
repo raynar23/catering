@@ -18,7 +18,7 @@ export default async function AdminManajemenUserPage() {
         title="Manajemen User"
         subtitle="Kelola akun login internal Admin GA dan perwakilan vendor catering"
       />
-      <div className="flex-1 min-h-0 flex flex-col mt-4">
+      <div className="flex-1 min-h-0 flex flex-col mt-2.5 sm:mt-3">
         <UserTable currentUserId={profile.id} />
       </div>
     </PageContainer>

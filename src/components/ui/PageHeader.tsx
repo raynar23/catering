@@ -8,21 +8,21 @@ interface PageHeaderProps {
   className?: string;
 }
 
-// Fixed 56px header for page title, single-line subtitle, and action buttons
+// Compact, consistent header for page title, single-line subtitle, and action buttons
 export function PageHeader({ title, subtitle, actions, className }: PageHeaderProps) {
   return (
     <header
       className={cn(
-        "min-h-[56px] shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 border-b border-[#E5E5EA] py-2.5 sm:py-2",
+        "min-h-[44px] sm:min-h-[48px] shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-4 border-b border-[#E5E5EA] pt-0.5 pb-1.5 sm:pt-1 sm:pb-2",
         className
       )}
     >
       <div className="min-w-0 flex-1">
-        <h1 className="text-[18px] sm:text-[20px] font-bold tracking-tight text-text truncate">
+        <h1 className="text-[17px] sm:text-[20px] font-bold tracking-tight text-text truncate leading-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs text-[#86868B] font-normal truncate mt-0.5 tracking-normal">
+          <p className="text-[11px] sm:text-xs text-[#86868B] font-normal truncate mt-0.5 tracking-normal">
             {subtitle}
           </p>
         )}

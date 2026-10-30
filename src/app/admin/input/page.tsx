@@ -21,7 +21,7 @@ export default async function AdminInputPage() {
         title="Input Data Catering"
         subtitle="Matriks pengisian kebutuhan porsi harian per bagian untuk tiga shift operasional terminal"
       />
-      <div className="flex-1 min-h-0 flex flex-col mt-3">
+      <div className="flex-1 min-h-0 flex flex-col mt-2.5 sm:mt-3">
         <CateringInputView initialData={initialData} />
       </div>
     </PageContainer>
