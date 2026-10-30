@@ -267,4 +267,19 @@ describe("catering grid helpers", () => {
       "Area Gudang CFS",
     ]);
   });
+
+  it("handles undefined or null cells defensively without throwing runtime errors", () => {
+    // Verify calculation helpers handle missing or undefined cells gracefully
+    expect(calculateShiftTotals(undefined)).toEqual({ totalKaryawan: 0, totalPorsi: 0 });
+    expect(calculateShiftTotals(null)).toEqual({ totalKaryawan: 0, totalPorsi: 0 });
+    expect(getDirtyItems(undefined)).toEqual([]);
+    expect(getDirtyItems(null)).toEqual([]);
+
+    const missingWithUndefined = getMissingBagian(sampleBagian, undefined);
+    expect(missingWithUndefined).toEqual(["Operasional", "Mekanik", "Gudang CFS"]);
+
+    const missingWithNull = getMissingBagian(sampleBagian, null);
+    expect(missingWithNull).toEqual(["Operasional", "Mekanik", "Gudang CFS"]);
+  });
 });
+

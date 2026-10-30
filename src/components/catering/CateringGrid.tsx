@@ -82,14 +82,16 @@ export function CateringGrid({
   // Fallback to first shift if activeMobileShiftId is not valid
   const activeShiftId = shiftOrder.includes(activeMobileShiftId) ? activeMobileShiftId : (shiftOrder[0] || "");
   const activeMobileShift = shifts[activeShiftId];
-  const activeShiftDirty = activeMobileShift ? Object.values(activeMobileShift.cells).some((c) => c.isDirty) : false;
+  const activeShiftDirty = activeMobileShift?.cells
+    ? Object.values(activeMobileShift.cells).some((c) => c.isDirty)
+    : false;
   const isMobileFinalOrLocked = activeMobileShift
     ? activeMobileShift.status === "final" ||
       activeMobileShift.status === "disetujui" ||
       activeMobileShift.status === "revisi"
     : true;
   const hasMobilePeriod = activeMobileShift ? activeMobileShift.status !== "tidak_ada_periode" : false;
-  const activeMobileTotals = activeMobileShift ? calculateShiftTotals(activeMobileShift.cells) : { totalKaryawan: 0, totalPorsi: 0 };
+  const activeMobileTotals = calculateShiftTotals(activeMobileShift?.cells);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col bg-white border border-black/[0.08] rounded-[12px] overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
@@ -102,7 +104,9 @@ export function CateringGrid({
               const shift = shifts[shiftId];
               if (!shift) return null;
               const isSelected = activeShiftId === shiftId;
-              const hasDirty = Object.values(shift.cells).some((c) => c.isDirty);
+              const hasDirty = shift?.cells
+                ? Object.values(shift.cells).some((c) => c.isDirty)
+                : false;
               return (
                 <button
                   key={shiftId}
@@ -215,7 +219,7 @@ export function CateringGrid({
             </thead>
             <tbody className="divide-y divide-border/60 text-xs">
               {bagianList.map((bagian) => {
-                const cell = activeMobileShift?.cells[bagian.id] ?? {
+                const cell = activeMobileShift?.cells?.[bagian.id] ?? {
                   karyawan: null,
                   porsi: null,
                   keterangan: "",
@@ -375,7 +379,9 @@ export function CateringGrid({
               {shiftOrder.map((shiftId) => {
                 const shift = shifts[shiftId];
                 if (!shift) return null;
-                const shiftDirty = Object.values(shift.cells).some((c) => c.isDirty);
+                const shiftDirty = shift?.cells
+                  ? Object.values(shift.cells).some((c) => c.isDirty)
+                  : false;
 
                 return (
                   <th
@@ -444,7 +450,7 @@ export function CateringGrid({
                     shift.status === "revisi" ||
                     shift.status === "tidak_ada_periode";
 
-                  const cell = shift.cells[bagian.id] ?? {
+                  const cell = shift?.cells?.[bagian.id] ?? {
                     karyawan: null,
                     porsi: null,
                     keterangan: "",
@@ -572,7 +578,7 @@ export function CateringGrid({
               {shiftOrder.map((shiftId) => {
                 const shift = shifts[shiftId];
                 if (!shift) return null;
-                const totals = calculateShiftTotals(shift.cells);
+                const totals = calculateShiftTotals(shift?.cells);
 
                 return (
                   <React.Fragment key={shiftId}>

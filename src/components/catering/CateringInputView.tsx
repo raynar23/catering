@@ -156,7 +156,7 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
       return;
     }
 
-    const dirtyItems = getDirtyItems(shift.cells);
+    const dirtyItems = getDirtyItems(shift?.cells);
     if (dirtyItems.length === 0) {
       toast({
         title: "Tidak ada perubahan",
@@ -219,7 +219,7 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
 
     try {
       setIsSendingVendor(true);
-      const dirtyItems = getDirtyItems(shift.cells);
+      const dirtyItems = getDirtyItems(shift?.cells);
 
       const res = await kirimCateringAction({
         periodId: shift.periodId,
@@ -302,10 +302,10 @@ export function CateringInputView({ initialData }: CateringInputViewProps) {
 
   const activeKirimShift = kirimShiftId ? state.shifts[kirimShiftId] : null;
   const missingBagianForKirim = activeKirimShift
-    ? getMissingBagian(state.bagianList, activeKirimShift.cells)
+    ? getMissingBagian(state.bagianList, activeKirimShift?.cells)
     : [];
   const totalsForKirim = activeKirimShift
-    ? calculateShiftTotals(activeKirimShift.cells)
+    ? calculateShiftTotals(activeKirimShift?.cells)
     : { totalKaryawan: 0, totalPorsi: 0 };
 
   return (

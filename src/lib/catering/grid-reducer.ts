@@ -99,18 +99,20 @@ export type GridAction =
     };
 
 // Calculate sum of employees and portions for a shift
-export function calculateShiftTotals(cells: Record<string, CellValue>): {
+export function calculateShiftTotals(cells?: Record<string, CellValue> | null): {
   totalKaryawan: number;
   totalPorsi: number;
 } {
   let totalKaryawan = 0;
   let totalPorsi = 0;
 
+  if (!cells) return { totalKaryawan, totalPorsi };
+
   for (const cell of Object.values(cells)) {
-    if (cell.karyawan !== null && cell.karyawan >= 0) {
+    if (cell && cell.karyawan !== null && cell.karyawan >= 0) {
       totalKaryawan += cell.karyawan;
     }
-    if (cell.porsi !== null && cell.porsi >= 0) {
+    if (cell && cell.porsi !== null && cell.porsi >= 0) {
       totalPorsi += cell.porsi;
     }
   }
@@ -120,14 +122,15 @@ export function calculateShiftTotals(cells: Record<string, CellValue>): {
 
 // Find departments that have not been filled (null portion)
 export function getMissingBagian(
-  bagianList: BagianRowItem[],
-  cells: Record<string, CellValue>
+  bagianList: BagianRowItem[] = [],
+  cells?: Record<string, CellValue> | null
 ): string[] {
   const missing: string[] = [];
+  const safeCells = cells || {};
 
-  for (const b of bagianList) {
+  for (const b of (bagianList || [])) {
     if (b.aktif === false) continue; // Only active sections require portions
-    const cell = cells[b.id];
+    const cell = safeCells[b.id];
     if (!cell || cell.porsi === null) {
       missing.push(b.nama);
     }
@@ -137,7 +140,7 @@ export function getMissingBagian(
 }
 
 // Extract only dirty modified items for a shift to prevent overwriting other users
-export function getDirtyItems(cells: Record<string, CellValue>): {
+export function getDirtyItems(cells?: Record<string, CellValue> | null): {
   bagian_id: string;
   jumlah_karyawan: number;
   jumlah_porsi: number;
@@ -150,8 +153,10 @@ export function getDirtyItems(cells: Record<string, CellValue>): {
     keterangan: string;
   }[] = [];
 
+  if (!cells) return dirtyItems;
+
   for (const [bagianId, cell] of Object.entries(cells)) {
-    if (cell.isDirty) {
+    if (cell && cell.isDirty) {
       const karyawan = cell.karyawan !== null ? cell.karyawan : 0;
       const porsi = cell.porsi !== null ? cell.porsi : karyawan;
       dirtyItems.push({
@@ -183,7 +188,8 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
       const shift = state.shifts[shiftId];
       if (!shift) return state;
 
-      const currentCell = shift.cells[bagianId] ?? {
+      const shiftCells = shift.cells || {};
+      const currentCell = shiftCells[bagianId] ?? {
         karyawan: null,
         porsi: null,
         keterangan: "",
@@ -212,7 +218,7 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
           [shiftId]: {
             ...shift,
             cells: {
-              ...shift.cells,
+              ...shiftCells,
               [bagianId]: updatedCell,
             },
           },
@@ -225,7 +231,8 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
       const shift = state.shifts[shiftId];
       if (!shift) return state;
 
-      const currentCell = shift.cells[bagianId] ?? {
+      const shiftCells = shift.cells || {};
+      const currentCell = shiftCells[bagianId] ?? {
         karyawan: null,
         porsi: null,
         keterangan: "",
@@ -250,7 +257,7 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
           [shiftId]: {
             ...shift,
             cells: {
-              ...shift.cells,
+              ...shiftCells,
               [bagianId]: updatedCell,
             },
           },
@@ -263,7 +270,8 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
       const shift = state.shifts[shiftId];
       if (!shift) return state;
 
-      const currentCell = shift.cells[bagianId] ?? {
+      const shiftCells = shift.cells || {};
+      const currentCell = shiftCells[bagianId] ?? {
         karyawan: null,
         porsi: null,
         keterangan: "",
@@ -285,7 +293,7 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
           [shiftId]: {
             ...shift,
             cells: {
-              ...shift.cells,
+              ...shiftCells,
               [bagianId]: updatedCell,
             },
           },
@@ -299,7 +307,7 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
       if (!shift) return state;
 
       const cleanCells: Record<string, CellValue> = {};
-      for (const [bId, cell] of Object.entries(shift.cells)) {
+      for (const [bId, cell] of Object.entries(shift.cells || {})) {
         cleanCells[bId] = {
           ...cell,
           isDirty: false,
@@ -320,7 +328,7 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
       };
 
       const anyDirty = Object.values(updatedShifts).some((s) =>
-        Object.values(s.cells).some((c) => c.isDirty)
+        s.cells ? Object.values(s.cells).some((c) => c.isDirty) : false
       );
 
       return {
@@ -331,7 +339,7 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
     }
 
     case "APPLY_EXTERNAL_SYNC": {
-      const incomingShifts = action.payload.shifts;
+      const incomingShifts = action.payload.shifts || {};
       const updatedShifts = { ...state.shifts };
 
       for (const [shiftId, incShift] of Object.entries(incomingShifts)) {
@@ -341,9 +349,9 @@ export function gridReducer(state: GridState, action: GridAction): GridState {
           continue;
         }
 
-        const mergedCells: Record<string, CellValue> = { ...curShift.cells };
-        for (const [bId, incCell] of Object.entries(incShift.cells)) {
-          const curCell = curShift.cells[bId];
+        const mergedCells: Record<string, CellValue> = { ...(curShift.cells || {}) };
+        for (const [bId, incCell] of Object.entries(incShift?.cells || {})) {
+          const curCell = (curShift.cells || {})[bId];
           // If local cell was clean, adopt incoming value
           if (!curCell || !curCell.isDirty) {
             mergedCells[bId] = incCell;
