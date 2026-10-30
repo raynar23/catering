@@ -24,21 +24,21 @@ export function VendorKPICards({ kpis }: VendorKPICardsProps) {
       value: formatNumber(kpis.menungguResponsCount),
       unit: "permintaan",
       icon: AlertCircle,
-      color: kpis.menungguResponsCount > 0 ? "text-[#FF3B30]" : "text-text",
+      color: "text-primary",
     },
     {
       title: "Sedang Diproses",
       value: formatNumber(kpis.sedangDiprosesCount),
       unit: "pesanan",
       icon: Clock,
-      color: "text-[#FF9500]",
+      color: "text-primary",
     },
     {
       title: "Selesai Bulan Ini",
       value: formatNumber(kpis.selesaiBulanIniCount),
       unit: "pesanan",
       icon: CheckCircle2,
-      color: "text-[#34C759]",
+      color: "text-primary",
     },
   ];
 
