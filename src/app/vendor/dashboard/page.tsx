@@ -22,7 +22,7 @@ export default async function VendorDashboardPage() {
         subtitle={`Ringkasan operasional dan jadwal pesanan ${todayFormatted}`}
       />
 
-      <div className="mt-4 flex flex-col flex-1 min-h-0 gap-4">
+      <div className="mt-2.5 sm:mt-3 flex flex-col flex-1 min-h-0 gap-3 sm:gap-3.5">
         {/* 4 Summary KPI Cards */}
         <VendorKPICards kpis={data.kpis} />
 

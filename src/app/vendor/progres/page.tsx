@@ -19,7 +19,7 @@ export default async function VendorProgresPage() {
         subtitle="Pemantauan alur produksi dan pembaruan tahapan pengantaran katering ke terminal kerja"
       />
 
-      <div className="mt-4 flex-1 min-h-0 flex flex-col">
+      <div className="mt-2.5 sm:mt-3 flex-1 min-h-0 flex flex-col">
         <ProgresWorkflowCard orders={orders} />
       </div>
     </PageContainer>

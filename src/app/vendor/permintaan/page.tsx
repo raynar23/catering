@@ -19,7 +19,7 @@ export default async function VendorPermintaanPage() {
         subtitle="Daftar seluruh pesanan katering final yang dialokasikan ke vendor Anda beserta rincian bagian"
       />
 
-      <div className="mt-4 flex-1 min-h-0 flex flex-col">
+      <div className="mt-2.5 sm:mt-3 flex-1 min-h-0 flex flex-col">
         <PermintaanTable initialRows={rows} />
       </div>
     </PageContainer>

@@ -19,7 +19,7 @@ export default async function VendorKetersediaanPage() {
         subtitle="Antrean permintaan jadwal katering dan pengajuan revisi kuota yang membutuhkan konfirmasi"
       />
 
-      <div className="mt-4 flex-1 min-h-0 flex flex-col">
+      <div className="mt-2.5 sm:mt-3 flex-1 min-h-0 flex flex-col">
         <KetersediaanQueue
           orders={queue.orders}
           revisions={queue.revisions}
