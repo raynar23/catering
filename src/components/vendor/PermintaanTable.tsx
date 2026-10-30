@@ -81,61 +81,63 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-4">
       {/* Filters Toolbar */}
-      <div className="bg-surface border border-border rounded-[10px] p-3 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
-        <div className="flex flex-1 items-center gap-3 flex-wrap">
-          <div className="relative flex-1 min-w-[200px]">
+      <div className="bg-surface border border-border rounded-[10px] p-2.5 sm:p-4 flex flex-col gap-2.5 sm:gap-3 shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
+          <div className="relative flex-1 min-w-0">
             <Search className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari shift, tanggal, bagian, catatan..."
-              className="w-full pl-9 pr-3 py-2 text-[13px] border border-border rounded-[8px] bg-surface focus:outline-hidden focus:ring-1 focus:ring-primary min-h-[44px]"
+              className="w-full pl-9 pr-3 py-1.5 sm:py-2 text-xs sm:text-[13px] border border-border rounded-[8px] bg-surface focus:outline-hidden focus:ring-1 focus:ring-primary h-9 sm:min-h-[44px]"
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="text-[13px] px-3 py-2 border border-border rounded-[8px] bg-surface min-h-[44px]"
-              title="Filter Tanggal"
-            />
-            {dateFilter && (
-              <button
-                type="button"
-                onClick={() => setDateFilter("")}
-                className="text-[12px] text-text-muted hover:text-text px-2 py-1 min-h-[44px] cursor-pointer"
+          <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center shrink-0">
+            <div className="relative flex items-center min-w-0">
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full text-xs sm:text-[13px] px-2.5 sm:px-3 py-1.5 sm:py-2 border border-border rounded-[8px] bg-surface h-9 sm:min-h-[44px]"
+                title="Filter Tanggal"
+              />
+              {dateFilter && (
+                <button
+                  type="button"
+                  onClick={() => setDateFilter("")}
+                  className="text-[11px] text-text-muted hover:text-text px-1.5 cursor-pointer ml-1 shrink-0"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            <div className="relative flex items-center min-w-0">
+              <Filter className="w-4 h-4 text-text-muted shrink-0 hidden sm:block mr-2" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full text-xs sm:text-[13px] pl-2.5 sm:pl-3 pr-7 sm:pr-9 py-1.5 sm:py-2 border border-border rounded-[8px] bg-surface h-9 sm:min-h-[44px] cursor-pointer truncate"
               >
-                Reset
-              </button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-text-muted shrink-0 hidden sm:block" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-[13px] pl-3 pr-10 py-2 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
-            >
-              <option value="all">Semua Status Respon</option>
-              <option value="menunggu">Menunggu Respon</option>
-              <option value="disanggupi">Disanggupi</option>
-              <option value="tidak_sanggup">Tidak Sanggup</option>
-            </select>
+                <option value="all">Semua Status Respon</option>
+                <option value="menunggu">Menunggu Respon</option>
+                <option value="disanggupi">Disanggupi</option>
+                <option value="tidak_sanggup">Tidak Sanggup</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0">
-          <div className="text-[12px] text-text-muted whitespace-nowrap">
+        <div className="flex items-center justify-between gap-2.5 pt-0.5 sm:pt-0">
+          <div className="text-[11px] sm:text-[12px] text-text-muted whitespace-nowrap">
             Menampilkan <strong className="text-text">{filteredRows.length}</strong> data
           </div>
           <button
             type="button"
             onClick={handleExportToExcel}
-            className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap shrink-0"
+            className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-[11px] sm:text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap shrink-0"
             title="Ekspor data saat ini ke Excel"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
