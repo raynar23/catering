@@ -149,7 +149,7 @@ export function PesananHariIniPanel({
               className={`rounded-[12px] border p-4 flex flex-col justify-between transition-all ${
                 shift.hasOrder
                   ? "bg-white border-black/[0.08] hover:border-primary/40 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
-                  : "bg-[#F9F9FB] border-dashed border-[#D1D1D6]"
+                  : "bg-[#F9F9FB] border border-black/[0.08]"
               }`}
             >
               <div>
