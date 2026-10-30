@@ -150,19 +150,19 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
       {/* Table Container */}
       <div className="bg-surface border border-border rounded-[10px] flex-1 min-h-0 flex flex-col overflow-hidden shadow-xs">
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
-          <table className="w-full text-xs text-left border-collapse table-fixed min-w-[440px] sm:min-w-full">
+          <table className="w-full text-xs text-left border-collapse">
             <thead className="bg-[#F8FAFC] text-text-muted font-semibold border-b border-border text-[11px] sticky top-0 z-10">
               <tr>
-                <th className="py-2.5 px-3">
-                  <span className="sm:hidden">Tanggal & Shift</span>
+                <th className="py-2.5 px-3 w-[40%] sm:w-auto">
+                  <span className="sm:hidden whitespace-nowrap">Tanggal & Shift</span>
                   <span className="hidden sm:inline">Tanggal</span>
                 </th>
                 <th className="py-3 px-4 hidden sm:table-cell">Shift Kerja</th>
                 <th className="py-3 px-4 hidden md:table-cell">Batas Jam Tiba</th>
-                <th className="py-2.5 px-2 text-right w-[75px] sm:w-[90px]">Porsi</th>
-                <th className="py-2.5 px-2 text-center w-[85px] sm:w-[130px]">Respon</th>
+                <th className="py-2.5 px-2 text-center sm:text-right w-[20%] sm:w-[90px]">Porsi</th>
+                <th className="py-2.5 px-2 text-center w-[25%] sm:w-[130px]">Respon</th>
                 <th className="py-3 px-4 hidden md:table-cell">Progres Pengantaran</th>
-                <th className="py-2.5 px-2 text-center w-12 sm:w-20">Aksi</th>
+                <th className="py-2.5 px-2 text-center w-[15%] sm:w-20">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border text-xs">
@@ -182,15 +182,15 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
                     }}
                     className="hover:bg-black/[0.02] cursor-pointer transition-colors"
                   >
-                    <td className="py-2 px-3 align-middle">
+                    <td className="py-2.5 px-3 align-middle">
                       <div className="flex flex-col min-w-0 pr-1">
-                        <span className="font-semibold text-text text-xs">
+                        <span className="font-semibold text-text text-xs whitespace-nowrap">
                           {row.tanggal}
                         </span>
-                        <span className="text-[10px] text-text-muted truncate sm:hidden">
+                        <span className="text-[10.5px] text-text-muted truncate sm:hidden font-medium">
                           {row.shiftNama} ({row.shiftLabel})
                         </span>
-                        <span className="text-[10px] text-text-muted truncate sm:hidden">
+                        <span className="text-[10px] text-text-muted/80 truncate sm:hidden">
                           Tiba: {row.batasTiba} WIB
                         </span>
                       </div>
@@ -211,11 +211,13 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
                         {row.batasTiba} WIB ({row.shiftJam})
                       </span>
                     </td>
-                    <td className="py-2 px-2 text-right font-mono font-bold text-text align-middle">
+                    <td className="py-2.5 px-2 text-center sm:text-right font-mono font-bold text-text align-middle">
                       {formatNumber(row.totalPorsi)}
                     </td>
-                    <td className="py-2 px-2 text-center align-middle">
-                      <StatusBadge status={row.responVendor} />
+                    <td className="py-2.5 px-2 text-center align-middle">
+                      <div className="flex justify-center">
+                        <StatusBadge status={row.responVendor} />
+                      </div>
                     </td>
                     <td className="py-3 px-4 hidden md:table-cell">
                       <div className="flex items-center gap-2">
@@ -231,7 +233,7 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
                         )}
                       </div>
                     </td>
-                    <td className="py-2 px-2 text-center align-middle">
+                    <td className="py-2.5 px-2 text-center align-middle">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -239,11 +241,11 @@ export function PermintaanTable({ initialRows }: PermintaanTableProps) {
                           setSelectedOrder(row);
                           setInspectorOpen(true);
                         }}
-                        className="p-1 rounded-[6px] hover:bg-black/5 text-text-muted hover:text-text inline-flex items-center justify-center cursor-pointer"
+                        className="p-1.5 rounded-[6px] hover:bg-black/5 text-primary inline-flex items-center justify-center cursor-pointer transition-colors"
                         title="Buka Rincian Bagian"
                         aria-label="Buka Rincian Bagian"
                       >
-                        <Eye className="w-4 h-4 text-primary" />
+                        <Eye className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>
