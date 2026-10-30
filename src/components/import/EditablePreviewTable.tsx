@@ -317,7 +317,7 @@ export const EditablePreviewTable: React.FC<EditablePreviewTableProps> = ({
       {/* Scrollable Table Container */}
       <div className="border border-border rounded-lg overflow-hidden bg-surface shadow-xs flex flex-col">
         <div className="overflow-y-auto overflow-x-auto max-h-[460px] min-h-[220px]">
-          <table className="w-full text-left text-sm border-collapse">
+          <table className="w-full text-left text-sm border-collapse min-w-[700px] lg:min-w-full">
             <thead className="sticky top-0 z-10 bg-bg text-[11px] font-semibold uppercase tracking-wider text-text-muted border-b border-border shadow-xs">
               <tr>
                 <th className="p-3 w-10 text-center bg-bg">

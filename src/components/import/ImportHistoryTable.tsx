@@ -203,7 +203,12 @@ export function ImportHistoryTable() {
     },
     {
       key: "nama_file",
-      header: "Berkas & Batch",
+      header: (
+        <span>
+          <span className="sm:hidden">Berkas & Batch</span>
+          <span className="hidden sm:inline">Nama Berkas</span>
+        </span>
+      ),
       render: (row) => (
         <div className="min-w-0 pr-1 py-0.5">
           <div className="font-mono text-xs font-semibold text-primary truncate sm:hidden">
@@ -213,6 +218,7 @@ export function ImportHistoryTable() {
             {row.nama_file}
           </span>
           <div className="flex items-center gap-1.5 text-[10px] text-text-muted mt-0.5 truncate tabular-nums">
+            <span className="sm:hidden font-medium text-text">{row.total_baris} baris • </span>
             <span>{Math.round(row.ukuran_bytes / 1024)} KB · {row.tipe_file.toUpperCase()}</span>
             <span className="sm:hidden">• {formatDate(row.created_at)}</span>
           </div>
@@ -253,8 +259,9 @@ export function ImportHistoryTable() {
     {
       key: "total_baris",
       header: "Total",
+      className: "hidden sm:table-cell",
       align: "right",
-      width: 78,
+      width: 85,
       render: (row) => (
         <span className="font-semibold text-text tabular-nums text-xs">
           {row.total_baris} baris
@@ -265,13 +272,14 @@ export function ImportHistoryTable() {
       key: "status",
       header: "Status",
       align: "center",
-      width: 88,
+      width: 80,
       render: (row) => {
         const isSelesai = row.status === "selesai" || row.status === "dikonfirmasi";
         return (
           <StatusBadge
             status={isSelesai ? "final" : "draft"}
             label={isSelesai ? "Selesai" : row.status}
+            className="px-1.5 py-0.5 text-[10px] sm:text-[11px]"
           />
         );
       },
@@ -291,7 +299,7 @@ export function ImportHistoryTable() {
       key: "actions",
       header: "Aksi",
       align: "right",
-      width: 70,
+      width: 65,
       sortable: false,
       render: (row) => (
         <div className="flex items-center justify-end gap-1">
@@ -392,6 +400,7 @@ export function ImportHistoryTable() {
         minRows={10}
         emptyTitle="Belum Ada Riwayat Impor"
         emptyDescription="Seluruh berkas dokumen yang diunggah dan dikonfirmasi akan tercatat otomatis di sini."
+        tableClassName="min-w-[320px] sm:min-w-full"
       />
 
       <ConfirmDialog
