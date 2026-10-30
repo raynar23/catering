@@ -234,10 +234,11 @@ export function KetersediaanQueue({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0">
+                    <span className="text-xs text-text-muted sm:hidden">Total Pesanan:</span>
                     <div className="text-right">
-                      <span className="text-[11px] text-text-muted block">Total Pesanan</span>
-                      <span className="text-lg font-bold text-primary">
+                      <span className="text-[11px] text-text-muted hidden sm:block">Total Pesanan</span>
+                      <span className="text-lg font-bold text-primary tabular-nums">
                         {formatNumber(order.totalPorsi)}
                       </span>
                       <span className="text-[11px] text-text-muted ml-1">porsi</span>
@@ -322,19 +323,20 @@ export function KetersediaanQueue({
                     <span className="font-bold text-base text-text">
                       {rev.bagianNama}
                     </span>
-                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-[5px] bg-[#007AFF]/10 text-[#0066CC] border border-[#007AFF]/25">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-[5px] bg-[#E8F2FA] text-[#0B5A94] border border-[#BBD9EE]">
                       {rev.shiftNama} ({rev.shiftLabel})
                     </span>
                   </div>
-                  <span className="text-[12px] text-text-muted mt-0.5 block">
+                  <span className="text-xs text-text-muted mt-0.5 block">
                     Tanggal: <strong className="text-text">{rev.tanggal}</strong> | Lokasi Antar: <strong className="text-text">{rev.lokasiAntar}</strong>
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0">
+                  <span className="text-xs text-text-muted sm:hidden">Perubahan Porsi:</span>
                   <div className="text-right">
-                    <span className="text-[11px] text-text-muted block">Perubahan Porsi</span>
-                    <div className="flex items-center gap-1.5 text-sm font-mono">
+                    <span className="text-[11px] text-text-muted hidden sm:block">Perubahan Porsi</span>
+                    <div className="flex items-center gap-1.5 text-sm font-mono justify-end">
                       <span className="text-text-muted line-through">{rev.porsiAwal}</span>
                       <span className="font-bold text-text text-base">{rev.porsiBaru}</span>
                       <span className={`font-bold ml-1 ${rev.selisihPorsi > 0 ? "text-[#1E8E3E]" : "text-[#C5221F]"}`}>

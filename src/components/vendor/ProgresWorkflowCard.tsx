@@ -176,21 +176,22 @@ export function ProgresWorkflowCard({ orders: initialOrders }: ProgresWorkflowCa
                     Tanggal: <strong className="text-text">{order.tanggal}</strong>
                   </span>
                   {isFinished && (
-                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-[5px] bg-[#34C759]/10 text-[#1B7F39] border border-[#34C759]/25">
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-[5px] bg-[#EBF7EE] text-[#1E8E3E] border border-[#C8E9D0]">
                       Selesai
                     </span>
                   )}
                 </div>
-                <span className="text-[12px] text-text-muted flex items-center gap-1 mt-1">
-                  <Clock className="w-3.5 h-3.5 text-primary" />
-                  Batas Jam Tiba: <strong className="text-text">{order.batasTiba} WIB</strong> ({order.shiftJam})
+                <span className="text-xs text-text-muted flex items-center gap-1 mt-1 font-mono">
+                  <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
+                  Batas Jam Tiba: <strong className="text-text font-sans">{order.batasTiba} WIB</strong> ({order.shiftJam})
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0">
+                <span className="text-xs text-text-muted sm:hidden">Total Kuota:</span>
                 <div className="text-right">
-                  <span className="text-[11px] text-text-muted block">Total Kuota</span>
-                  <span className="text-lg font-bold text-primary">
+                  <span className="text-[11px] text-text-muted hidden sm:block">Total Kuota</span>
+                  <span className="text-lg font-bold text-primary tabular-nums">
                     {formatNumber(order.totalPorsi)}
                   </span>
                   <span className="text-[11px] text-text-muted ml-1">porsi</span>
@@ -329,7 +330,7 @@ export function ProgresWorkflowCard({ orders: initialOrders }: ProgresWorkflowCa
               type="button"
               onClick={handleAdvanceProgress}
               disabled={isPending}
-              className="px-4 py-2 text-[13px] font-medium text-white bg-[#0B5A94] hover:bg-[#084572] rounded-[8px] min-h-[44px] cursor-pointer transition-colors shadow-xs"
+              className="px-4 py-2 text-[13px] font-medium text-white bg-primary hover:bg-[#0E63A1] active:bg-[#0B5A94] rounded-[8px] min-h-[44px] cursor-pointer transition-colors shadow-xs"
             >
               {isPending ? "Memproses..." : "Konfirmasi Lanjut"}
             </button>
