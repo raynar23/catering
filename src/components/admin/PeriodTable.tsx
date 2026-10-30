@@ -634,7 +634,7 @@ export function PeriodTable() {
           >
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline whitespace-nowrap">Tambah Jadwal</span>
-            <span className="sm:hidden whitespace-nowrap">+ Jadwal</span>
+            <span className="sm:hidden whitespace-nowrap">Jadwal</span>
           </button>
         </div>
       </div>

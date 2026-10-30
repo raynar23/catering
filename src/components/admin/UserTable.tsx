@@ -339,7 +339,7 @@ export function UserTable({ currentUserId }: UserTableProps) {
           >
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden sm:inline whitespace-nowrap">Tambah Pengguna</span>
-            <span className="sm:hidden whitespace-nowrap">+ Pengguna</span>
+            <span className="sm:hidden whitespace-nowrap">Pengguna</span>
           </button>
         </div>
       </div>
