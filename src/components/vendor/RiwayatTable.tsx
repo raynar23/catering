@@ -75,28 +75,28 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-4">
       {/* Filters Toolbar */}
-      <div className="bg-surface border border-border rounded-[10px] p-3 sm:p-4 flex flex-col gap-3 shrink-0">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div className="relative flex-1 min-w-[200px]">
+      <div className="bg-surface border border-border rounded-[10px] p-2.5 sm:p-4 flex flex-col gap-2.5 sm:gap-3 shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3">
+          <div className="relative flex-1 min-w-0">
             <Search className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari tanggal, shift, bagian, catatan..."
-              className="w-full pl-9 pr-3 py-2 text-[13px] border border-border rounded-[8px] bg-surface focus:outline-hidden focus:ring-1 focus:ring-primary min-h-[44px]"
+              className="w-full pl-9 pr-3 py-1.5 sm:py-2 text-xs sm:text-[13px] border border-border rounded-[8px] bg-surface focus:outline-hidden focus:ring-1 focus:ring-primary h-9 sm:min-h-[44px]"
             />
           </div>
 
           <div className="flex items-center gap-2 shrink-0 justify-between sm:justify-start">
-            <div className="text-[12px] text-text-muted whitespace-nowrap">
+            <div className="text-[11px] sm:text-[12px] text-text-muted whitespace-nowrap">
               Menampilkan <strong className="text-text">{filteredRows.length}</strong> dari {initialRows.length} data
             </div>
 
             <button
               type="button"
               onClick={handleExportToExcel}
-              className="h-8.5 px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap shrink-0"
+              className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-[8px] border border-[#D1D1D6] bg-white hover:bg-[#F2F2F7] active:bg-[#E5E5EA] text-[#1C1C1E] text-[11px] sm:text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)] whitespace-nowrap shrink-0"
               title="Unduh riwayat pesanan ke Excel"
             >
               <FileSpreadsheet className="w-3.5 h-3.5 text-[#48484A]" />
@@ -107,35 +107,39 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
         </div>
 
         {/* Date and Status Filters */}
-        <div className="flex items-center gap-2 flex-wrap text-[13px]">
-          <div className="flex items-center gap-1.5">
-            <span className="text-text-muted text-[12px]">Dari:</span>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="text-[12px] px-2.5 py-1.5 border border-border rounded-[8px] bg-surface min-h-[44px]"
-              title="Dari Tanggal"
-            />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 text-[13px]">
+          {/* Dari & Sampai: 1 row on mobile (grid-cols-2) */}
+          <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center shrink-0">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-text-muted text-[11px] sm:text-[12px] font-medium shrink-0">Dari:</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full text-xs sm:text-[12px] px-2 sm:px-2.5 py-1.5 border border-border rounded-[8px] bg-surface h-9 sm:min-h-[44px]"
+                title="Dari Tanggal"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-text-muted text-[11px] sm:text-[12px] font-medium shrink-0">Sampai:</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full text-xs sm:text-[12px] px-2 sm:px-2.5 py-1.5 border border-border rounded-[8px] bg-surface h-9 sm:min-h-[44px]"
+                title="Sampai Tanggal"
+              />
+            </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className="text-text-muted text-[12px]">Sampai:</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="text-[12px] px-2.5 py-1.5 border border-border rounded-[8px] bg-surface min-h-[44px]"
-              title="Sampai Tanggal"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-text-muted shrink-0 hidden sm:block" />
+          {/* Status and Progres Dropdowns: 1 row on mobile (grid-cols-2) */}
+          <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center shrink-0">
+            <Filter className="w-4 h-4 text-text-muted shrink-0 hidden sm:block mr-1" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-[12px] pl-3.5 pr-10 py-1.5 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
+              className="w-full text-xs sm:text-[12px] pl-2 sm:pl-3.5 pr-7 sm:pr-10 py-1.5 border border-border rounded-[8px] bg-surface h-9 sm:min-h-[44px] cursor-pointer truncate"
             >
               <option value="all">Semua Respon</option>
               <option value="menunggu">Menunggu</option>
@@ -146,7 +150,7 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
             <select
               value={progresFilter}
               onChange={(e) => setProgresFilter(e.target.value)}
-              className="text-[12px] pl-3.5 pr-10 py-1.5 border border-border rounded-[8px] bg-surface min-h-[44px] cursor-pointer"
+              className="w-full text-xs sm:text-[12px] pl-2 sm:pl-3.5 pr-7 sm:pr-10 py-1.5 border border-border rounded-[8px] bg-surface h-9 sm:min-h-[44px] cursor-pointer truncate"
             >
               <option value="all">Semua Progres</option>
               <option value="menunggu">Menunggu</option>
@@ -167,7 +171,7 @@ export function RiwayatTable({ initialRows }: RiwayatTableProps) {
                 setProgresFilter("all");
                 setSearch("");
               }}
-              className="text-[12px] text-text-muted hover:text-text px-2 py-1 min-h-[44px] cursor-pointer ml-auto"
+              className="text-[11px] sm:text-[12px] text-text-muted hover:text-text px-2 py-1 min-h-[36px] sm:min-h-[44px] cursor-pointer sm:ml-auto self-start sm:self-center"
             >
               Reset Filter
             </button>
